@@ -1,0 +1,20 @@
+{
+  "LoginPage": {
+    "title": "ROOT FURTHER",
+    "subtitle": "Bắt đầu hành trình của bạn cùng SAA 2025.",
+    "tagline": "Đăng nhập để khám phá!",
+    "googleButton": "LOGIN With Google",
+    "errorText": "Đăng nhập không thành công. Vui lòng thử lại.",
+    "footer": "Bản quyền thuộc về Sun* © 2025"
+  },
+  "LanguageSwitcher": {
+    "ariaLabel": "Chọn ngôn ngữ",
+    "vietnamese": "Tiếng Việt",
+    "english": "Tiếng Anh"
+  },
+  "TodoPage": {
+    "title": "Công việc",
+    "signedInAs": "Đăng nhập với",
+    "signOut": "Đăng xuất"
+  }
+}

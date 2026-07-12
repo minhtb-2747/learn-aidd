@@ -1,0 +1,20 @@
+{
+  "LoginPage": {
+    "title": "ROOT FURTHER",
+    "subtitle": "Start your journey with SAA 2025.",
+    "tagline": "Log in to explore!",
+    "googleButton": "LOGIN With Google",
+    "errorText": "Login failed. Please try again.",
+    "footer": "Copyright © 2025 Sun*"
+  },
+  "LanguageSwitcher": {
+    "ariaLabel": "Select language",
+    "vietnamese": "Vietnamese",
+    "english": "English"
+  },
+  "TodoPage": {
+    "title": "To-do",
+    "signedInAs": "Signed in as",
+    "signOut": "Sign out"
+  }
+}
