@@ -14,6 +14,9 @@
 mind.*
 plans/**/*
 
+# Local-only generated docs (kept out of the repo)
+/docs/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
