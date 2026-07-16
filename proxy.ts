@@ -37,7 +37,7 @@ export async function proxy(request: NextRequest) {
   // Authenticated user on the login page → straight into the app.
   if (user && matches(pathname, AUTH_ROUTES)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/todo";
+    url.pathname = "/";
     url.search = "";
     return NextResponse.redirect(url);
   }

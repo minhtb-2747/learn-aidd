@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Montserrat, Montserrat_Alternates } from "next/font/google";
+import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
+import { cn } from "@/lib/utils/cn.utils";
 import "./globals.css";
 
 // Global brand fonts (Montserrat), applied on <html> so every route inherits
@@ -16,6 +18,14 @@ const montserratAlternates = Montserrat_Alternates({
   subsets: ["latin", "vietnamese"],
   weight: ["700"],
   variable: "--font-montserrat-alternates",
+});
+
+// "Digital Numbers" — the Figma countdown digit face. Not on Google Fonts, so
+// bundled locally (OFL) and exposed as a CSS variable for the countdown tiles.
+const digitalNumbers = localFont({
+  src: "../public/fonts/Digital_Numbers.woff2",
+  variable: "--font-digital-numbers",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -35,7 +45,12 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${montserrat.variable} ${montserratAlternates.variable} h-full antialiased`}
+      className={cn(
+        montserrat.variable,
+        montserratAlternates.variable,
+        digitalNumbers.variable,
+        "h-full antialiased",
+      )}
     >
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>

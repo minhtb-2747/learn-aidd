@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setLocale } from "@/app/actions/locale";
+import { cn } from "@/lib/utils/cn.utils";
 import { ChevronDownIcon, FlagEnIcon, FlagVnIcon } from "./icons";
 
 export type Locale = "vi" | "en";
@@ -82,9 +83,10 @@ export default function LanguageSelector({
           {active.label}
         </span>
         <ChevronDownIcon
-          className={`h-6 w-6 shrink-0 transition-transform duration-200 ${
-            open ? "rotate-180" : ""
-          }`}
+          className={cn(
+            "h-6 w-6 shrink-0 transition-transform duration-200",
+            open && "rotate-180",
+          )}
         />
       </button>
 
@@ -100,9 +102,10 @@ export default function LanguageSelector({
                 role="option"
                 aria-selected={option.value === selected}
                 onClick={() => handleSelect(option.value)}
-                className={`flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-bold text-white transition-colors duration-150 hover:bg-white/10 ${
-                  option.value === selected ? "bg-white/5" : ""
-                }`}
+                className={cn(
+                  "flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-bold text-white transition-colors duration-150 hover:bg-white/10",
+                  option.value === selected && "bg-white/5",
+                )}
               >
                 <option.Flag className="h-5 w-5 shrink-0" />
                 {option.label}
