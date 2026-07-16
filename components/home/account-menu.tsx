@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { signOut } from "@/app/actions/auth";
+import { useClickOutside } from "@/lib/hooks/use-click-outside";
 import { UserIcon } from "@/icons";
 
 export interface AccountMenuUser {
@@ -24,20 +25,7 @@ export interface AccountMenuProps {
 export default function AccountMenu({ user }: AccountMenuProps) {
   const t = useTranslations("HomePage");
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const containerRef = useClickOutside<HTMLDivElement>(() => setOpen(false));
 
   if (!user) {
     return (

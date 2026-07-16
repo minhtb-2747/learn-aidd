@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/components/login/language-selector";
 import { getEventDateTime } from "@/lib/event/config";
@@ -53,9 +54,16 @@ export default async function Home() {
             never adds height / pushes sections down. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 -z-10 aspect-1512/1392 bg-cover bg-top"
-          style={{ backgroundImage: "url(/images/home/keyvisual-bg.png)" }}
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10 aspect-1512/1392"
         >
+          <Image
+            src="/images/home/keyvisual-bg.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-top"
+          />
           <div
             className="absolute inset-0 aspect-1512/1480"
             style={{

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useClickOutside } from "@/lib/hooks/use-click-outside";
 import { PenIcon } from "@/icons";
 import { cn } from "@/lib/utils/cn.utils";
 
@@ -16,20 +17,7 @@ import { cn } from "@/lib/utils/cn.utils";
 export default function WidgetButton() {
   const t = useTranslations("HomePage");
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const containerRef = useClickOutside<HTMLDivElement>(() => setOpen(false));
 
   const pillClass =
     "flex items-center gap-2 rounded bg-[#FFEA9E] p-4 shadow-[0_4px_4px_rgba(0,0,0,0.25),0_0_6px_#FAE287] transition-transform duration-200 hover:scale-[1.03]";
@@ -38,8 +26,10 @@ export default function WidgetButton() {
 
   return (
     <div ref={containerRef} className="fixed right-35.75 bottom-30 z-40 ">
-      {/* Quick-action menu — stays mounted, animates in/out above the trigger */}
+      {/* Quick-action menu — stays mounted, animates in/out above the trigger.
+          `inert` when closed keeps the invisible links out of the tab order. */}
       <div
+        inert={!open}
         className={cn(
           "absolute right-0 bottom-full mb-5 flex flex-col items-end gap-5 transition-all duration-300 ease-out",
           open
@@ -89,7 +79,7 @@ export default function WidgetButton() {
         aria-label={open ? t("widget.close") : t("widget.aria")}
         className={cn(
           "cursor-pointer relative ml-auto flex items-center justify-center overflow-hidden rounded-full shadow-[0_4px_4px_rgba(0,0,0,0.25),0_0_6px_#FAE287] transition-all duration-300 ease-out hover:scale-105",
-          open ? "h-14 w-14 bg-[#D4271D]" : "h-16 w-[106px] bg-[#FFEA9E]",
+          open ? "h-14 w-14 bg-[#D4271D]" : "h-16 w-26.5 bg-[#FFEA9E]",
         )}
       >
         {/* closed content: pencil + SAA mark */}
@@ -106,7 +96,7 @@ export default function WidgetButton() {
             alt=""
             width={20}
             height={18}
-            className="h-[18px] w-5"
+            className="h-4.5 w-5"
           />
         </span>
 

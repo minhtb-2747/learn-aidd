@@ -27,7 +27,7 @@ export default async function SiteFooter() {
           alt="Sun* Annual Awards 2025"
           width={69}
           height={64}
-          className="h-16 w-[69px] shrink-0"
+          className="h-16 w-17.25 shrink-0"
         />
         <nav className="flex flex-wrap items-center justify-center gap-6 lg:gap-12">
           {links.map((link) => (

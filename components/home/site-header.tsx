@@ -38,7 +38,7 @@ export default function SiteHeader({
           alt="Sun* Annual Awards 2025"
           width={52}
           height={48}
-          className="h-12 w-[52px] shrink-0"
+          className="h-12 w-13 shrink-0"
         />
         <HeaderNav links={navLinks} />
       </div>
