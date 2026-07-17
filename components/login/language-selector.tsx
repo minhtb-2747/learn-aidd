@@ -93,7 +93,7 @@ export default function LanguageSelector({
       {open && (
         <ul
           role="listbox"
-          className="absolute top-full right-0 z-20 mt-2 w-32 overflow-hidden rounded-lg bg-[#0B0F12] shadow-lg ring-1 ring-white/10"
+          className="absolute top-full right-0 z-20 mt-2 w-32 overflow-hidden rounded-lg bg-surface shadow-lg ring-1 ring-white/10"
         >
           {OPTIONS.map((option) => (
             <li key={option.value}>

@@ -20,9 +20,9 @@ export default function WidgetButton() {
   const containerRef = useClickOutside<HTMLDivElement>(() => setOpen(false));
 
   const pillClass =
-    "flex items-center gap-2 rounded bg-[#FFEA9E] p-4 shadow-[0_4px_4px_rgba(0,0,0,0.25),0_0_6px_#FAE287] transition-transform duration-200 hover:scale-[1.03]";
+    "flex items-center gap-2 rounded bg-gold p-4 shadow-[0_4px_4px_rgba(0,0,0,0.25),0_0_6px_var(--color-gold-glow)] transition-transform duration-200 hover:scale-[1.03]";
   const pillLabel =
-    "text-2xl leading-8 font-bold text-[#00101A] no-wrap text-nowrap";
+    "text-2xl leading-8 font-bold text-ink no-wrap text-nowrap";
 
   return (
     <div ref={containerRef} className="fixed right-35.75 bottom-30 z-40 ">
@@ -78,8 +78,8 @@ export default function WidgetButton() {
         aria-expanded={open}
         aria-label={open ? t("widget.close") : t("widget.aria")}
         className={cn(
-          "cursor-pointer relative ml-auto flex items-center justify-center overflow-hidden rounded-full shadow-[0_4px_4px_rgba(0,0,0,0.25),0_0_6px_#FAE287] transition-all duration-300 ease-out hover:scale-105",
-          open ? "h-14 w-14 bg-[#D4271D]" : "h-16 w-26.5 bg-[#FFEA9E]",
+          "cursor-pointer relative ml-auto flex items-center justify-center overflow-hidden rounded-full shadow-[0_4px_4px_rgba(0,0,0,0.25),0_0_6px_var(--color-gold-glow)] transition-all duration-300 ease-out hover:scale-105",
+          open ? "h-14 w-14 bg-danger" : "h-16 w-26.5 bg-gold",
         )}
       >
         {/* closed content: pencil + SAA mark */}
@@ -89,7 +89,7 @@ export default function WidgetButton() {
             open ? "opacity-0" : "opacity-100",
           )}
         >
-          <PenIcon className="h-6 w-6 shrink-0 text-[#00101A]" />
+          <PenIcon className="h-6 w-6 shrink-0 text-ink" />
           {/* eslint-disable-next-line @next/next/no-img-element -- static presentational icon */}
           <img
             src="/images/home/icon-widget-kudos.svg"

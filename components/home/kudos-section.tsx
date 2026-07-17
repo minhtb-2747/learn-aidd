@@ -32,10 +32,10 @@ export default async function KudosSection({
             <p className="text-2xl leading-8 font-bold text-white">
               {t("kudos.label")}
             </p>
-            <h2 className="text-4xl leading-[64px] font-bold tracking-[-0.25px] text-[#FFEA9E] sm:text-[57px]">
+            <h2 className="text-4xl leading-[64px] font-bold tracking-[-0.25px] text-gold sm:text-[57px]">
               {t("kudos.title")}
             </h2>
-            <p className="text-base leading-6 font-bold tracking-[0.5px] text-[#FFEA9E]">
+            <p className="text-base leading-6 font-bold tracking-[0.5px] text-gold">
               {t("kudos.badge")}
             </p>
             <p className="text-justify text-base leading-6 font-bold tracking-[0.5px] text-white">
@@ -45,7 +45,7 @@ export default async function KudosSection({
 
           <a
             href={detailHref}
-            className="flex items-center gap-2 rounded bg-[#FFEA9E] px-4 py-4 text-base leading-6 font-bold tracking-[0.15px] text-[#00101A] transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(255,234,158,0.35)]"
+            className="flex items-center gap-2 rounded bg-gold px-4 py-4 text-base leading-6 font-bold tracking-[0.15px] text-ink transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(255,234,158,0.35)]"
           >
             {t("kudos.detail")}
             <ArrowUpRightIcon className="h-6 w-6 shrink-0" />

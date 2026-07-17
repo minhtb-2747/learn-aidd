@@ -19,7 +19,7 @@ export default async function SiteFooter() {
   ];
 
   return (
-    <footer className="flex flex-col items-center gap-6 border-t border-[#2E3940] bg-[#00101A] px-6 py-10 sm:px-9 lg:flex-row lg:justify-between lg:px-22.5">
+    <footer className="flex flex-col items-center gap-6 border-t border-divider bg-ink px-6 py-10 sm:px-9 lg:flex-row lg:justify-between lg:px-22.5">
       <div className="flex flex-col items-center gap-6 lg:flex-row lg:gap-20">
         {/* eslint-disable-next-line @next/next/no-img-element -- static presentational brand asset */}
         <img
@@ -37,7 +37,7 @@ export default async function SiteFooter() {
               className={cn(
                 "px-4 py-4 text-base leading-6 font-bold tracking-[0.15px] transition-colors duration-200",
                 link.selected
-                  ? "bg-[#FFEA9E]/10 text-white [text-shadow:0_4px_4px_rgba(0,0,0,0.25),0_0_6px_#FAE287]"
+                  ? "bg-gold/10 text-white [text-shadow:0_4px_4px_rgba(0,0,0,0.25),0_0_6px_var(--color-gold-glow)]"
                   : "text-white hover:bg-white/10",
               )}
             >

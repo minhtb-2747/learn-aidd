@@ -31,7 +31,7 @@ export default function AccountMenu({ user }: AccountMenuProps) {
     return (
       <a
         href="/login"
-        className="flex h-10 w-10 items-center justify-center rounded border border-[#998C5F] transition-colors duration-200 hover:bg-white/10"
+        className="flex h-10 w-10 items-center justify-center rounded border border-gold-line transition-colors duration-200 hover:bg-white/10"
         aria-label={t("header.signIn")}
       >
         <UserIcon className="h-6 w-6 shrink-0 text-white" />
@@ -47,13 +47,13 @@ export default function AccountMenu({ user }: AccountMenuProps) {
         aria-haspopup="true"
         aria-expanded={open}
         aria-label={t("header.accountAria")}
-        className="flex h-10 w-10 items-center justify-center rounded border border-[#998C5F] transition-colors duration-200 hover:bg-white/10"
+        className="flex h-10 w-10 items-center justify-center rounded border border-gold-line transition-colors duration-200 hover:bg-white/10"
       >
         <UserIcon className="h-6 w-6 shrink-0 text-white" />
       </button>
 
       {open && (
-        <ul className="absolute top-full right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg bg-[#0B0F12] shadow-lg ring-1 ring-white/10">
+        <ul className="absolute top-full right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg bg-surface shadow-lg ring-1 ring-white/10">
           <li className="px-4 py-3 text-sm font-bold text-white">
             {user.name}
           </li>

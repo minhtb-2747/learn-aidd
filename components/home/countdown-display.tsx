@@ -17,7 +17,7 @@ export interface CountdownDisplayProps {
 
 function DigitTile({ digit }: { digit: string }) {
   return (
-    <div className="flex h-20.5 w-12.75 items-center justify-center rounded-lg border-[0.5px] border-[#FFEA9E]/50 bg-gradient-to-b from-white/50 to-white/5 backdrop-blur-md">
+    <div className="flex h-20.5 w-12.75 items-center justify-center rounded-lg border-[0.5px] border-gold/50 bg-gradient-to-b from-white/50 to-white/5 backdrop-blur-md">
       <span className="text-[49px] leading-none font-normal tabular-nums text-white [font-family:var(--font-digital-numbers)]">
         {digit}
       </span>

@@ -40,14 +40,14 @@ export default async function Home() {
       : null;
 
   return (
-    <div className="flex min-h-full flex-1 flex-col bg-[#00101A]">
+    <div className="flex min-h-full flex-1 flex-col bg-ink">
       <SiteHeader
         locale={locale as Locale}
         navLinks={navLinks}
         user={user}
         hasUnreadNotifications={vm.notifications.unreadCount > 0}
       />
-      <main className="relative isolate flex-1 bg-[#00101A]">
+      <main className="relative isolate flex-1 bg-ink">
         {/* Keyvisual backdrop — the root artwork PNG at its native aspect ratio
             (1512×1392), pinned to the top and behind all content so the fixed
             header and the hero/Root-Further sections flow over it. Absolute so it
@@ -68,7 +68,7 @@ export default async function Home() {
             className="absolute inset-0 aspect-1512/1480"
             style={{
               background:
-                "linear-gradient(12.34deg, #00101A 23.7%, rgba(0, 18, 29, 0.461538) 38.34%, rgba(0, 19, 32, 0) 48.92%)",
+                "linear-gradient(12.34deg, var(--color-ink) 23.7%, rgba(0, 18, 29, 0.461538) 38.34%, rgba(0, 19, 32, 0) 48.92%)",
             }}
           />
         </div>

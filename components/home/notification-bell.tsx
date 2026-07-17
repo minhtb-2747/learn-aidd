@@ -44,14 +44,14 @@ export default function NotificationBell({
         <BellIcon className="h-6 w-6 shrink-0 text-white" />
         {hasUnread && (
           <span
-            className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[#D4271D]"
+            className="absolute top-2 right-2 h-2 w-2 rounded-full bg-danger"
             aria-hidden="true"
           />
         )}
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 z-20 mt-2 w-72 overflow-hidden rounded-lg bg-[#0B0F12] p-2 shadow-lg ring-1 ring-white/10">
+        <div className="absolute top-full right-0 z-20 mt-2 w-72 overflow-hidden rounded-lg bg-surface p-2 shadow-lg ring-1 ring-white/10">
           {items.length === 0 ? (
             <p className="px-3 py-4 text-center text-sm text-white/60">
               {t("header.noNotifications")}

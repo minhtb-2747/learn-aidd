@@ -65,8 +65,8 @@ export default async function AwardsSection() {
           <p className="text-2xl leading-8 font-bold text-white">
             {t("awards.caption")}
           </p>
-          <div className="h-px w-full bg-[#2E3940]" aria-hidden="true" />
-          <h2 className="text-4xl leading-[64px] font-bold tracking-[-0.25px] text-[#FFEA9E] sm:text-[57px]">
+          <div className="h-px w-full bg-divider" aria-hidden="true" />
+          <h2 className="text-4xl leading-[64px] font-bold tracking-[-0.25px] text-gold sm:text-[57px]">
             {t("awards.title")}
           </h2>
           <p className="text-base leading-6 font-bold tracking-[0.15px] text-white">

@@ -12,13 +12,13 @@ export default async function EventInfo() {
       <div className="flex flex-wrap items-center gap-x-15 gap-y-2">
         <p className="text-base leading-6 font-bold tracking-[0.15px] text-white">
           {t("event.timeLabel")}{" "}
-          <span className="text-2xl leading-8 tracking-normal text-[#FFEA9E]">
+          <span className="text-2xl leading-8 tracking-normal text-gold">
             {t("event.timeValue")}
           </span>
         </p>
         <p className="text-base leading-6 font-bold tracking-[0.15px] text-white">
           {t("event.placeLabel")}{" "}
-          <span className="text-2xl leading-8 tracking-normal text-[#FFEA9E]">
+          <span className="text-2xl leading-8 tracking-normal text-gold">
             {t("event.placeValue")}
           </span>
         </p>

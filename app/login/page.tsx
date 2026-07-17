@@ -20,11 +20,11 @@ export default async function LoginPage({
 
   return (
     <div
-      className="flex min-h-screen w-full flex-col bg-[#00101A] bg-cover bg-right"
+      className="flex min-h-screen w-full flex-col bg-ink bg-cover bg-right"
       style={{ backgroundImage: "url(/images/login/hero-bg.svg)" }}
     >
-      <div className="absolute inset-0 z-1 bg-[linear-gradient(90deg,#00101A_0%,#00101A_25.41%,rgba(0,16,26,0)_100%)]" />
-      <div className="absolute bottom-0 left-0 right-0 z-1 h-100 bg-[linear-gradient(0deg,#00101A_0%,rgba(0,19,32,0)_70%)]" />
+      <div className="absolute inset-0 z-1 bg-[linear-gradient(90deg,var(--color-ink)_0%,var(--color-ink)_25.41%,rgba(0,16,26,0)_100%)]" />
+      <div className="absolute bottom-0 left-0 right-0 z-1 h-100 bg-[linear-gradient(0deg,var(--color-ink)_0%,rgba(0,19,32,0)_70%)]" />
       <LoginHeader current={locale} />
       <HeroContent
         subtitle={t("subtitle")}

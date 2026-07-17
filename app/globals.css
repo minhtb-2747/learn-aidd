@@ -12,6 +12,20 @@
   --font-heading: var(--font-montserrat-alternates);
 }
 
+/* SAA brand palette — shared colors extracted from the design so they are not
+   hardcoded across components. Each token generates the usual color utilities
+   (bg-, text-, border-, ring-, …) and is also usable as var(--color-NAME) in
+   inline styles such as gradients. */
+@theme {
+  --color-gold: #ffea9e; /* primary accent (buttons, active nav, headings) */
+  --color-gold-glow: #fae287; /* glow used in box/text shadows */
+  --color-gold-line: #998c5f; /* muted gold borders */
+  --color-ink: #00101a; /* primary dark background / text on gold */
+  --color-surface: #0b0f12; /* dropdown / menu surfaces */
+  --color-divider: #2e3940; /* hairline dividers / borders */
+  --color-danger: #d4271d; /* error / close */
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

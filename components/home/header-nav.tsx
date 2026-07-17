@@ -24,7 +24,7 @@ export default function HeaderNav({ links = [] }: { links?: HeaderNavLink[] }) {
           className={cn(
             "px-4 py-4 text-sm leading-5 font-bold tracking-[0.1px] transition-colors duration-200",
             link.selected
-              ? "border-b border-[#FFEA9E] text-[#FFEA9E] [text-shadow:0_4px_4px_rgba(0,0,0,0.25),0_0_6px_#FAE287]"
+              ? "border-b border-gold text-gold [text-shadow:0_4px_4px_rgba(0,0,0,0.25),0_0_6px_var(--color-gold-glow)]"
               : "text-white hover:bg-white/10",
           )}
         >
