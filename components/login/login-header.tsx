@@ -14,7 +14,7 @@ export default function LoginHeader({ current }: { current: Locale }) {
           alt="Sun* Annual Awards 2025"
           width={52}
           height={48}
-          className="h-12 w-[52px]"
+          className="h-12 w-13"
         />
         <LanguageSelector current={current} />
       </div>

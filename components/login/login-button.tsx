@@ -24,14 +24,14 @@ export default function LoginButton({ label, error }: LoginButtonProps) {
         type="submit"
         disabled={pending}
         aria-busy={pending}
-        className="group flex items-center gap-2 rounded-lg bg-[#FFEA9E] px-6 py-4 transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(255,234,158,0.35)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:shadow-none"
+        className="group flex items-center gap-2 rounded-lg bg-gold px-6 py-4 transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(255,234,158,0.35)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:shadow-none"
       >
-        <span className="text-[22px] leading-7 font-bold text-[#00101A]">
+        <span className="text-[22px] leading-7 font-bold text-ink">
           {label}
         </span>
         {pending ? (
           <span
-            className="h-6 w-6 shrink-0 animate-spin rounded-full border-2 border-[#00101A]/30 border-t-[#00101A]"
+            className="h-6 w-6 shrink-0 animate-spin rounded-full border-2 border-ink/30 border-t-ink"
             aria-hidden="true"
           />
         ) : (
