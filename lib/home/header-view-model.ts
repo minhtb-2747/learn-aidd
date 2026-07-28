@@ -1,4 +1,10 @@
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import {
+  MOCK_AUTH_COOKIE,
+  MOCK_USER,
+  hasMockAuth,
+} from "@/lib/auth/mock-session";
 
 /**
  * Plain, serializable view-model for the homepage header. Server-only —
@@ -36,6 +42,17 @@ function resolveDisplayName(metadata: Record<string, unknown>, email: string | u
  * backend yet — and are documented as such below.
  */
 export async function getHeaderViewModel(): Promise<HeaderViewModel> {
+  // TEMPORARY: honor the mock-auth cookie (login stub) before hitting Supabase.
+  const cookieStore = await cookies();
+  if (hasMockAuth(cookieStore.get(MOCK_AUTH_COOKIE)?.value)) {
+    return {
+      isAuthenticated: true,
+      user: { name: MOCK_USER.name, avatarUrl: null },
+      isAdmin: false,
+      notifications: { unreadCount: 0 },
+    };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
