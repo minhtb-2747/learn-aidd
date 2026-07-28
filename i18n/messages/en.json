@@ -17,6 +17,9 @@
     "signedInAs": "Signed in as",
     "signOut": "Sign out"
   },
+  "Prelaunch": {
+    "title": "Event starts in"
+  },
   "HomePage": {
     "nav": {
       "about": "About SAA 2025",
