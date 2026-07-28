@@ -70,3 +70,6 @@ DerivedData/
 ios/Pods/
 android/.gradle/
 android/build/
+
+# Playwright MCP scratch (screenshots, snapshots)
+.playwright-mcp/
