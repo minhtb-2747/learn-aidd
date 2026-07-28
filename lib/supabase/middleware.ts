@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { MOCK_AUTH_COOKIE, MOCK_USER, hasMockAuth } from "@/lib/auth/mock-session";
 
 /**
  * Refreshes the Supabase auth session on every matched request and returns the
@@ -37,5 +38,13 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return { supabaseResponse, user };
+  // TEMPORARY: treat a mock-auth cookie (login stub) as an authenticated user
+  // so route gating in proxy.ts works without a real Supabase session.
+  const effectiveUser =
+    user ??
+    (hasMockAuth(request.cookies.get(MOCK_AUTH_COOKIE)?.value)
+      ? { id: MOCK_USER.id }
+      : null);
+
+  return { supabaseResponse, user: effectiveUser };
 }

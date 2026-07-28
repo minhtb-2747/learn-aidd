@@ -1,4 +1,4 @@
-import { signInWithGoogle } from "@/app/actions/auth";
+import { signInMock } from "@/app/actions/auth";
 import LoginButton from "./login-button";
 
 export interface HeroContentProps {
@@ -35,7 +35,7 @@ export default function HeroContent({
               {tagline}
             </p>
 
-            <form action={signInWithGoogle}>
+            <form action={signInMock}>
               <LoginButton label={buttonLabel} error={errorText} />
             </form>
           </div>

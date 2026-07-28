@@ -1,54 +1,6 @@
 import { getTranslations } from "next-intl/server";
+import { AWARD_MEDIA } from "@/lib/home/award-media";
 import AwardCard from "./award-card";
-
-/**
- * Per-card visual metadata extracted from the Figma design. Title/description
- * are NOT here — they come from the HomePage i18n namespace, keyed by `msgKey`.
- */
-const AWARD_MEDIA = [
-  {
-    slug: "top-talent",
-    msgKey: "topTalent",
-    nameImageSrc: "/images/home/award-name-top-talent.png",
-    nameImageWidth: 221,
-    nameImageHeight: 35,
-  },
-  {
-    slug: "top-project",
-    msgKey: "topProject",
-    nameImageSrc: "/images/home/award-name-top-project.png",
-    nameImageWidth: 232,
-    nameImageHeight: 35,
-  },
-  {
-    slug: "top-project-leader",
-    msgKey: "topProjectLeader",
-    nameImageSrc: "/images/home/award-name-top-project-leader.png",
-    nameImageWidth: 232,
-    nameImageHeight: 64,
-  },
-  {
-    slug: "best-manager",
-    msgKey: "bestManager",
-    nameImageSrc: "/images/home/award-name-best-manager.png",
-    nameImageWidth: 232,
-    nameImageHeight: 30,
-  },
-  {
-    slug: "signature-2025-creator",
-    msgKey: "signatureCreator",
-    nameImageSrc: "/images/home/award-name-signature-creator.png",
-    nameImageWidth: 232,
-    nameImageHeight: 54,
-  },
-  {
-    slug: "mvp",
-    msgKey: "mvp",
-    nameImageSrc: "/images/home/award-name-mvp.png",
-    nameImageWidth: 116,
-    nameImageHeight: 52,
-  },
-] as const;
 
 /**
  * "Hệ thống giải thưởng" grid: caption + divider + title, then the 6 award
