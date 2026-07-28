@@ -12,7 +12,7 @@ import { updateSession } from "@/lib/supabase/middleware";
  *
  * Cookie-mode i18n needs no middleware step, so this stays Supabase-only.
  */
-const PROTECTED_ROUTES = ["/todo"];
+const PROTECTED_ROUTES = ["/todo", "/award-system"];
 const AUTH_ROUTES = ["/login"];
 
 function matches(pathname: string, routes: string[]): boolean {
