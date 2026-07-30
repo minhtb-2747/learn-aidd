@@ -31,7 +31,7 @@ export default async function Home() {
   const navLinks = [
     { label: t("nav.about"), href: "#", selected: true },
     { label: t("nav.awards"), href: "/award-system" },
-    { label: t("nav.kudos"), href: "#" },
+    { label: t("nav.kudos"), href: "/kudos" },
   ];
 
   const user =
@@ -79,7 +79,7 @@ export default async function Home() {
         />
         <RootFurtherSection />
         <AwardsSection />
-        <KudosSection />
+        <KudosSection detailHref="/kudos" />
       </main>
       <WidgetButton />
       <SiteFooter />

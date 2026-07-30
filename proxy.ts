@@ -15,7 +15,7 @@ import { getEventDateTime } from "@/lib/event/config";
  *
  * Cookie-mode i18n needs no middleware step, so this stays Supabase-only.
  */
-const PROTECTED_ROUTES = ["/todo", "/award-system"];
+const PROTECTED_ROUTES = ["/todo", "/award-system", "/kudos"];
 const AUTH_ROUTES = ["/login"];
 const PRELAUNCH_ROUTE = "/prelaunch";
 
