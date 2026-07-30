@@ -38,3 +38,24 @@ body {
   color: var(--foreground);
   font-family: var(--font-montserrat), Arial, Helvetica, sans-serif;
 }
+
+/* Thin custom scrollbar applied page-wide (Figma: a slim vertical line) — the
+   page itself and every scrollable area (rules panel, dialogs, feeds, …). */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gold-line) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-gold-line);
+  border-radius: 9999px;
+}
