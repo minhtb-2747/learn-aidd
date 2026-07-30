@@ -33,7 +33,7 @@ export default async function AwardSystemPage() {
   const navLinks = [
     { label: t("nav.about"), href: "/" },
     { label: t("nav.awards"), href: "/award-system", selected: true },
-    { label: t("nav.kudos"), href: "#" },
+    { label: t("nav.kudos"), href: "/kudos" },
   ];
 
   const user =

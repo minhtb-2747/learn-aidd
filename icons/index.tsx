@@ -134,3 +134,8 @@ export function LicenseIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+// Sun* Kudos screen icons (Search/ChevronDown/ArrowLeft/ArrowRight/Link/Heart/
+// Send/Gift/Star) live in `./kudos.tsx` — this barrel stays under the 200-line
+// file-size guideline; import path for consumers is unaffected (`@/icons`).
+export * from "./kudos";

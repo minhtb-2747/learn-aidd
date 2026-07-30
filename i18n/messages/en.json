@@ -176,5 +176,53 @@
         "prizes": [{ "value": "VND 15,000,000" }]
       }
     }
+  },
+  "Kudos": {
+    "banner": {
+      "title": "Recognition & gratitude system",
+      "inputPlaceholder": "Who would you like to thank and recognize today?",
+      "searchPlaceholder": "Search Sunner profile"
+    },
+    "highlight": {
+      "subtitle": "Sun* Annual Awards 2025",
+      "title": "HIGHLIGHT KUDOS",
+      "hashtagLabel": "Hashtag",
+      "departmentLabel": "Department",
+      "prevAria": "Previous slide",
+      "nextAria": "Next slide",
+      "viewDetail": "View details"
+    },
+    "card": {
+      "likeAria": "Like",
+      "unlikeAria": "Unlike",
+      "copyLink": "Copy Link"
+    },
+    "spotlight": {
+      "subtitle": "Sun* Annual Awards 2025",
+      "title": "SPOTLIGHT BOARD",
+      "total": "388 KUDOS",
+      "board": "Spotlight board",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "resetView": "Reset view",
+      "searchPlaceholder": "Search"
+    },
+    "allKudos": {
+      "subtitle": "Sun* Annual Awards 2025",
+      "title": "ALL KUDOS"
+    },
+    "sidebar": {
+      "received": "Kudos you've received:",
+      "sent": "Kudos you've sent:",
+      "hearts": "Hearts you've received:",
+      "boxesOpened": "Secret Boxes you've opened:",
+      "boxesUnopened": "Secret Boxes unopened:",
+      "openGift": "Open Secret Box",
+      "giftBoardTitle": "10 LATEST SUNNER\nGIFT RECIPIENTS",
+      "risingBoardTitle": "10 LATEST SUNNER\nRANK-UPS"
+    },
+    "toast": {
+      "linkCopied": "Link copied — ready to share!"
+    }
   }
 }

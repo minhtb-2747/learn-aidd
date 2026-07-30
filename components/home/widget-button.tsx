@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useClickOutside } from "@/lib/hooks/use-click-outside";
 import { PenIcon } from "@/icons";
 import { cn } from "@/lib/utils/cn.utils";
+import { useKudosModals } from "@/components/kudos/kudos-modals-provider";
 
 /**
  * Floating bottom-right widget. Closed: a yellow pill (pencil + SAA mark).
@@ -16,6 +17,9 @@ import { cn } from "@/lib/utils/cn.utils";
  */
 export default function WidgetButton() {
   const t = useTranslations("HomePage");
+  // Opens the shared Kudos modals (provided app-wide by the root layout's
+  // KudosModalsProvider), so the widget works on every page that renders it.
+  const { openWrite, openRules } = useKudosModals();
   const [open, setOpen] = useState(false);
   const containerRef = useClickOutside<HTMLDivElement>(() => setOpen(false));
 
@@ -37,8 +41,12 @@ export default function WidgetButton() {
             : "pointer-events-none translate-y-4 opacity-0",
         )}
       >
-        <a
-          href="#"
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(false);
+            openRules();
+          }}
           className={pillClass}
           style={{ transitionDelay: open ? "80ms" : "0ms" }}
         >
@@ -51,10 +59,14 @@ export default function WidgetButton() {
             className="h-6 w-6 shrink-0"
           />
           <span className={pillLabel}>{t("widget.awardRules")}</span>
-        </a>
+        </button>
 
-        <a
-          href="#"
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(false);
+            openWrite();
+          }}
           className={pillClass}
           style={{ transitionDelay: open ? "40ms" : "0ms" }}
         >
@@ -67,7 +79,7 @@ export default function WidgetButton() {
             className="h-6 w-6 shrink-0"
           />
           <span className={pillLabel}>{t("widget.writeKudos")}</span>
-        </a>
+        </button>
       </div>
 
       {/* Trigger ⇄ close — morphs size / colour / radius, cross-fades its icon */}

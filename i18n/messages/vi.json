@@ -176,5 +176,53 @@
         "prizes": [{ "value": "15.000.000 VNĐ" }]
       }
     }
+  },
+  "Kudos": {
+    "banner": {
+      "title": "Hệ thống ghi nhận và cảm ơn",
+      "inputPlaceholder": "Hôm nay, bạn muốn gửi lời cảm ơn và ghi nhận đến ai?",
+      "searchPlaceholder": "Tìm kiếm profile Sunner"
+    },
+    "highlight": {
+      "subtitle": "Sun* Annual Awards 2025",
+      "title": "HIGHLIGHT KUDOS",
+      "hashtagLabel": "Hashtag",
+      "departmentLabel": "Phòng ban",
+      "prevAria": "Slide trước",
+      "nextAria": "Slide tiếp theo",
+      "viewDetail": "Xem chi tiết"
+    },
+    "card": {
+      "likeAria": "Thích",
+      "unlikeAria": "Bỏ thích",
+      "copyLink": "Copy Link"
+    },
+    "spotlight": {
+      "subtitle": "Sun* Annual Awards 2025",
+      "title": "SPOTLIGHT BOARD",
+      "total": "388 KUDOS",
+      "board": "Bảng Spotlight",
+      "zoomIn": "Phóng to",
+      "zoomOut": "Thu nhỏ",
+      "resetView": "Đặt lại chế độ xem",
+      "searchPlaceholder": "Tìm kiếm"
+    },
+    "allKudos": {
+      "subtitle": "Sun* Annual Awards 2025",
+      "title": "ALL KUDOS"
+    },
+    "sidebar": {
+      "received": "Số Kudos bạn nhận được:",
+      "sent": "Số Kudos bạn đã gửi:",
+      "hearts": "Số tim bạn nhận được:",
+      "boxesOpened": "Số Secret Box bạn đã mở:",
+      "boxesUnopened": "Số Secret Box chưa mở:",
+      "openGift": "Mở Secret Box",
+      "giftBoardTitle": "10 SUNNER NHẬN QUÀ\nMỚI NHẤT",
+      "risingBoardTitle": "10 SUNNER CÓ SỰ\nTHĂNG HẠNG MỚI NHẤT"
+    },
+    "toast": {
+      "linkCopied": "Đã sao chép link — sẵn sàng chia sẻ!"
+    }
   }
 }

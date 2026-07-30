@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { cn } from "@/lib/utils/cn.utils";
+import KudosModalsProvider from "@/components/kudos/kudos-modals-provider";
 import "./globals.css";
 
 // Global brand fonts (Montserrat), applied on <html> so every route inherits
@@ -53,7 +54,11 @@ export default async function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          {/* App-wide so the floating WidgetButton opens the Write/Rules
+              modals on any page that renders it. */}
+          <KudosModalsProvider>{children}</KudosModalsProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
