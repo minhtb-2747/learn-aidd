@@ -1,14 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeftIcon, ArrowRightIcon, ChevronDownIcon } from "@/icons";
-import { cn } from "@/lib/utils/cn.utils";
-import { useClickOutside } from "@/lib/hooks/use-click-outside";
-import {
-  highlightKudos,
-  hashtagFilterOptions,
-  departmentFilterOptions,
-} from "@/lib/kudos/mock-data";
+import { useRouter } from "next/navigation";
+import type { HighlightKudos } from "@/lib/kudos/types";
+import CarouselArrowButton from "./carousel-arrow-button";
+import { useCarouselNav } from "./use-carousel-nav";
+import HighlightFilterDropdown from "./highlight-filter-dropdown";
 import KudosCard from "./kudos-card";
 
 export interface HighlightCarouselProps {
@@ -18,19 +14,48 @@ export interface HighlightCarouselProps {
   departmentLabel: string;
   prevAriaLabel: string;
   nextAriaLabel: string;
+  /** Hearts one like is worth right now (active campaign multiplier, else 1). */
+  heartMultiplier: number;
   viewDetailLabel: string;
   likeAriaLabel: string;
   unlikeAriaLabel: string;
   copyLinkLabel: string;
   toastMessage: string;
+  /** Shown instead of the carousel when a filter matches nothing. */
+  emptyLabel: string;
+  kudos: HighlightKudos[];
+  hashtagOptions: string[];
+  departmentOptions: string[];
+  activeHashtag?: string;
+  activeDepartment?: string;
 }
 
 /**
- * "HIGHLIGHT KUDOS" section (MoMorph B, spec item `B`): filter dropdowns +
- * a bounded 3-up carousel — previous/next card faded on the sides, current
- * card prominent in the center — with prev/next arrows and "n/5" pagination.
- * Filtering only marks a chosen option active and resets to slide 1 (spec
- * B.1's documented behavior); the mock list itself doesn't vary per filter.
+ * "HIGHLIGHT KUDOS" section (MoMorph `B_Highlight`, node 2940:13451): filter
+ * dropdowns above a 3-up peek carousel.
+ *
+ * Layout per the design export (`slide.svg`, 1440×525): the track is
+ * full-bleed — cards are 528×525 on a 552px pitch (24px gutter), so at 1440
+ * three are in frame and the outer two bleed past the viewport edges.
+ *
+ * Every card is drawn identically: the neighbours are NOT dimmed, scaled or
+ * desaturated. What fades them is a pair of 400px-wide overlays of the page
+ * background (`#00101A`) — solid for their inner half, then easing to
+ * transparent. That is the design's "shadow", and it is why a card looks
+ * progressively swallowed by the background rather than uniformly greyed.
+ *
+ * Large chevrons sit on top of those overlays; a smaller pair flanks the
+ * "n/total" readout underneath.
+ *
+ * Motion is handled by Embla (`embla-carousel-react`) rather than hand-rolled
+ * index math, which is what gives drag/swipe, momentum and the eased
+ * transition on next/back for free. `align: "center"` + `containScroll: false`
+ * is what produces the symmetric peek on both sides — with the default
+ * `containScroll` the first and last slides would snap flush to the edges and
+ * lose it.
+ *
+ * Filters stay URL-driven (`?hashtag=&department=`, see `app/kudos/page.tsx`)
+ * so the server re-queries the top 5 and a reload preserves the selection.
  */
 export default function HighlightCarousel({
   subtitle,
@@ -39,18 +64,40 @@ export default function HighlightCarousel({
   departmentLabel,
   prevAriaLabel,
   nextAriaLabel,
+  heartMultiplier,
   viewDetailLabel,
   likeAriaLabel,
   unlikeAriaLabel,
   copyLinkLabel,
   toastMessage,
+  emptyLabel,
+  kudos,
+  hashtagOptions,
+  departmentOptions,
+  activeHashtag,
+  activeDepartment,
 }: HighlightCarouselProps) {
-  const [index, setIndex] = useState(0);
-  const total = highlightKudos.length;
-  const isFirst = index === 0;
-  const isLast = index === total - 1;
+  const router = useRouter();
+  const total = kudos.length;
+
+  // Open on the second card once there are at least three, so both neighbours
+  // peek and the edge fades read as designed. With one or two there is nothing
+  // to the left, and starting there would just leave a gap.
+  const { viewportRef, selected, canPrev, canNext, scrollPrev, scrollNext } =
+    useCarouselNav(total >= 3 ? 1 : 0);
+
+  function updateFilter(key: "hashtag" | "department", value: string | null) {
+    const params = new URLSearchParams();
+    const nextHashtag = key === "hashtag" ? value : (activeHashtag ?? null);
+    const nextDepartment = key === "department" ? value : (activeDepartment ?? null);
+    if (nextHashtag) params.set("hashtag", nextHashtag);
+    if (nextDepartment) params.set("department", nextDepartment);
+    const query = params.toString();
+    router.replace(`/kudos${query ? `?${query}` : ""}`, { scroll: false });
+  }
 
   const cardProps = {
+    heartMultiplier,
     viewDetailLabel,
     likeAriaLabel,
     unlikeAriaLabel,
@@ -59,8 +106,10 @@ export default function HighlightCarousel({
   };
 
   return (
-    <section className="flex flex-col gap-10 px-6 py-8 sm:px-9 lg:px-36">
-      <div className="flex flex-col gap-4">
+    <section className="flex flex-col gap-10 py-8">
+      {/* Only the heading block follows the page gutter — the track below is
+          deliberately full-bleed so the neighbour cards run off both edges. */}
+      <div className="flex flex-col gap-4 px-6 sm:px-9 lg:px-36">
         <p className="text-2xl leading-8 font-bold text-white">{subtitle}</p>
         <div className="h-px w-full bg-divider" aria-hidden="true" />
         <div className="flex flex-wrap items-center justify-between gap-6">
@@ -68,129 +117,113 @@ export default function HighlightCarousel({
             {title}
           </h2>
           <div className="flex items-center gap-2">
-            <FilterDropdown
+            <HighlightFilterDropdown
               label={hashtagLabel}
-              options={hashtagFilterOptions}
-              onSelect={() => setIndex(0)}
+              options={hashtagOptions}
+              active={activeHashtag ?? null}
+              onSelect={(option) => updateFilter("hashtag", option)}
             />
-            <FilterDropdown
+            <HighlightFilterDropdown
               label={departmentLabel}
-              options={departmentFilterOptions}
-              onSelect={() => setIndex(0)}
+              options={departmentOptions}
+              active={activeDepartment ?? null}
+              onSelect={(option) => updateFilter("department", option)}
             />
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-4 overflow-hidden lg:gap-6">
-        {!isFirst && (
-          <KudosCard
-            kudos={highlightKudos[index - 1]}
-            className="hidden max-w-100 scale-95 opacity-40 pointer-events-none lg:flex"
-            {...cardProps}
-          />
-        )}
-        <KudosCard
-          kudos={highlightKudos[index]}
-          className="max-w-132"
-          {...cardProps}
-        />
-        {!isLast && (
-          <KudosCard
-            kudos={highlightKudos[index + 1]}
-            className="hidden max-w-100 scale-95 opacity-40 pointer-events-none lg:flex"
-            {...cardProps}
-          />
-        )}
-      </div>
+      {total === 0 ? (
+        <p className="px-6 py-16 text-center text-lg font-bold text-white/60">
+          {emptyLabel}
+        </p>
+      ) : (
+        <>
+          <div className="relative">
+            {/* Embla's viewport does the clipping that creates the peek. */}
+            <div className="overflow-hidden" ref={viewportRef}>
+              <div className="flex touch-pan-y">
+                {kudos.map((item) => (
+                  <div
+                    key={item.id}
+                    // 38.33% ≈ the design's 552px slide pitch at 1440; `px-3`
+                    // takes 24px of that back as the gutter, leaving the 528px
+                    // card (`max-w-132` on KudosCard) exactly as drawn.
+                    // The `max-w-138` (=552px) cap is what keeps the gutter at
+                    // 24px past 1440: without it the slide keeps growing while
+                    // the card stays pinned at its 528px max, and the surplus
+                    // turns into dead space between cards.
+                    className="flex max-w-138 min-w-0 shrink-0 grow-0 basis-[92%] justify-center px-3 sm:basis-[68%] lg:basis-[38.33%]"
+                  >
+                    <KudosCard kudos={item} {...cardProps} />
+                  </div>
+                ))}
+              </div>
+            </div>
 
-      <div className="flex items-center justify-center gap-8">
-        <button
-          type="button"
-          disabled={isFirst}
-          aria-label={prevAriaLabel}
-          onClick={() => setIndex((value) => Math.max(0, value - 1))}
-          className="flex h-12 w-12 items-center justify-center rounded text-white transition-colors duration-150 enabled:hover:bg-white/10 disabled:opacity-30"
-        >
-          <ArrowLeftIcon className="h-7 w-7" />
-        </button>
-        <span className="text-2xl leading-9 font-bold text-white/60">
-          <span className="text-[45px] text-gold">{index + 1}</span>/{total}
-        </span>
-        <button
-          type="button"
-          disabled={isLast}
-          aria-label={nextAriaLabel}
-          onClick={() => setIndex((value) => Math.min(total - 1, value + 1))}
-          className="flex h-12 w-12 items-center justify-center rounded text-white transition-colors duration-150 enabled:hover:bg-white/10 disabled:opacity-30"
-        >
-          <ArrowRightIcon className="h-7 w-7" />
-        </button>
-      </div>
-    </section>
-  );
-}
+            {/* The design's edge treatment: the page background laid back over
+                the track, solid for its inner half then eased out. Fading to
+                `rgba(0,16,26,0)` rather than `transparent` matters — the CSS
+                keyword resolves to transparent *black* and would grey the
+                midpoint on the way out. */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-0 w-[18%] lg:w-[27.8%]"
+              style={{
+                background:
+                  "linear-gradient(to right, #00101A 0%, #00101A 50%, rgba(0,16,26,0) 100%)",
+              }}
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 right-0 w-[18%] lg:w-[27.8%]"
+              style={{
+                background:
+                  "linear-gradient(to left, #00101A 0%, #00101A 50%, rgba(0,16,26,0) 100%)",
+              }}
+            />
 
-function FilterDropdown({
-  label,
-  options,
-  onSelect,
-}: {
-  label: string;
-  options: string[];
-  onSelect: (option: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState<string | null>(null);
-  const ref = useClickOutside<HTMLDivElement>(() => setOpen(false));
+            {/* Large edge chevrons, vertically centred and sitting inside the
+                solid part of the fade (≈120px in at 1440). */}
+            <CarouselArrowButton
+              direction="prev"
+              size="edge"
+              disabled={!canPrev}
+              ariaLabel={prevAriaLabel}
+              onClick={scrollPrev}
+              className="absolute top-1/2 left-1 z-10 -translate-y-1/2 lg:left-[6.3%]"
+            />
+            <CarouselArrowButton
+              direction="next"
+              size="edge"
+              disabled={!canNext}
+              ariaLabel={nextAriaLabel}
+              onClick={scrollNext}
+              className="absolute top-1/2 right-1 z-10 -translate-y-1/2 lg:right-[6.3%]"
+            />
+          </div>
 
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        className={cn(
-          "flex items-center gap-1 rounded border border-gold-line bg-gold/10 px-4 py-4 text-base leading-6 font-bold text-white transition-colors duration-150 hover:bg-gold/20",
-          active && "border-gold text-gold",
-        )}
-      >
-        {active ?? label}
-        <ChevronDownIcon
-          className={cn(
-            "h-6 w-6 shrink-0 transition-transform duration-150",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-
-      {open && (
-        <ul
-          role="listbox"
-          className="absolute top-full right-0 z-20 mt-2 flex min-w-40 flex-col gap-1 rounded border border-gold-line bg-surface p-2 shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
-        >
-          {options.map((option) => (
-            <li key={option}>
-              <button
-                type="button"
-                onClick={() => {
-                  setActive(option);
-                  setOpen(false);
-                  onSelect(option);
-                }}
-                className={cn(
-                  "w-full rounded px-3 py-2 text-left text-sm font-bold text-white transition-colors duration-150 hover:bg-white/10",
-                  active === option &&
-                    "bg-gold/15 text-gold shadow-[0_0_8px_rgba(250,226,135,0.5)]",
-                )}
-              >
-                {option}
-              </button>
-            </li>
-          ))}
-        </ul>
+          <div className="flex items-center justify-center gap-6">
+            <CarouselArrowButton
+              direction="prev"
+              size="inline"
+              disabled={!canPrev}
+              ariaLabel={prevAriaLabel}
+              onClick={scrollPrev}
+            />
+            <span className="text-2xl leading-9 font-bold text-white/60">
+              <span className="text-[45px] text-gold">{selected + 1}</span>/{total}
+            </span>
+            <CarouselArrowButton
+              direction="next"
+              size="inline"
+              disabled={!canNext}
+              ariaLabel={nextAriaLabel}
+              onClick={scrollNext}
+            />
+          </div>
+        </>
       )}
-    </div>
+    </section>
   );
 }

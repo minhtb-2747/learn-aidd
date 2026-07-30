@@ -1,32 +1,46 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { MOCK_AUTH_COOKIE, MOCK_AUTH_VALUE } from "@/lib/auth/mock-session";
+import { safeNext } from "@/lib/auth/safe-next";
 
-/** Resolve the app origin for OAuth redirect URLs (server-side env first). */
+/**
+ * Resolve the app origin for OAuth redirect URLs (server-side env first).
+ *
+ * Whatever this returns must be present in `supabase/config.toml`'s
+ * `[auth] additional_redirect_urls`, or GoTrue rejects the callback. The
+ * last-resort fallback tracks the dev port in package.json (`next dev -p 3333`).
+ */
 async function resolveOrigin(): Promise<string> {
   if (process.env.SITE_URL) return process.env.SITE_URL;
   const hdrs = await headers();
-  return hdrs.get("origin") ?? "http://localhost:3000";
+  return hdrs.get("origin") ?? "http://localhost:3333";
 }
 
 /**
  * Start the Google OAuth flow server-side. Supabase returns the provider URL;
  * we hand off to it with `redirect()`.
  *
+ * `formData` carries the hidden `next` field rendered by the login form, which
+ * originates from the `?next=` that `proxy.ts` attaches when it bounces an
+ * unauthenticated user off a protected route. Threading it through here is what
+ * makes deep-linking work: sign in from /kudos and you land back on /kudos, not
+ * on the home page. The value is user-controlled, so it is sanitised by
+ * `safeNext` before it ever reaches `redirectTo`.
+ *
  * `redirect()` works by throwing NEXT_REDIRECT, so it MUST stay outside any
  * try/catch — otherwise the redirect gets swallowed as an error.
  */
-export async function signInWithGoogle() {
+export async function signInWithGoogle(formData?: FormData) {
   const supabase = await createClient();
   const origin = await resolveOrigin();
+  const next = safeNext(formData?.get("next")?.toString());
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${origin}/auth/callback?next=/`,
+      redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
 
@@ -37,30 +51,9 @@ export async function signInWithGoogle() {
   redirect(data.url);
 }
 
-/**
- * TEMPORARY sign-in stub. Google OAuth has no provider key yet, so clicking the
- * login button just sets the mock-auth cookie and drops the user into the app.
- * Swap the login form back to `signInWithGoogle` once real OAuth is wired.
- *
- * `redirect()` throws NEXT_REDIRECT, so it stays outside any try/catch.
- */
-export async function signInMock() {
-  const cookieStore = await cookies();
-  cookieStore.set(MOCK_AUTH_COOKIE, MOCK_AUTH_VALUE, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-  });
-  redirect("/");
-}
-
 /** Sign the user out and return them to the login screen. */
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  // Also clear the temporary mock-auth cookie (see signInMock).
-  const cookieStore = await cookies();
-  cookieStore.delete(MOCK_AUTH_COOKIE);
   redirect("/login");
 }

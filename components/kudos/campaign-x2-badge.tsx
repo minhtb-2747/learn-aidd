@@ -2,15 +2,20 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils/cn.utils";
+import { formatKudosTime } from "@/lib/kudos/format-kudos-time";
 
 const ICON_SRC = "/images/kudos/campain-x2.svg";
 const TOOLTIP_WIDTH = 320;
-const TITLE = "Ngày x2 tim – lan tỏa gấp đôi yêu thương!";
-const DESCRIPTION =
-  "Từ XX:XX ngày XX/12 đến XX:XX ngày XX/12, tất cả tim bạn nhận được đều được nhân đôi.";
 
 export interface CampaignX2BadgeProps {
+  /** Real multiplier from the active campaign row, e.g. `2`. */
+  heartMultiplier: number;
+  /** ISO campaign start, formatted into the tooltip window via `formatKudosTime`. */
+  startDate: string;
+  /** ISO campaign end, formatted into the tooltip window via `formatKudosTime`. */
+  endDate: string;
   className?: string;
 }
 
@@ -18,11 +23,24 @@ export interface CampaignX2BadgeProps {
  * The "x2 hearts campaign" icon shown beside the hearts-received stat (Kudos
  * sidebar + profile). Hovering reveals a tooltip explaining the double-hearts
  * event, mirroring the design. The tooltip is fixed-positioned so it escapes
- * the stats card's bounds. Mock copy lives here as local literals.
+ * the stats card's bounds. The caller (`KudosSidebar`) only renders this
+ * component while `getActiveCampaign()` returns a non-null campaign.
  */
-export default function CampaignX2Badge({ className }: CampaignX2BadgeProps) {
+export default function CampaignX2Badge({
+  heartMultiplier,
+  startDate,
+  endDate,
+  className,
+}: CampaignX2BadgeProps) {
+  const t = useTranslations("Kudos.campaignBadge");
   const ref = useRef<HTMLSpanElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+
+  const title = t("title", { multiplier: heartMultiplier });
+  const description = t("description", {
+    start: formatKudosTime(startDate),
+    end: formatKudosTime(endDate),
+  });
 
   function showTooltip() {
     const rect = ref.current?.getBoundingClientRect();
@@ -63,9 +81,9 @@ export default function CampaignX2Badge({ className }: CampaignX2BadgeProps) {
             className="h-14 w-auto shrink-0"
           />
           <div className="flex flex-col gap-1">
-            <p className="text-sm leading-5 font-bold text-white">{TITLE}</p>
+            <p className="text-sm leading-5 font-bold text-white">{title}</p>
             <p className="text-sm leading-5 font-bold text-white/70">
-              {DESCRIPTION}
+              {description}
             </p>
           </div>
         </div>

@@ -30,7 +30,7 @@ export default async function AwardDetailList() {
         </header>
 
         <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-20 mt-10">
-          <AwardNav items={navItems} />
+          <AwardNav items={navItems} navAriaLabel={t("navAriaLabel")} />
 
           <div className="flex min-w-0 flex-1 flex-col gap-16">
             {AWARD_MEDIA.map((media, index) => {

@@ -12,7 +12,7 @@ export function SignOutButton({ label }: { label: string }) {
       type="button"
       disabled={isPending}
       onClick={() => startTransition(() => signOut())}
-      className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-60"
+      className="cursor-pointer rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {label}
     </button>

@@ -1,4 +1,4 @@
-import type { CollectionIcon } from "@/lib/profile/mock-data";
+import type { CollectionIcon } from "@/lib/profile/types";
 
 export interface IconCollectionProps {
   icons: CollectionIcon[];

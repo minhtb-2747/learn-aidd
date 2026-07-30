@@ -3,6 +3,7 @@ import LoginHeader from "@/components/login/login-header";
 import HeroContent from "@/components/login/hero-content";
 import LoginFooter from "@/components/login/login-footer";
 import type { Locale } from "@/components/login/language-selector";
+import { safeNext } from "@/lib/auth/safe-next";
 
 /**
  * SAA 2025 Login screen. Server component
@@ -11,9 +12,9 @@ export default async function LoginPage({
   searchParams,
 }: {
   // searchParams is a Promise in Next.js 16 (async request APIs).
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, next } = await searchParams;
   const locale = (await getLocale()) as Locale;
   const t = await getTranslations("LoginPage");
   const errorText = error === "auth" ? t("errorText") : undefined;
@@ -31,6 +32,7 @@ export default async function LoginPage({
         tagline={t("tagline")}
         buttonLabel={t("googleButton")}
         errorText={errorText}
+        next={safeNext(next)}
       />
       <LoginFooter text={t("footer")} />
     </div>

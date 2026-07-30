@@ -1,4 +1,4 @@
-import { signInMock } from "@/app/actions/auth";
+import { signInWithGoogle } from "@/app/actions/auth";
 import LoginButton from "./login-button";
 
 export interface HeroContentProps {
@@ -7,6 +7,12 @@ export interface HeroContentProps {
   buttonLabel: string;
   /** Failure message from `?error=auth`, shown below the button. */
   errorText?: string;
+  /**
+   * Where to land after a successful sign-in — the `?next=` that `proxy.ts`
+   * attaches when bouncing an unauthenticated user off a protected route.
+   * Submitted as a hidden field and re-sanitised server-side.
+   */
+  next?: string;
 }
 
 export default function HeroContent({
@@ -14,6 +20,7 @@ export default function HeroContent({
   tagline,
   buttonLabel,
   errorText,
+  next,
 }: HeroContentProps) {
   return (
     <section className="relative z-10 flex flex-1 flex-col justify-center px-6 py-12 sm:px-8 sm:py-16 lg:py-24">
@@ -35,7 +42,8 @@ export default function HeroContent({
               {tagline}
             </p>
 
-            <form action={signInMock}>
+            <form action={signInWithGoogle}>
+              {next && <input type="hidden" name="next" value={next} />}
               <LoginButton label={buttonLabel} error={errorText} />
             </form>
           </div>

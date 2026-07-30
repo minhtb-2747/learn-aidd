@@ -3,6 +3,7 @@ import { Montserrat, Montserrat_Alternates } from "next/font/google";
 import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
+import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils/cn.utils";
 import KudosModalsProvider from "@/components/kudos/kudos-modals-provider";
 import "./globals.css";
@@ -54,6 +55,12 @@ export default async function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
+        {/* Route-change progress bar. App Router navigations are streamed, so
+            a slow server component leaves the old page on screen with no
+            feedback at all — this is the only signal that a click landed.
+            Spinner off: the bar alone matches the reference implementation and
+            a corner spinner competes with the floating WidgetButton. */}
+        <NextTopLoader color="var(--color-gold)" showSpinner={false} />
         <NextIntlClientProvider>
           {/* App-wide so the floating WidgetButton opens the Write/Rules
               modals on any page that renders it. */}

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { signOut } from "@/app/actions/auth";
@@ -9,6 +10,8 @@ import { UserIcon } from "@/icons";
 export interface AccountMenuUser {
   name: string;
   isAdmin?: boolean;
+  /** Link to the viewer's own profile. Falls back to "#" when absent. */
+  profileHref?: string;
 }
 
 export interface AccountMenuProps {
@@ -29,13 +32,13 @@ export default function AccountMenu({ user }: AccountMenuProps) {
 
   if (!user) {
     return (
-      <a
+      <Link
         href="/login"
         className="flex h-10 w-10 items-center justify-center rounded border border-gold-line transition-colors duration-200 hover:bg-white/10"
         aria-label={t("header.signIn")}
       >
         <UserIcon className="h-6 w-6 shrink-0 text-white" />
-      </a>
+      </Link>
     );
   }
 
@@ -47,7 +50,7 @@ export default function AccountMenu({ user }: AccountMenuProps) {
         aria-haspopup="true"
         aria-expanded={open}
         aria-label={t("header.accountAria")}
-        className="flex h-10 w-10 items-center justify-center rounded border border-gold-line transition-colors duration-200 hover:bg-white/10"
+        className="flex h-10 w-10 cursor-pointer items-center justify-center rounded border border-gold-line transition-colors duration-200 hover:bg-white/10"
       >
         <UserIcon className="h-6 w-6 shrink-0 text-white" />
       </button>
@@ -58,13 +61,16 @@ export default function AccountMenu({ user }: AccountMenuProps) {
             {user.name}
           </li>
           <li>
-            <a
-              href="#"
+            <Link
+              href={user.profileHref ?? "#"}
               className="block px-4 py-3 text-sm text-white hover:bg-white/10"
+              onClick={() => setOpen(false)}
             >
               {t("account.profile")}
-            </a>
+            </Link>
           </li>
+          {/* `isAdmin` correctly gates visibility, but there is no admin route
+              to point at yet — deliberately left as a stub. */}
           {user.isAdmin && (
             <li>
               <a
@@ -79,7 +85,7 @@ export default function AccountMenu({ user }: AccountMenuProps) {
             <form action={signOut}>
               <button
                 type="submit"
-                className="block w-full px-4 py-3 text-left text-sm text-white hover:bg-white/10"
+                className="block w-full cursor-pointer px-4 py-3 text-left text-sm text-white hover:bg-white/10"
               >
                 {t("account.signOut")}
               </button>

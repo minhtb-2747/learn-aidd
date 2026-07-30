@@ -117,6 +117,7 @@
     "quantityLabel": "Number of awards:",
     "prizeValueLabel": "Award value:",
     "orLabel": "Or",
+    "navAriaLabel": "Award categories",
     "awards": {
       "topTalent": {
         "title": "Top Talent",
@@ -125,7 +126,10 @@
         "quantityValue": "10",
         "quantityUnit": "Individuals",
         "prizes": [
-          { "value": "VND 7,000,000", "suffix": "per award" }
+          {
+            "value": "VND 7,000,000",
+            "suffix": "per award"
+          }
         ]
       },
       "topProject": {
@@ -135,7 +139,10 @@
         "quantityValue": "02",
         "quantityUnit": "Teams",
         "prizes": [
-          { "value": "VND 15,000,000", "suffix": "per award" }
+          {
+            "value": "VND 15,000,000",
+            "suffix": "per award"
+          }
         ]
       },
       "topProjectLeader": {
@@ -145,7 +152,10 @@
         "quantityValue": "03",
         "quantityUnit": "Individuals",
         "prizes": [
-          { "value": "VND 7,000,000", "suffix": "per award" }
+          {
+            "value": "VND 7,000,000",
+            "suffix": "per award"
+          }
         ]
       },
       "bestManager": {
@@ -154,7 +164,11 @@
         "description": "The Best Manager award honors outstanding leaders — those who have guided their teams to results beyond expectations, with a standout impact on business performance and the organization's sustainable growth. Under their leadership, teams consistently conquer and master every goal through multitasking capability, effective collaboration, and a flexible, technology-driven mindset for the digital era. They inspire their teams to feel confident, energized, and ready to embrace — even lead — revolutionary change.",
         "quantityValue": "01",
         "quantityUnit": "Individual",
-        "prizes": [{ "value": "VND 10,000,000" }]
+        "prizes": [
+          {
+            "value": "VND 10,000,000"
+          }
+        ]
       },
       "signatureCreator": {
         "title": "Signature 2025 - Creator",
@@ -163,8 +177,14 @@
         "quantityValue": "01",
         "quantityUnit": "Individual or team",
         "prizes": [
-          { "value": "VND 5,000,000", "suffix": "for an individual" },
-          { "value": "VND 8,000,000", "suffix": "for a team" }
+          {
+            "value": "VND 5,000,000",
+            "suffix": "for an individual"
+          },
+          {
+            "value": "VND 8,000,000",
+            "suffix": "for a team"
+          }
         ]
       },
       "mvp": {
@@ -173,7 +193,11 @@
         "description": "The MVP award honors the year's most outstanding individual — the standout figure who represents the entire Sun* team. They have shown exceptional capability, sustained dedication, and far-reaching influence, leaving a strong mark on Sun*'s journey over the past year. Beyond standing out through performance and results, they are also a spreading source of inspiration — through their thinking, actions, and positive influence on the team. The MVP embodies every quality of an outstanding Sun* person while carrying a great responsibility: to be a role model for Sun* people and spirit, helping lead the team to new heights.",
         "quantityValue": "01",
         "quantityUnit": "Individual",
-        "prizes": [{ "value": "VND 15,000,000" }]
+        "prizes": [
+          {
+            "value": "VND 15,000,000"
+          }
+        ]
       }
     }
   },
@@ -190,22 +214,58 @@
       "departmentLabel": "Department",
       "prevAria": "Previous slide",
       "nextAria": "Next slide",
-      "viewDetail": "View details"
+      "viewDetail": "View details",
+      "empty": "No kudos match this filter."
     },
     "card": {
       "likeAria": "Like",
       "unlikeAria": "Unlike",
-      "copyLink": "Copy Link"
+      "copyLink": "Copy Link",
+      "editAria": "Edit post",
+      "spamBadge": "Spam"
     },
     "spotlight": {
       "subtitle": "Sun* Annual Awards 2025",
       "title": "SPOTLIGHT BOARD",
-      "total": "388 KUDOS",
+      "total": "{count} KUDOS",
       "board": "Spotlight board",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out",
       "resetView": "Reset view",
-      "searchPlaceholder": "Search"
+      "searchPlaceholder": "Search",
+      "tooltipReceivedAt": "{name} · received Kudos at {time}",
+      "tickerText": "{name} just received a new Kudos"
+    },
+    "hashtagInput": {
+      "placeholder": "Enter hashtag",
+      "removeAria": "Remove hashtag {tag}"
+    },
+    "imageUploader": {
+      "uploadError": "Failed to upload image, please try again.",
+      "removeAria": "Remove image"
+    },
+    "editor": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "strikethrough": "Strikethrough",
+      "orderedList": "Numbered list",
+      "bulletList": "Bulleted list",
+      "insertLink": "Insert link",
+      "quote": "Quote",
+      "insertLinkPrompt": "Enter link URL"
+    },
+    "rulesPanel": {
+      "closeOverlayAria": "Close rules panel"
+    },
+    "campaignBadge": {
+      "title": "x{multiplier} Hearts Day – double the love!",
+      "description": "From {start} to {end}, every heart you receive is doubled."
+    },
+    "profileHoverCard": {
+      "unitLabel": "Department:",
+      "kudosReceivedLabel": "Kudos received:",
+      "kudosSentLabel": "Kudos sent:",
+      "sendKudoButton": "Send KUDO"
     },
     "allKudos": {
       "subtitle": "Sun* Annual Awards 2025",
@@ -223,6 +283,24 @@
     },
     "toast": {
       "linkCopied": "Link copied — ready to share!"
+    },
+    "recipient": {
+      "noResults": "No results found",
+      "searching": "Searching...",
+      "openList": "Open list",
+      "closeList": "Close list"
     }
+  },
+  "Profile": {
+    "iconCollectionTitle": "My icon collection",
+    "kudosSection": {
+      "subtitle": "Sun* Annual Awards 2025",
+      "title": "KUDOS",
+      "sentLabel": "Sent",
+      "receivedLabel": "Received",
+      "empty": "No KUDOS yet.",
+      "receivedCount": "Received: {count} Kudos"
+    },
+    "writeKudosCta": "Send thanks and recognition to {name}"
   }
 }

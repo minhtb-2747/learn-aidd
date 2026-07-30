@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRightIcon } from "@/icons";
 
@@ -10,7 +11,7 @@ export interface AwardCardData {
   title: string;
   description: string;
   /** Translated "Chi tiết" / "Details" link label. */
-  detailLabel?: string;
+  detailLabel: string;
 }
 
 /**
@@ -26,7 +27,7 @@ export default function AwardCard({
   nameImageHeight,
   title,
   description,
-  detailLabel = "Chi tiết",
+  detailLabel,
 }: AwardCardData) {
   return (
     <article className="flex w-full max-w-84 flex-col items-start gap-6 transition-transform duration-200 hover:-translate-y-1">
@@ -53,13 +54,13 @@ export default function AwardCard({
         <p className="text-base leading-6 tracking-[0.5px] text-white">
           {description}
         </p>
-        <a
+        <Link
           href={`/awards#${slug}`}
           className="mt-2 flex items-center gap-1 py-4 text-base leading-6 font-bold tracking-[0.15px] text-white transition-colors duration-200 hover:text-gold"
         >
           {detailLabel}
           <ArrowUpRightIcon className="h-6 w-6 shrink-0" />
-        </a>
+        </Link>
       </div>
     </article>
   );

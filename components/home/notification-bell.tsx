@@ -39,7 +39,7 @@ export default function NotificationBell({
         aria-haspopup="true"
         aria-expanded={open}
         aria-label={t("header.notificationsAria")}
-        className="relative flex h-10 w-10 items-center justify-center rounded bg-transparent transition-colors duration-200 hover:bg-white/10"
+        className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded bg-transparent transition-colors duration-200 hover:bg-white/10"
       >
         <BellIcon className="h-6 w-6 shrink-0 text-white" />
         {hasUnread && (

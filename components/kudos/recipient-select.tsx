@@ -1,38 +1,51 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDownIcon } from "@/icons";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils/cn.utils";
+import { searchSunnersAction } from "@/app/actions/kudos";
+import KudosAvatar from "./kudos-avatar";
 
-/** Mock Sunner directory for the "Người nhận" search — local literal per
- * project convention (no backend directory lookup in this build's scope). */
-const MOCK_SUNNERS = [
-  "Trần Bình Minh",
-  "Nguyễn Thị Hồng",
-  "Phạm Văn Đức",
-  "Lê Thị Mai",
-  "Đặng Quốc Huy",
-  "Vũ Thị Lan",
-  "Bùi Văn Nam",
-  "Hoàng Thị Thu",
-  "Đỗ Văn Tùng",
-  "Ngô Thị Hà",
-];
+const DEBOUNCE_MS = 250;
 
-const NO_RESULTS_LABEL = "Không tìm thấy kết quả";
+export interface RecipientOption {
+  id: string;
+  name: string;
+  /** Shown as the option's grey sub-line. Absent on a seeded initial value. */
+  department?: string;
+}
+
+/**
+ * The design draws a solid 10×5 triangle rather than the stroked chevron used
+ * elsewhere, so it is inlined here instead of reaching for `ChevronDownIcon`.
+ */
+function CaretIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 10 5"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M0 0L5 5L10 0H0Z" fill="currentColor" />
+    </svg>
+  );
+}
 
 export interface RecipientSelectProps {
   label: string;
   placeholder: string;
-  value: string | null;
-  onChange: (name: string) => void;
+  value: RecipientOption | null;
+  onChange: (value: RecipientOption) => void;
   className?: string;
 }
 
 /**
- * "Người nhận*" searchable single-select (MoMorph spec B, node
- * `520:9871`): typing filters the mock Sunner list, clicking a row selects
- * it. Closes on outside click or Escape.
+ * "Người nhận*" searchable single-select (MoMorph spec B, node `520:9871`):
+ * typing debounces into `searchSunnersAction` — a server action, since this
+ * client component can't import `lib/kudos/queries/**` directly (those
+ * transitively pull in `next/headers` and would break the client bundle).
+ * Clicking a row selects `{id, name}`. Closes on outside click or Escape.
  */
 export default function RecipientSelect({
   label,
@@ -41,14 +54,23 @@ export default function RecipientSelect({
   onChange,
   className,
 }: RecipientSelectProps) {
+  // Translated here rather than via props: the loading/empty/aria strings are
+  // this control's own internal states, not copy the parent form decides.
+  const t = useTranslations("Kudos.recipient");
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [results, setResults] = useState<RecipientOption[]>([]);
+  const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
     function handlePointerDown(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setOpen(false);
       }
     }
@@ -56,14 +78,26 @@ export default function RecipientSelect({
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, []);
 
-  const filtered = useMemo(() => {
-    const term = query.trim().toLowerCase();
-    if (!term) return MOCK_SUNNERS;
-    return MOCK_SUNNERS.filter((name) => name.toLowerCase().includes(term));
-  }, [query]);
+  useEffect(() => {
+    if (!open) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      startTransition(async () => {
+        // `department` was being dropped here; the design's option rows show
+        // it as the grey sub-line, and `searchSunners` already returns it.
+        const options = await searchSunnersAction(query);
+        setResults(
+          options.map(({ id, name, department }) => ({ id, name, department })),
+        );
+      });
+    }, DEBOUNCE_MS);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query, open]);
 
-  function selectName(name: string) {
-    onChange(name);
+  function selectOption(option: RecipientOption) {
+    onChange(option);
     setQuery("");
     setOpen(false);
   }
@@ -71,7 +105,9 @@ export default function RecipientSelect({
   return (
     <div className={cn("flex w-full flex-col gap-2", className)}>
       <div className="flex items-center gap-0.5">
-        <span className="text-[22px] leading-7 font-bold text-ink">{label}</span>
+        <span className="text-[22px] leading-7 font-bold text-ink">
+          {label}
+        </span>
         <span className="text-base leading-5 font-bold text-danger">*</span>
       </div>
       <div ref={containerRef} className="relative w-full">
@@ -82,7 +118,7 @@ export default function RecipientSelect({
             aria-expanded={open}
             aria-autocomplete="list"
             aria-controls="recipient-select-listbox"
-            value={open ? query : (value ?? query)}
+            value={open ? query : (value?.name ?? query)}
             placeholder={placeholder}
             onFocus={() => setOpen(true)}
             onChange={(event) => {
@@ -101,33 +137,60 @@ export default function RecipientSelect({
           />
           <button
             type="button"
-            aria-label={open ? "Đóng danh sách" : "Mở danh sách"}
+            aria-label={open ? t("closeList") : t("openList")}
             onClick={() => setOpen((current) => !current)}
-            className="shrink-0 text-ink"
+            className="shrink-0 cursor-pointer text-ink"
           >
-            <ChevronDownIcon className={cn("h-6 w-6 transition-transform", open && "rotate-180")} />
+            <CaretIcon
+              className={cn(
+                "h-[5px] w-[10px] transition-transform",
+                open && "rotate-180",
+              )}
+            />
           </button>
         </div>
         {open && (
           <ul
             id="recipient-select-listbox"
             role="listbox"
-            className="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-lg border border-gold-line bg-white shadow-lg"
+            className="absolute z-10 mt-2 max-h-37 w-full overflow-y-auto rounded-lg border border-gold-line bg-[#00070C] p-1.5 shadow-lg"
           >
-            {filtered.length === 0 ? (
-              <li className="px-6 py-3 text-sm leading-5 font-bold text-black/50">{NO_RESULTS_LABEL}</li>
+            {isPending || results.length === 0 ? (
+              <li className="px-4 py-3 text-sm leading-5 font-bold text-white/50">
+                {isPending ? t("searching") : t("noResults")}
+              </li>
             ) : (
-              filtered.map((name) => (
-                <li key={name} role="option" aria-selected={value === name}>
+              results.map((option) => (
+                <li
+                  key={option.id}
+                  role="option"
+                  aria-selected={value?.id === option.id}
+                >
                   <button
                     type="button"
-                    onClick={() => selectName(name)}
+                    onClick={() => selectOption(option)}
                     className={cn(
-                      "block w-full px-6 py-3 text-left text-base leading-6 font-bold text-ink hover:bg-gold/20",
-                      value === name && "bg-gold/30",
+                      // `rounded-xs` is 2px in Tailwind v4 (v4 shifted the
+                      // scale — `rounded-sm` is 4px there), matching rx=2.
+                      "flex h-17 w-full cursor-pointer items-center gap-3 rounded-xs px-2.5 text-left transition-colors duration-150 hover:bg-gold/20",
+                      value?.id === option.id && "bg-gold/20",
                     )}
                   >
-                    {name}
+                    <KudosAvatar
+                      name={option.name}
+                      size={40}
+                      className="shrink-0"
+                    />
+                    <span className="flex min-w-0 flex-col">
+                      <span className="truncate text-base leading-6 font-bold text-white">
+                        {option.name}
+                      </span>
+                      {option.department && (
+                        <span className="truncate text-sm leading-5 font-bold text-[#999999]">
+                          {option.department}
+                        </span>
+                      )}
+                    </span>
                   </button>
                 </li>
               ))

@@ -23,8 +23,10 @@ export default function KudosComposer({
     <div className="flex flex-wrap items-stretch gap-8">
       <button
         type="button"
-        onClick={openWrite}
-        className="flex flex-1 basis-100 items-center gap-4 rounded-full border border-gold-line bg-gold/10 px-4 py-6 text-left transition-colors duration-150 hover:bg-gold/20"
+        // Wrapped, not passed directly: `openWrite` now takes an optional
+        // `WriteKudosInitial`, and React would hand it the MouseEvent.
+        onClick={() => openWrite()}
+        className="flex flex-1 basis-100 cursor-pointer items-center gap-4 rounded-full border border-gold-line bg-gold/10 px-4 py-6 text-left transition-colors duration-150 hover:bg-gold/20"
       >
         <PenIcon className="h-6 w-6 shrink-0 text-white" />
         <span className="truncate text-base leading-6 font-bold tracking-[0.15px] text-white">
@@ -35,7 +37,7 @@ export default function KudosComposer({
       {/* Stub — Sunner profile search (out of scope). */}
       <button
         type="button"
-        className="flex items-center gap-4 rounded-full border border-gold-line bg-gold/10 px-4 py-6 text-left transition-colors duration-150 hover:bg-gold/20"
+        className="flex cursor-pointer items-center gap-4 rounded-full border border-gold-line bg-gold/10 px-4 py-6 text-left transition-colors duration-150 hover:bg-gold/20"
       >
         <SearchIcon className="h-6 w-6 shrink-0 text-white" />
         <span className="truncate text-base leading-6 font-bold tracking-[0.15px] text-white">

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils/cn.utils";
 
 export interface HeaderNavLink {
@@ -18,7 +19,7 @@ export default function HeaderNav({ links = [] }: { links?: HeaderNavLink[] }) {
   return (
     <nav className="flex items-center gap-6">
       {links.map((link) => (
-        <a
+        <Link
           key={link.label}
           href={link.href}
           className={cn(
@@ -29,7 +30,7 @@ export default function HeaderNav({ links = [] }: { links?: HeaderNavLink[] }) {
           )}
         >
           {link.label}
-        </a>
+        </Link>
       ))}
     </nav>
   );

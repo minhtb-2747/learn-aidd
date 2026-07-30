@@ -1,8 +1,8 @@
 /**
  * Local Vietnamese literal copy for `write-kudos-dialog.tsx` (and its
  * `kudos-honor-title-field.tsx` / `kudos-anonymous-field.tsx` sub-fields),
- * matching the `lib/kudos/mock-data.ts` / `lib/kudos/spotlight-names.ts`
- * precedent — this screen has no i18n keys. Split out of the dialog
+ * kept as local literals because this screen has no i18n key set assigned yet
+ * (same choice as `lib/kudos/rules-content.ts`). Split out of the dialog
  * component itself to keep that file under the 200-line guideline.
  */
 export const CREATE_TITLE = "Gửi lời cám ơn và ghi nhận đến đồng đội";

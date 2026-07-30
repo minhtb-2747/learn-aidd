@@ -60,8 +60,8 @@ export default function CopyLinkButton({
           className,
         )}
       >
-        <LinkIcon className="h-6 w-6 shrink-0" />
         {label}
+        <LinkIcon className="h-6 w-6 shrink-0" />
       </button>
 
       {showToast && (

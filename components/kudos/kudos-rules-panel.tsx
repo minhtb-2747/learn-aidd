@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type JSX } from "react";
+import { useTranslations } from "next-intl";
 import { PenIcon } from "@/icons";
 import { cn } from "@/lib/utils/cn.utils";
 import HeroBadge from "./hero-badge";
@@ -39,6 +40,8 @@ export default function KudosRulesPanel({
   onClose,
   onWriteKudos,
 }: KudosRulesPanelProps): JSX.Element | null {
+  const t = useTranslations("Kudos.rulesPanel");
+
   useEffect(() => {
     if (!open) return undefined;
 
@@ -61,8 +64,8 @@ export default function KudosRulesPanel({
     <div className="fixed inset-0 z-50 flex justify-end">
       <button
         type="button"
-        aria-label="Đóng bảng thể lệ"
-        className="absolute inset-0 bg-black/60"
+        aria-label={t("closeOverlayAria")}
+        className="absolute inset-0 cursor-pointer bg-black/60"
         onClick={onClose}
       />
 
@@ -89,7 +92,7 @@ export default function KudosRulesPanel({
             type="button"
             aria-label={RULES_PANEL_FOOTER.closeLabel}
             onClick={onClose}
-            className="flex items-center justify-center gap-2 rounded border border-gold-line bg-gold/10 px-4 py-4 text-base leading-6 font-bold tracking-[0.5px] text-white transition-colors duration-150 hover:bg-gold/20"
+            className="flex cursor-pointer items-center justify-center gap-2 rounded border border-gold-line bg-gold/10 px-4 py-4 text-base leading-6 font-bold tracking-[0.5px] text-white transition-colors duration-150 hover:bg-gold/20"
           >
             <span aria-hidden="true">✕</span>
             {RULES_PANEL_FOOTER.closeLabel}
@@ -98,7 +101,7 @@ export default function KudosRulesPanel({
             type="button"
             aria-label={RULES_PANEL_FOOTER.writeKudosLabel}
             onClick={() => onWriteKudos?.()}
-            className="flex flex-1 items-center justify-center gap-2 rounded bg-gold px-4 py-4 text-base leading-6 font-bold tracking-[0.5px] text-ink transition-colors duration-150 hover:bg-gold-glow"
+            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded bg-gold px-4 py-4 text-base leading-6 font-bold tracking-[0.5px] text-ink transition-colors duration-150 hover:bg-gold-glow"
           >
             <PenIcon className="h-6 w-6 shrink-0" />
             {RULES_PANEL_FOOTER.writeKudosLabel}

@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "agentic-coding-live-demo"
+project_id = "learn-aidd"
 
 [api]
 enabled = true
@@ -105,12 +105,14 @@ enabled = true
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
-# Uncomment to configure local storage buckets
-[storage.buckets.images]
-public = false
-file_size_limit = "50MiB"
-allowed_mime_types = ["image/png", "image/jpeg"]
-objects_path = "./images"
+# Buckets are declared in a migration, not here, so that the bucket and its RLS
+# policies stay in one reviewable unit (config.toml cannot express policies).
+# See supabase/migrations/20260421000001_storage_policies.sql for `kudo-images`.
+#
+# The previous `[storage.buckets.images]` block was removed: it declared a
+# private bucket named `images` that nothing referenced, and its
+# `objects_path = "./images"` pointed at a directory that does not exist, which
+# can fail `supabase start`.
 
 # Allow connections via S3 compatible clients
 [storage.s3_protocol]
@@ -145,9 +147,17 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://localhost:3000"
+# NOTE: must match the port `npm run dev` serves on (3333, see package.json) and
+# the SITE_URL in .env.local that `resolveOrigin()` in app/actions/auth.ts reads.
+# A mismatch makes GoTrue reject the OAuth callback redirect.
+site_url = "http://localhost:3333"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["http://localhost:3000", "https://127.0.0.1:3000"]
+additional_redirect_urls = [
+  "http://localhost:3333",
+  "http://localhost:3333/auth/callback",
+  "http://127.0.0.1:3333",
+  "http://127.0.0.1:3333/auth/callback",
+]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to the local API URL (http://127.0.0.1:<port>/auth/v1).

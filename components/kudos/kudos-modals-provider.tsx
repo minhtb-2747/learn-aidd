@@ -11,7 +11,16 @@ import WriteKudosDialog, { type WriteKudosInitial } from "./write-kudos-dialog";
 import KudosRulesPanel from "./kudos-rules-panel";
 
 interface KudosModalsContextValue {
-  openWrite: () => void;
+  /**
+   * Opens a fresh compose session. `initial` seeds the form — the profile CTA
+   * passes the viewed Sunner as the recipient. Mode stays "create"; `openEdit`
+   * remains the only path that edits an existing post.
+   *
+   * Note for callers: this takes an optional argument, so it must never be
+   * handed straight to `onClick` — React would pass the `MouseEvent` as
+   * `initial`. Wrap it: `onClick={() => openWrite()}`.
+   */
+  openWrite: (initial?: WriteKudosInitial) => void;
   openEdit: (initial: WriteKudosInitial) => void;
   openRules: () => void;
 }
@@ -57,9 +66,9 @@ export default function KudosModalsProvider({
 
   const value = useMemo(
     () => ({
-      openWrite: () => {
+      openWrite: (nextInitial?: WriteKudosInitial) => {
         setMode("create");
-        setInitial(undefined);
+        setInitial(nextInitial);
         setSeedToken((token) => token + 1);
         setWriteOpen(true);
       },

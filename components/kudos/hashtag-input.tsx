@@ -32,6 +32,8 @@ export interface HashtagInputProps {
   label: string;
   addLabel: string;
   maxLabel: string;
+  inputPlaceholder: string;
+  removeAriaLabel: (tag: string) => string;
   value: string[];
   onChange: (tags: string[]) => void;
   max?: number;
@@ -48,6 +50,8 @@ export default function HashtagInput({
   label,
   addLabel,
   maxLabel,
+  inputPlaceholder,
+  removeAriaLabel,
   value,
   onChange,
   max = 5,
@@ -97,9 +101,9 @@ export default function HashtagInput({
             #{tag}
             <button
               type="button"
-              aria-label={`Xóa hashtag ${tag}`}
+              aria-label={removeAriaLabel(tag)}
               onClick={() => handleRemove(tag)}
-              className="text-black/40 transition-colors hover:text-danger"
+              className="cursor-pointer text-black/40 transition-colors hover:text-danger"
             >
               <CloseIcon className="h-3.5 w-3.5" />
             </button>
@@ -116,14 +120,14 @@ export default function HashtagInput({
                 commitDraft();
                 setAdding(false);
               }}
-              placeholder="Nhập hashtag"
+              placeholder={inputPlaceholder}
               className="w-32 rounded-lg border border-gold-line bg-white px-2 py-1.5 text-base leading-6 font-bold text-ink outline-none placeholder:text-black/40"
             />
           ) : (
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="flex items-center gap-1 rounded-lg border border-gold-line bg-white px-2 py-1.5 text-black/50 transition-colors hover:bg-gold/10"
+              className="flex cursor-pointer items-center gap-1 rounded-lg border border-gold-line bg-white px-2 py-1.5 text-black/50 transition-colors hover:bg-gold/10"
             >
               <PlusIcon className="h-6 w-6 text-ink" />
               <span className="flex flex-col text-left text-[11px] leading-4 font-bold tracking-[0.5px]">
