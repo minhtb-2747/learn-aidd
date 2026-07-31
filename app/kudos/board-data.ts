@@ -37,9 +37,8 @@ export interface BoardData {
 }
 
 /**
- * Every profile id a batch of kudos rows references. Anonymous senders are
- * intentionally excluded — `row.sender_id` is never resolved for those rows,
- * matching the one place (`kudos-mapper.ts`) that owns the anonymity rule.
+ * Every profile id a batch of rows references. Anonymous senders are excluded,
+ * matching `kudos-mapper.ts`, which owns the anonymity rule.
  */
 function collectProfileIds(rows: KudosRow[]): string[] {
   const ids = new Set<string>();
@@ -51,13 +50,11 @@ function collectProfileIds(rows: KudosRow[]): string[] {
 }
 
 /**
- * Assembles the whole `/kudos` view-model in one place: the page's entire
- * fetch graph lives here so there is exactly one `Promise.all` for the
- * independent reads and exactly one `getPeopleMeta`/`getCurrentUserLikes`
- * batch for every row on the page (highlight + feed combined) — never a
- * per-card lookup. Colocated under `app/kudos/` (not `lib/kudos/queries/`)
- * because it composes phase-04's queries for this one page rather than
- * exposing a reusable query.
+ * The whole `/kudos` fetch graph in one place: one `Promise.all` for the
+ * independent reads, and ONE `getPeopleMeta`/`getCurrentUserLikes` batch
+ * covering highlight + feed together — never a per-card lookup. Colocated
+ * here because it composes queries for this page rather than exposing a
+ * reusable one.
  */
 export async function getBoardData(filters: KudosFeedFilters): Promise<BoardData> {
   const [

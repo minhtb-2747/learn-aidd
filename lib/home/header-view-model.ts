@@ -2,9 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getHeaderData } from "@/lib/home/header-queries";
 
 /**
- * Plain, serializable view-model for the homepage header. Server-only —
- * never pass the raw Supabase user/session object across the server/client
- * boundary, only these display fields.
+ * Serializable view-model for the header. Never pass the raw Supabase
+ * user/session across the server/client boundary — only these display fields.
  */
 export interface HeaderViewModel {
   isAuthenticated: boolean;
@@ -15,9 +14,8 @@ export interface HeaderViewModel {
     avatarUrl: string | null;
   } | null;
   /**
-   * DISPLAY flag only — it decides whether the admin menu item is rendered.
-   * It is NOT an authorization gate: any future admin route must do its own
-   * server-side `profiles.role` check and rely on RLS.
+   * DISPLAY flag only, NOT an authorization gate — any admin route must do its
+   * own server-side `profiles.role` check and rely on RLS.
    */
   isAdmin: boolean;
   notifications: {
@@ -37,11 +35,7 @@ function resolveDisplayName(metadata: Record<string, unknown>, email: string | u
 }
 
 /**
- * Resolve the homepage header's auth-aware view-model.
- *
- * Every field is backed by real data: auth state and display name from the
- * Supabase session, `isAdmin` from `profiles.role`, and the unread count from
- * `notifications` (see `getHeaderData`). Signed-out requests short-circuit
+ * Auth-aware view-model for the header. Signed-out requests short-circuit
  * before any database query runs.
  */
 export async function getHeaderViewModel(): Promise<HeaderViewModel> {

@@ -20,22 +20,16 @@ export interface ProfileData {
 }
 
 /**
- * Assembles the `/profile/[id]` view-model. `null` means the id is malformed
- * or the profile doesn't exist — the page turns that into `notFound()`.
+ * Assembles the `/profile/[id]` view-model; `null` means malformed id or no
+ * such profile, which the page turns into `notFound()`.
  *
- * `ProfileStats.kudosReceived`/`kudosSent` come from `person` (the same
- * hero-tier-meta numbers shown everywhere else a `KudosPerson` appears), while
- * `counts.sent`/`counts.received` (from `getProfileCounts`) drive the
- * Đã gửi/Đã nhận dropdown + post list, whose semantics differ (sent includes
- * the owner's own non-published/spam rows; received is published-only) — see
- * `lib/profile/queries.ts`'s own docs.
+ * `stats.kudosReceived`/`kudosSent` and `counts.sent`/`received` deliberately
+ * differ: the former are the hero-tier numbers shown wherever a `KudosPerson`
+ * appears, the latter drive the post list and count the owner's own
+ * non-published/spam rows too.
  *
- * `heartsReceived`/`boxesOpened`/`boxesUnopened` come from the id-scoped
- * `getProfileEngagementStats(id)`, so they are correct on anyone's profile —
- * not just the viewer's own. The one asymmetry is deliberate and enforced by
- * RLS rather than by code here: `boxesUnopened` reads 0 for any viewer who is
- * not the owner, because an unopened Secret Box is meant to stay a surprise.
- * See that function's doc comment for the per-counter reasoning.
+ * Engagement counters are id-scoped, so they are right on anyone's profile.
+ * `boxesUnopened` reading 0 for non-owners is RLS doing its job, not a bug.
  */
 export async function getProfileData(
   id: string,

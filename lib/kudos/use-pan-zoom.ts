@@ -41,9 +41,8 @@ const DEFAULT_ZOOM_STEP = 0.2;
 const WHEEL_ZOOM_SENSITIVITY = 0.001;
 
 /**
- * Click-drag pan + wheel-to-cursor zoom for a large virtual canvas.
- * Uses CSS transforms (no per-frame React re-layout) and cleans up all
- * window/element listeners on unmount.
+ * Click-drag pan + wheel-to-cursor zoom, via CSS transforms so there is no
+ * per-frame React re-layout.
  */
 export function usePanZoom(options: UsePanZoomOptions = {}): UsePanZoomResult {
   const {

@@ -42,17 +42,13 @@ const MAX_DPR = 2;
  * The whole board in one canvas: the plexus the design ships as a static
  * texture, plus every Sunner name as a vertex of it.
  *
- * The names were DOM `<span>`s at first, which is what made the board stutter.
- * Writing `style.transform` on ~100 elements every frame forces a style
- * recalc and repaint over all of them, and panning re-rendered the same 100
- * elements through React on every `pointermove`. Painting them here costs one
- * `fillText` each with no DOM work at all, so a frame is a few hundred
- * microseconds instead of tens of milliseconds.
+ * Canvas, not DOM `<span>`s: writing `style.transform` on ~100 elements per
+ * frame forces a style recalc and repaint over all of them. One `fillText` each
+ * makes a frame hundreds of microseconds instead of tens of milliseconds.
  *
- * The canvas also sits *outside* the pan/zoom transformed element and
- * re-applies that transform through `setTransform`: scaling a canvas with CSS
- * resamples its bitmap and leaves both hairlines and text blurred at any zoom
- * above 1.
+ * The canvas sits OUTSIDE the pan/zoom element and re-applies the transform via
+ * `setTransform` — scaling a canvas with CSS resamples its bitmap and blurs
+ * hairlines and text at any zoom above 1.
  */
 export default function SpotlightCanvas({
   names,
@@ -69,8 +65,8 @@ export default function SpotlightCanvas({
 }: SpotlightCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // The force tick fires far more often than React renders, so the draw
-  // closure reads volatile inputs from a ref rather than capturing stale props.
+  // The tick fires far more often than React renders, so the draw closure reads
+  // volatile inputs from a ref rather than capturing stale props.
   const liveRef = useRef({ transform, query, hoveredIndex });
   useEffect(() => {
     liveRef.current = { transform, query, hoveredIndex };
@@ -136,10 +132,8 @@ export default function SpotlightCanvas({
     context.globalAlpha = 1;
   }, [edges, names, nodesRef, metrics, sizeGroups, typeScale]);
 
-  // Every repaint request is coalesced into at most one per animation frame.
-  // Without this a pan paints twice per frame: gaming mice fire `pointermove`
-  // well above 60Hz, and each one lands a transform change on top of the
-  // simulation tick that was already going to repaint anyway.
+  // Coalesce repaints to one per frame. Without it a pan paints twice: mice
+  // fire `pointermove` above 60Hz, on top of the tick already repainting.
   const frameRef = useRef<number | null>(null);
   const requestDraw = useCallback(() => {
     if (frameRef.current !== null) return;
@@ -156,9 +150,8 @@ export default function SpotlightCanvas({
     [],
   );
 
-  // Sizing is kept apart from repainting on purpose: assigning `canvas.width`
-  // reallocates the backing store and clears it, so folding this into the
-  // repaint effect would do that on every frame of a pan.
+  // Kept apart from repainting: assigning `canvas.width` reallocates and clears
+  // the backing store, which folded into the repaint effect means every frame.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !width || !height) return;

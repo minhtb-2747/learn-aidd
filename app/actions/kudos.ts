@@ -12,26 +12,20 @@ import {
   type CreateKudosInput,
 } from "@/lib/kudos/create-kudos-helpers";
 
-// NOTE: do NOT re-export types from a "use server" module.
-// `export type { X }` looks free because TypeScript erases it, but Next's
-// server-action transform still emits a runtime binding for each export in the
-// file — and a type has no runtime value, so the module throws
-// "CreateKudosInput is not defined" as soon as anything in the graph loads it
-// (the root layout mounts KudosModalsProvider, so that means every page,
-// including /login). `tsc` and `next build` both pass, which is what makes this
-// one nasty. Import the type straight from `lib/kudos/create-kudos-helpers`
-// instead. Plain `export type X = …` aliases are fine — they declare no binding.
+// NOTE: never `export type { X }` from a "use server" module. Next's transform
+// emits a runtime binding for every export, and a type has no runtime value, so
+// the module throws "X is not defined" on every page that loads it. `tsc` and
+// `next build` both pass, which is what makes this one nasty. Import the type
+// from its own module instead. Plain `export type X = …` aliases are fine.
 
 const SEARCH_QUERY_MAX_LENGTH = 100;
 const SEARCH_RESULT_LIMIT = 20;
 
 /**
- * Thin server-action wrapper over `searchSunners` (phase 04) for the
- * composer's recipient select. Needed because `RecipientSelect` is a client
- * component mounted from the root layout (`KudosModalsProvider`) — there is
- * no server page that can hand it a directory as props, and a client
- * component can never import `lib/kudos/queries/**` directly (those
- * transitively pull in `next/headers`, which breaks the client bundle).
+ * Server-action wrapper over `searchSunners` for the composer's recipient
+ * select. `RecipientSelect` is mounted from the root layout, so no server page
+ * can hand it a directory as props — and a client component can never import
+ * `lib/kudos/queries/**` (they pull in `next/headers`).
  */
 export async function searchSunnersAction(query: string): Promise<SunnerOption[]> {
   try {
@@ -44,18 +38,14 @@ export async function searchSunnersAction(query: string): Promise<SunnerOption[]
 export type CreateKudosResult = { ok: true; kudoId: string } | { ok: false; error: string };
 
 /**
- * Create a kudos row plus its hashtag links and exact-name `@mention`
- * rows. `sender_id` always comes from the authenticated session, never a
- * client-supplied field — `kudos_insert`'s `WITH CHECK (sender_id =
- * auth.uid())` is the second, authoritative gate.
+ * Create a kudos row plus its hashtag links and `@mention` rows.
  *
- * No cross-call transaction: if a hashtag/mention insert fails after the
- * `kudos` row lands, the kudos row is still accepted as valid content
- * (phase-07 spec's explicit "Ordering note").
+ * `sender_id` always comes from the session, never the client — `kudos_insert`'s
+ * `WITH CHECK (sender_id = auth.uid())` is the authoritative second gate.
  *
- * Runtime `kudo_received` notifications are intentionally NOT created here:
- * `notifications` has no INSERT RLS policy, so writing one is impossible
- * without a schema change (out of scope for this phase).
+ * No cross-call transaction, by design: a failed hashtag/mention insert still
+ * leaves the kudos row as valid content. `kudo_received` notifications are NOT
+ * written here — `notifications` has no INSERT RLS policy.
  */
 export async function createKudos(input: CreateKudosInput): Promise<CreateKudosResult> {
   const supabase = await createClient();

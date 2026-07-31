@@ -7,17 +7,10 @@ export interface ProfileHeaderProps {
 }
 
 /**
- * Profile hero block (MoMorph spec `A.1`/`A.2`), shared by the viewer's own
- * profile and anyone else's: a large avatar that overlaps the keyvisual banner
- * above it, the Sunner's name, department and recognition-tier `HeroBadge`.
- * Sits on `bg-ink` (not the cream card background `KudosPersonInfo` uses), so
- * its own name/department text styling is defined here rather than reusing
- * that component.
- *
- * The star row was removed at the user's request — it restated in glyphs what
- * `HeroBadge` already says in words. `starsForBadge` stays in
- * `lib/kudos/hero-tier.ts` because `lib/kudos/queries/people.ts` still feeds
- * the hover-card from it.
+ * Profile hero block: a large avatar overlapping the keyvisual banner, plus
+ * name, department and `HeroBadge`. Sits on `bg-ink` rather than the cream card
+ * background `KudosPersonInfo` uses, hence its own text styling instead of
+ * reusing that component.
  */
 export default function ProfileHeader({ person }: ProfileHeaderProps) {
   return (

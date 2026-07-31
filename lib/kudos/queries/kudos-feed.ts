@@ -3,11 +3,7 @@ import type { KudosRow } from "@/lib/kudos/kudos-mapper";
 
 type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
 
-/**
- * Shared select shape for every kudos list — one definition, reused by the
- * board feed and the profile sent/received lists — producing exactly the
- * `KudosRow` shape `kudos-mapper.ts` expects.
- */
+/** Shared select for every kudos list, shaped to `kudos-mapper.ts`'s `KudosRow`. */
 export const KUDOS_SELECT =
   "id, sender_id, receiver_id, title, content, is_anonymous, anonymous_name, " +
   "status, like_count, created_at, " +
@@ -19,10 +15,9 @@ export interface KudosFeedFilters {
 }
 
 /**
- * Two-step id resolution (resolve matching kudo ids, then filter by id) —
- * chosen over a deep embedded `kudo_hashtags.hashtags.name` filter because
- * PostgREST's embedded-filter syntax for nested relations is fragile;
- * correctness over cleverness here.
+ * Two-step (resolve ids, then filter) rather than a deep embedded
+ * `kudo_hashtags.hashtags.name` filter — PostgREST's nested-relation filter
+ * syntax is fragile.
  */
 async function resolveHashtagKudoIds(
   supabase: SupabaseClient,
@@ -48,7 +43,7 @@ async function resolveHashtagKudoIds(
   return ((linkRows ?? []) as { kudo_id: number }[]).map((row) => row.kudo_id);
 }
 
-/** Same two-step approach for department: resolve receiver ids in that department, then filter. */
+/** Same two-step approach, for department. */
 async function resolveDepartmentReceiverIds(
   supabase: SupabaseClient,
   department: string,
@@ -74,10 +69,9 @@ async function resolveDepartmentReceiverIds(
 }
 
 /**
- * Top-5 published kudos by `like_count`, with optional hashtag/department
- * filters. Returns raw rows — mapping to `HighlightKudos` view-models
- * happens where `getPeopleMeta`/`getCurrentUserLikes` are also available
- * (see phase-04 spec's board read-data-flow).
+ * Top-5 published kudos by `like_count`. Returns raw rows — mapping to
+ * `HighlightKudos` happens where `getPeopleMeta`/`getCurrentUserLikes` are
+ * also in scope.
  */
 export async function getHighlightKudos(
   filters?: KudosFeedFilters,
@@ -110,7 +104,7 @@ export async function getHighlightKudos(
   return (data ?? []) as unknown as KudosRow[];
 }
 
-/** Newest-first bounded first page — no infinite scroll (explicitly out of scope for this phase). */
+/** Newest-first bounded first page; no infinite scroll. */
 export async function getAllKudosPosts(
   { limit = 10 }: { limit?: number } = {},
 ): Promise<KudosRow[]> {
@@ -127,7 +121,7 @@ export async function getAllKudosPosts(
   return (data ?? []) as unknown as KudosRow[];
 }
 
-/** Which of `kudoIds` the current session user has liked. Empty Set when there is no session. */
+/** Which of `kudoIds` the session user liked; empty Set when signed out. */
 export async function getCurrentUserLikes(kudoIds: string[]): Promise<Set<string>> {
   if (kudoIds.length === 0) return new Set();
 

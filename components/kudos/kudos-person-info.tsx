@@ -9,19 +9,13 @@ export interface KudosPersonInfoProps {
 }
 
 /**
- * Sender/receiver info block shared by the highlight card and feed post
- * (spec B.3.2/B.3.6/C.3.1/C.3.3): avatar, name, department and the
- * recognition-tier badge — all rendered on the cards' cream (`#FFF8E1`)
- * background, so text stays dark (`text-ink`).
+ * Sender/receiver block shared by the highlight card and feed post: avatar,
+ * name, department, tier badge. Always on the cards' cream background, so text
+ * stays dark.
  *
- * The star row ("hoa thị") was removed at the user's request: it restated
- * what `HeroBadge` already says in words, so it was pure visual noise.
- * `starsForBadge` still exists in `lib/kudos/hero-tier.ts` for the tier→stars
- * mapping should a future surface want it.
- *
- * `person.profileId === null` means an anonymous sender: there is no
- * profile to open or preview, so the avatar/name render as plain text with
- * no `Link`/`ProfileHoverCard`, and department/badge are omitted too.
+ * `person.profileId === null` marks an anonymous sender — nothing to open or
+ * preview, so name and avatar render as plain text with no `Link`/hover card,
+ * and department/badge are omitted.
  */
 export default function KudosPersonInfo({ person }: KudosPersonInfoProps) {
   const isAnonymous = person.profileId === null;

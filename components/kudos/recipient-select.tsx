@@ -15,10 +15,7 @@ export interface RecipientOption {
   department?: string;
 }
 
-/**
- * The design draws a solid 10×5 triangle rather than the stroked chevron used
- * elsewhere, so it is inlined here instead of reaching for `ChevronDownIcon`.
- */
+/** A solid triangle, not the stroked `ChevronDownIcon` used elsewhere. */
 function CaretIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -41,11 +38,9 @@ export interface RecipientSelectProps {
 }
 
 /**
- * "Người nhận*" searchable single-select (MoMorph spec B, node `520:9871`):
- * typing debounces into `searchSunnersAction` — a server action, since this
- * client component can't import `lib/kudos/queries/**` directly (those
- * transitively pull in `next/headers` and would break the client bundle).
- * Clicking a row selects `{id, name}`. Closes on outside click or Escape.
+ * "Người nhận*" searchable single-select. Typing debounces into
+ * `searchSunnersAction` — a server action, because a client component cannot
+ * import `lib/kudos/queries/**` (they pull in `next/headers`).
  */
 export default function RecipientSelect({
   label,
@@ -54,8 +49,8 @@ export default function RecipientSelect({
   onChange,
   className,
 }: RecipientSelectProps) {
-  // Translated here rather than via props: the loading/empty/aria strings are
-  // this control's own internal states, not copy the parent form decides.
+  // Translated here, not via props: these strings describe this control's own
+  // internal states, not copy the parent form decides.
   const t = useTranslations("Kudos.recipient");
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -83,8 +78,6 @@ export default function RecipientSelect({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       startTransition(async () => {
-        // `department` was being dropped here; the design's option rows show
-        // it as the grey sub-line, and `searchSunners` already returns it.
         const options = await searchSunnersAction(query);
         setResults(
           options.map(({ id, name, department }) => ({ id, name, department })),
@@ -126,8 +119,7 @@ export default function RecipientSelect({
               setOpen(true);
             }}
             onKeyDown={(event) => {
-              // Escape closes only the dropdown — kept local so it doesn't
-              // bubble up and also close the surrounding dialog.
+              // Kept local so Escape doesn't bubble up and close the dialog.
               if (event.key === "Escape" && open) {
                 event.stopPropagation();
                 setOpen(false);
@@ -170,8 +162,7 @@ export default function RecipientSelect({
                     type="button"
                     onClick={() => selectOption(option)}
                     className={cn(
-                      // `rounded-xs` is 2px in Tailwind v4 (v4 shifted the
-                      // scale — `rounded-sm` is 4px there), matching rx=2.
+                      // `rounded-xs` is 2px in Tailwind v4 (the scale shifted).
                       "flex h-17 w-full cursor-pointer items-center gap-3 rounded-xs px-2.5 text-left transition-colors duration-150 hover:bg-gold/20",
                       value?.id === option.id && "bg-gold/20",
                     )}

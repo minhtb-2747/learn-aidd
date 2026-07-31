@@ -14,22 +14,15 @@ import KudosSidebar from "@/components/kudos/kudos-sidebar";
 import { getBoardData } from "./board-data";
 
 interface KudosPageProps {
-  /**
-   * Highlight-carousel filters, URL-driven so a reload or shared link
-   * preserves the selection. Next.js 16 passes `searchParams` as a Promise.
-   */
+  /** URL-driven carousel filters. Next.js 16 passes `searchParams` as a Promise. */
   searchParams: Promise<{ hashtag?: string; department?: string }>;
 }
 
 /**
- * "Sun* Kudos - Live board" screen (MoMorph frame `2940:13431`): the hero
- * banner, HIGHLIGHT KUDOS carousel, SPOTLIGHT BOARD word-cloud, and the
- * two-column ALL KUDOS feed + sidebar. Server-rendered from Supabase via
- * `getBoardData` — every child below only receives plain, serializable
- * props; none of them import a query module directly (see
- * `app/kudos/board-data.ts`). Mirrors `app/award-system/page.tsx`'s
- * header/keyvisual backdrop/footer wiring; the route itself is auth-gated
- * in `proxy.ts` (owned by the orchestrator).
+ * "Sun* Kudos - Live board": hero banner, highlight carousel, spotlight
+ * word-cloud, and the two-column feed + sidebar. Server-rendered via
+ * `getBoardData` — every child receives plain serializable props and none
+ * imports a query module. The route is auth-gated in `proxy.ts`.
  */
 export default async function KudosPage({ searchParams }: KudosPageProps) {
   const [locale, vm, t, params] = await Promise.all([
@@ -40,9 +33,8 @@ export default async function KudosPage({ searchParams }: KudosPageProps) {
   ]);
   const tk = await getTranslations("Kudos");
 
-  // Defense-in-depth: the route is already guarded in proxy.ts, but re-verify
-  // the Supabase session server-side (the view-model is backed by getUser())
-  // so a proxy misconfiguration can never expose this page — mirrors /todo.
+  // Defense-in-depth: proxy.ts already guards this route, but re-verifying the
+  // session here means a proxy misconfiguration can never expose the page.
   if (!vm.isAuthenticated) {
     redirect("/login");
   }
@@ -67,8 +59,7 @@ export default async function KudosPage({ searchParams }: KudosPageProps) {
         }
       : null;
 
-  // One like is worth this many hearts right now — drives the heart button's
-  // optimistic delta so the counter doesn't visibly correct itself.
+  // Drives the heart button's optimistic delta (see kudos-heart-button.tsx).
   const heartMultiplier = data.campaign?.heartMultiplier ?? 1;
 
   const cardCopy = {
@@ -89,9 +80,8 @@ export default async function KudosPage({ searchParams }: KudosPageProps) {
         hasUnreadNotifications={vm.notifications.unreadCount > 0}
       />
       <main className="relative isolate flex-1 bg-ink pt-20">
-        {/* Keyvisual backdrop — same contained hero-band treatment as the
-            award-system screen (header 80px + full-bleed artwork fading back
-            to `bg-ink` before the banner content starts). */}
+        {/* Keyvisual backdrop — the contained hero band, fading back to
+            `bg-ink` before the banner content starts. */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 -z-10 aspect-1440/520"
@@ -120,8 +110,7 @@ export default async function KudosPage({ searchParams }: KudosPageProps) {
         />
 
         <HighlightCarousel
-          // Remounting on filter change resets the slide index for free
-          // (see highlight-carousel.tsx) — no client effect required.
+          // Remounting on filter change resets the slide index for free.
           key={`${params.hashtag ?? ""}::${params.department ?? ""}`}
           subtitle={tk("highlight.subtitle")}
           title={tk("highlight.title")}

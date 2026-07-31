@@ -1,9 +1,8 @@
 import type { SpotlightEntry } from "@/lib/kudos/types";
 
 /**
- * Deterministic PRNG (mulberry32), ported byte-for-byte from
- * the former `spotlight-names.ts` mock, so the scatter is stable across server render and
- * client hydration (no `Math.random()` mismatch).
+ * Deterministic PRNG (mulberry32) — the scatter must be identical on server and
+ * client, which `Math.random()` cannot guarantee.
  */
 function mulberry32(seed: number) {
   let state = seed;
@@ -20,19 +19,13 @@ function mulberry32(seed: number) {
 export const HIGHLIGHT_TEXT_COLOR = "#F17676";
 
 /**
- * The design frame (`SPOTLIGHT_board.svg`) is 1157×548 and the whole cloud is
- * in view at rest — there is no off-screen region to discover. So the layout
- * is authored in *normalised* 0–1 space and projected onto whatever the board
- * actually measures at runtime; panning only becomes useful once zoomed in.
+ * The whole cloud is in view at rest, so the layout is authored in normalised
+ * 0–1 space and projected onto the board's runtime size.
  */
 export const DESIGN_WIDTH = 1157;
 export const DESIGN_HEIGHT = 548;
 
-/**
- * Name type sizes read off the design export. Measuring the outlined glyph
- * paths gives three clusters of cap-height — ~7.2px, ~11.1px and ~12.3px —
- * which at a ~0.72 cap-height ratio come out as roughly 10 / 15 / 17px.
- */
+/** Read off the design: three cap-height clusters, ~0.72 ratio → 10/15/17px. */
 const FONT_SIZES = [10, 15, 17] as const;
 
 /** Names are kept clear of the header, the search pill and the ticker block. */
@@ -61,22 +54,16 @@ export interface SpotlightEdge {
 
 const SEED = 20260726;
 /**
- * 10 columns rather than the design's apparent 12: a Vietnamese full name at
- * the base 10px size measures ~100–120px, so a 12-column grid on a 1157px
- * board (≈96px pitch) guarantees horizontal overlap that `forceCollide` cannot
- * undo — its circular hit area can't model a box that wide and short.
+ * 10 columns, not the design's apparent 12: a Vietnamese full name at 10px runs
+ * ~100–120px, so 12 columns on a 1157px board (~96px pitch) guarantees overlap.
  */
 const COLS = 10;
 const ROWS = 9;
 
 /**
- * Seeded grid-with-jitter scatter, one cell per name. Runs on the server so
- * the first paint already shows the cloud in its designed arrangement; the
- * client force simulation then takes these as its starting positions and its
- * "home" anchors, which is what stops the physics from drifting the cloud
- * into an undesigned blob.
- *
- * Returns `[]` for an empty `entries` array (guards the modulo below).
+ * Seeded grid-with-jitter scatter, one cell per name. Runs on the server so the
+ * first paint shows the designed arrangement; the client simulation then uses
+ * these as both its start positions and its "home" anchors.
  */
 export function buildSpotlightLayout(entries: SpotlightEntry[]): SpotlightName[] {
   if (entries.length === 0) return [];
@@ -119,13 +106,9 @@ export function buildSpotlightLayout(entries: SpotlightEntry[]): SpotlightName[]
 }
 
 /**
- * Mesh edges for the plexus the design renders as a static texture layer.
- *
- * Each name links to its `perNode` nearest seeded neighbours, deduped so an
- * A→B and B→A pair only yields one edge. Deriving them once from the *rest*
- * positions (rather than re-testing distance every frame) is what keeps the
- * mesh stable while the nodes drift — a distance-threshold mesh flickers as
- * links wink in and out, which reads as noise rather than as a structure.
+ * Mesh edges: each name links to its `perNode` nearest seeded neighbours,
+ * deduped. Derived once from REST positions, not re-tested per frame — a
+ * distance-threshold mesh flickers as links wink in and out.
  */
 export function buildSpotlightEdges(
   names: SpotlightName[],

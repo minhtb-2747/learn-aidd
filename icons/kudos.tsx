@@ -1,14 +1,13 @@
 /**
- * Sun* Kudos "Live board" screen icons. Split out of `./index.tsx` to keep
- * that barrel under the 200-line guideline; re-exported from `@/icons` so
- * consumers use the same shared import path as every other icon.
+ * Sun* Kudos board icons, split out of `./index.tsx` for file size and
+ * re-exported from `@/icons` — consumers use the one shared import path.
  */
 
 interface IconProps {
   className?: string;
 }
 
-/** Magnifier glyph — Kudos "search Sunner profile" pills (MoMorph 186:2759 search variant). */
+/** Magnifier glyph — Kudos search pills. */
 export function SearchIcon({ className }: IconProps) {
   return (
     <svg
@@ -26,7 +25,7 @@ export function SearchIcon({ className }: IconProps) {
   );
 }
 
-/** Down chevron — Highlight Kudos "Hashtag" / "Phòng ban" filter dropdown affordance (MoMorph 186:1862). */
+/** Down chevron — filter dropdown affordance. */
 export function ChevronDownIcon({ className }: IconProps) {
   return (
     <svg
@@ -41,7 +40,7 @@ export function ChevronDownIcon({ className }: IconProps) {
   );
 }
 
-/** Left chevron — carousel "previous" control, reused at both the large edge and small pagination sizes (MoMorph 178:1020). */
+/** Left chevron — carousel "previous", at both edge and pagination sizes. */
 export function ArrowLeftIcon({ className }: IconProps) {
   return (
     <svg
@@ -56,7 +55,7 @@ export function ArrowLeftIcon({ className }: IconProps) {
   );
 }
 
-/** Right chevron — carousel "next" control (MoMorph 178:1020). */
+/** Right chevron — carousel "next" control. */
 export function ArrowRightIcon({ className }: IconProps) {
   return (
     <svg
@@ -71,7 +70,7 @@ export function ArrowRightIcon({ className }: IconProps) {
   );
 }
 
-/** Chain-link glyph — "Copy Link" action on Kudos cards/posts (MoMorph 186:1441). */
+/** Chain-link glyph — "Copy Link" action on Kudos cards/posts. */
 export function LinkIcon({ className }: IconProps) {
   return (
     <svg
@@ -89,7 +88,7 @@ export function LinkIcon({ className }: IconProps) {
   );
 }
 
-/** Heart glyph — Kudos like toggle; fill follows `currentColor` so gray (idle) / danger-red (liked) is CSS-driven (MoMorph 178:1020). */
+/** Heart glyph — like toggle; fill follows `currentColor`, so idle/liked is CSS-driven. */
 export function HeartIcon({ className }: IconProps) {
   return (
     <svg
@@ -107,7 +106,7 @@ export function HeartIcon({ className }: IconProps) {
   );
 }
 
-/** "Sent" arrow glyph between sender/receiver blocks on a Kudos card (MoMorph 256:5147 / 256:5161). */
+/** "Sent" arrow glyph between sender/receiver blocks on a Kudos card. */
 export function SendIcon({ className }: IconProps) {
   return (
     <svg
@@ -127,7 +126,7 @@ export function SendIcon({ className }: IconProps) {
   );
 }
 
-/** Gift-box glyph — sidebar "Mở Secret Box" button (MoMorph 178:1020). */
+/** Gift-box glyph — sidebar "Mở Secret Box" button. */
 export function GiftIcon({ className }: IconProps) {
   return (
     <svg
@@ -145,7 +144,7 @@ export function GiftIcon({ className }: IconProps) {
   );
 }
 
-/** Floppy-disk "save" glyph — submit icon on the post-edit dialog's "Lưu" button (MoMorph node `1949:13746`). */
+/** Floppy-disk "save" glyph — submit icon on the post-edit dialog's "Lưu" button. */
 export function SaveIcon({ className }: IconProps) {
   return (
     <svg
@@ -163,7 +162,7 @@ export function SaveIcon({ className }: IconProps) {
   );
 }
 
-/** Small 5-point star — the "hoa thị" recognition-level indicator next to sender/receiver names on Kudos cards. */
+/** Small 5-point star — the "hoa thị" recognition indicator. */
 export function StarIcon({ className }: IconProps) {
   return (
     <svg

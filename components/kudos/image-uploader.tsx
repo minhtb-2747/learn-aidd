@@ -15,13 +15,11 @@ export interface PendingImage {
 }
 
 /**
- * Local tile id — a React key and a lookup handle, nothing more.
+ * Local tile id — a React key, nothing more.
  *
- * `crypto.randomUUID()` is a secure-context-only API: served over a LAN IP
- * (the usual way to test on a phone) it is `undefined` and throws inside the
- * pick handler, before any error state exists to report it — the picker would
- * appear completely dead. Nothing here needs cryptographic strength, so fall
- * back rather than depend on the context.
+ * `crypto.randomUUID()` is secure-context-only: over a LAN IP (testing on a
+ * phone) it is `undefined` and throws inside the pick handler before any error
+ * state exists, so the picker looks dead. Nothing here needs crypto strength.
  */
 let tileCounter = 0;
 function nextTileId(): string {
@@ -47,12 +45,8 @@ export interface ImageUploaderProps {
 }
 
 /**
- * "Image" gallery field (MoMorph spec F, node `520:9896`).
- *
- * Purely presentational: picking a file only holds the `File` and shows a
- * local `blob:` preview — no network call happens here. The files are uploaded
- * at submit time by `write-kudos-form.tsx` via `upload-kudos-images.ts`.
- *
+ * "Image" gallery field. Picking only holds the `File` and shows a local
+ * `blob:` preview — upload happens at submit time in `write-kudos-form.tsx`.
  * That ordering is what makes abandoning the dialog free: nothing has reached
  * Storage yet, so there is nothing to clean up.
  */
@@ -70,8 +64,8 @@ export default function ImageUploader({
   const inputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef(value);
 
-  // Keep the ref current (without mutating it during render) so the
-  // unmount cleanup below can see the latest tiles, not a stale closure.
+  // Kept current so the unmount cleanup below sees the latest tiles, not a
+  // stale closure.
   useEffect(() => {
     valueRef.current = value;
   }, [value]);
@@ -91,10 +85,9 @@ export default function ImageUploader({
   }
 
   function handleFilesSelected(event: ChangeEvent<HTMLInputElement>) {
-    // Copy the FileList out BEFORE clearing the input. `input.files` is live:
-    // setting `value = ""` empties the very object this reference points at,
-    // so reading it afterwards yields zero files — the picker would appear to
-    // do nothing at all, with no tile and no error.
+    // Copy the FileList out BEFORE clearing the input — `input.files` is live,
+    // so `value = ""` empties the very object this points at and reading it
+    // afterwards yields zero files, with no tile and no error.
     const files = Array.from(event.target.files ?? []).slice(
       0,
       Math.max(0, max - value.length),
@@ -102,9 +95,9 @@ export default function ImageUploader({
     event.target.value = ""; // allow re-selecting the same file later
     if (files.length === 0) return;
 
-    // Accumulated, then applied in ONE `onChange`. `value` is a plain array
-    // here, not a state updater, so calling `onChange` per file would build
-    // each batch off the same stale `value` and keep only the last tile.
+    // Accumulated, then applied in ONE `onChange`. `value` is a plain array,
+    // not a state updater, so per-file calls would each build off the same
+    // stale `value` and keep only the last tile.
     const added: PendingImage[] = [];
     const nextErrors: string[] = [];
 
@@ -137,10 +130,9 @@ export default function ImageUploader({
       <div className="flex flex-wrap items-center gap-4">
         {value.map((image) => (
           <div key={image.id} className="relative h-20 w-20 shrink-0">
-            {/* Border and radius belong on the image, not on a wrapper: the
-                old markup nested an 18px frame around a 4px one, so the curves
-                never lined up. `unoptimized` is required — a `blob:` src lives
-                only in this tab, and Next's optimizer fetches server-side. */}
+            {/* Border and radius on the image, not a wrapper, or the curves
+                don't line up. `unoptimized` is required — a `blob:` src lives
+                only in this tab and Next's optimizer fetches server-side. */}
             <Image
               src={image.previewUrl}
               alt=""

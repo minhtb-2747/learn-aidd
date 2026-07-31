@@ -13,16 +13,13 @@ const KUDO_ID_PATTERN = /^[1-9][0-9]*$/;
 const UNIQUE_VIOLATION_CODE = "23505";
 
 /**
- * Toggle the current user's like on a kudos post: insert a `kudo_likes` row
- * if absent, delete it if present.
+ * Toggle the user's like: insert a `kudo_likes` row if absent, delete if present.
  *
- * `kudos.like_count` is NEVER written here — the `trg_update_like_count`
- * trigger on `kudo_likes` owns it exclusively (adds/subtracts `heart_value`
- * on INSERT/DELETE). Writing it from here would double-count.
+ * `kudos.like_count` is NEVER written here — `trg_update_like_count` owns it
+ * exclusively, and writing it from here would double-count.
  *
- * `uq_kudo_like (kudo_id, user_id)` makes a duplicate insert a Postgres
- * `23505`; a race from a rapid double-click is treated as "already liked",
- * not surfaced as an error.
+ * `uq_kudo_like` turns a double-click race into a `23505`, which is treated as
+ * "already liked" rather than surfaced as an error.
  */
 export async function toggleKudoLike(kudoId: string): Promise<ToggleKudoLikeResult> {
   if (!KUDO_ID_PATTERN.test(kudoId)) {
@@ -64,8 +61,7 @@ export async function toggleKudoLike(kudoId: string): Promise<ToggleKudoLikeResu
     }
     result = { ok: true, liked: false, heartValue: existingRow.heart_value };
   } else {
-    // Only the active-campaign multiplier is applied here — this is the one
-    // place `heart_value` becomes real (spec: phase-07 key insight #3).
+    // The one place `heart_value` becomes real.
     const campaign = await getActiveCampaign().catch(() => null);
     const heartValue = campaign?.heartMultiplier ?? 1;
 

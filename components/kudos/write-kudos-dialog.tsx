@@ -23,30 +23,18 @@ export interface WriteKudosDialogProps {
 }
 
 /**
- * "Viết Kudo" / "Chỉnh sửa bài viết" modal shell (MoMorph node `520:11647`
- * create, `1949:13746` edit): the cream rounded card centered over a dark
- * scrim. Owns the scrim, focus trap, Escape handling, body-scroll lock, and
- * the dialog title; field state and the submit call live in
- * `WriteKudosForm` (split out in phase 07 — once the "Gửi" button called a
- * real `createKudos` server action, this file alone would have exceeded the
- * 200-line guideline). The parent (`KudosModalsProvider`) remounts this
- * component via a changing React `key` each time a NEW compose/edit session
- * starts (so a fresh `initial` always takes effect as `WriteKudosForm`'s own
- * initial state).
+ * "Viết Kudo" / "Chỉnh sửa bài viết" modal shell. Owns the scrim, focus, Escape,
+ * body-scroll lock and title; field state and submit live in `WriteKudosForm`.
+ * `KudosModalsProvider` remounts this via a changing `key` per compose session,
+ * so a fresh `initial` always takes effect.
  *
- * Two things this shell is responsible for that are easy to miss:
+ * Two responsibilities that are easy to miss:
  *
- * - **It refuses to close while the form is submitting.** Escape, the scrim
- *   and Cancel all funnel through `handleCancel`, and the submit runs as a
- *   promise chain that survives unmount — so without this guard a user who
- *   "cancelled" mid-upload would still have their kudos posted, silently.
- *   `WriteKudosForm` reports its pending state up through `onBusyChange`.
- * - **The Rules-panel hand-off does NOT preserve the draft.** The parent sets
- *   `open` false, this component returns `null`, and the whole form unmounts
- *   with it — text, hashtags and picked images alike. An earlier version of
- *   this comment claimed otherwise; it was wrong. What the deferred-upload
- *   change fixed is narrower: the picked images are merely discarded now,
- *   where they used to be uploaded first and then deleted from Storage.
+ * - **Refuses to close while submitting.** The submit is a promise chain that
+ *   survives unmount, so without this guard a user who "cancelled" mid-upload
+ *   would still have their kudos posted, silently.
+ * - **The Rules-panel hand-off does NOT preserve the draft** — `open` goes
+ *   false and the whole form unmounts, text and picked images alike.
  */
 export default function WriteKudosDialog({
   open,
@@ -56,14 +44,12 @@ export default function WriteKudosDialog({
   initial,
 }: WriteKudosDialogProps): JSX.Element | null {
   const dialogRef = useRef<HTMLDivElement>(null);
-  // A ref, not state: this is read inside `handleCancel` and must not
-  // re-subscribe the Escape listener every time the form starts or stops
-  // submitting.
+  // A ref, not state — must not re-subscribe the Escape listener every time
+  // the form starts or stops submitting.
   const busyRef = useRef(false);
 
   const handleCancel = useCallback(() => {
-    // Closing mid-submit would not cancel anything — the upload/create chain
-    // keeps running after unmount and would post the kudos anyway.
+    // Closing mid-submit cancels nothing; the chain would post anyway.
     if (busyRef.current) return;
     onClose();
   }, [onClose]);
@@ -92,15 +78,11 @@ export default function WriteKudosDialog({
   const title = mode === "edit" ? Copy.EDIT_TITLE : Copy.CREATE_TITLE;
 
   return (
-    // Two layers on purpose. Centring with `items-center` directly on the
-    // scrolling box is the obvious one-word change and it is broken: once the
-    // dialog is taller than the viewport — which this one is, with the editor
-    // and image uploader open — a centred flex item overflows equally in both
-    // directions, and the part above the scroll origin cannot be scrolled to.
-    // The title and the recipient field simply become unreachable.
-    // So the scroll lives on the outer box and the centring on an inner one
-    // that is at least as tall as the viewport: centred when it fits, scrolled
-    // from the top when it doesn't.
+    // Two layers on purpose: scroll on the outer box, centring on an inner one
+    // at least as tall as the viewport. Putting `items-center` on the scrolling
+    // box instead looks equivalent and is broken — once the dialog outgrows the
+    // viewport a centred flex item overflows BOTH ways, and everything above
+    // the scroll origin (title, recipient field) becomes unreachable.
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60">
       <div
         role="presentation"

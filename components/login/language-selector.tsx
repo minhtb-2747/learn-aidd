@@ -19,12 +19,9 @@ const OPTIONS: Array<{ value: Locale; label: string; Flag: typeof FlagVnIcon }> 
 ];
 
 /**
- * VN/EN language selector shown top-right of the login header.
- *
- * Selection is real: it calls the `setLocale` server action (which persists
- * the `NEXT_LOCALE` cookie) and then `router.refresh()` so the whole tree
- * re-renders in the new language. Local state only mirrors `current` so the
- * pill updates optimistically while the transition is pending.
+ * VN/EN language selector. Calls the `setLocale` action (persisting the
+ * `NEXT_LOCALE` cookie) then `router.refresh()`. Local state mirrors `current`
+ * only so the pill updates optimistically while the transition is pending.
  */
 export default function LanguageSelector({
   current = "vi",
@@ -36,10 +33,8 @@ export default function LanguageSelector({
   const [prevCurrent, setPrevCurrent] = useState<Locale>(current);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Keep local selection in sync when the `current` prop changes from
-  // outside (e.g. phase 06 wiring real locale state). Adjusting state
-  // during render (React's recommended pattern) avoids an extra effect
-  // + cascading render.
+  // Resync when `current` changes from outside. Adjusting state during render
+  // is React's recommended pattern here — it avoids an effect + extra render.
   if (current !== prevCurrent) {
     setPrevCurrent(current);
     setSelected(current);

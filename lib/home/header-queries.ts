@@ -10,18 +10,13 @@ export interface HeaderData {
 const FALLBACK: HeaderData = { isAdmin: false, unreadCount: 0 };
 
 /**
- * Resolve the two header values that live in the database: whether the viewer
- * is an admin, and how many unread notifications they have.
+ * Admin flag + unread notification count, in one round trip.
  *
- * Both queries run in one `Promise.all` so this costs a single round trip's
- * worth of latency on every page that renders the header.
+ * Returns `FALLBACK` on any error rather than throwing: the header is chrome,
+ * and degrading it beats 500-ing a page whose content loaded fine.
  *
- * Failure policy: on any error this returns `FALLBACK` rather than throwing.
- * The header is chrome — degrading it to "not admin, nothing unread" is far
- * better than 500-ing a page whose actual content loaded fine.
- *
- * `notifications_select` is owner-scoped in the database, so the `user_id`
- * filter below is an optimisation, not the security boundary — RLS is.
+ * `notifications_select` is owner-scoped, so the `user_id` filter below is an
+ * optimisation — RLS is the security boundary.
  */
 export async function getHeaderData(userId: string): Promise<HeaderData> {
   try {
@@ -37,9 +32,8 @@ export async function getHeaderData(userId: string): Promise<HeaderData> {
     ]);
 
     return {
-      // A missing profiles row is tolerated (treated as a non-admin). If this
-      // happens for freshly signed-in users, suspect the `handle_new_user`
-      // trigger rather than this call site.
+      // A missing profiles row means non-admin. If that happens for freshly
+      // signed-in users, suspect the `handle_new_user` trigger, not this call.
       isAdmin: roleResult.data?.role === "admin",
       unreadCount: unreadResult.count ?? 0,
     };

@@ -9,17 +9,15 @@ export interface SpotlightTickerProps {
 }
 
 /**
- * Opacity ramp read off the design export: the two newest lines are solid and
- * older ones fade out, so the block reads as a trail rather than a list. Lines
- * past the ramp are not rendered at all.
+ * Opacity ramp from the design: the two newest lines are solid, older ones fade,
+ * so the block reads as a trail rather than a list. Lines past it aren't rendered.
  */
 const OPACITY_RAMP = [1, 1, 0.7, 0.5, 0.3, 0.1];
 
 /**
- * "Recent activity" trail in the board's bottom-left corner. The timestamp is
- * its own `#999999` column (x≈49 in the design) with the message starting at a
- * fixed x≈119 — hence the fixed-width time cell rather than an inline prefix,
- * which is what keeps the messages left-aligned with each other.
+ * "Recent activity" trail, bottom-left of the board. The timestamp is its own
+ * fixed-width column rather than an inline prefix, which is what keeps the
+ * messages left-aligned with each other.
  */
 export default function SpotlightTicker({ lines }: SpotlightTickerProps) {
   const t = useTranslations("Kudos.spotlight");

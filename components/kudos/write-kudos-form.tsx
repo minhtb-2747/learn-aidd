@@ -25,10 +25,9 @@ export interface WriteKudosFormProps {
 }
 
 /**
- * Field block + submit for the Write/Edit-Kudos dialog (split out of
- * `write-kudos-dialog.tsx`, which kept the scrim/focus/title shell). Owns
- * all field state and the `createKudos` server-action call. `mode="edit"`
- * keeps the original close-only stub — out of scope for this phase.
+ * Field state + submit for the Write/Edit dialog; the shell (scrim, focus,
+ * title) stays in `write-kudos-dialog.tsx`. `mode="edit"` is still a
+ * close-only stub.
  */
 export default function WriteKudosForm({
   mode,
@@ -59,11 +58,11 @@ export default function WriteKudosForm({
   const canSubmit = useMemo(() => {
     const requiredFieldsFilled =
       Boolean(recipient) && honorTitle.trim().length > 0 && hashtags.length > 0;
-    // Edit mode seeds the body via RichTextEditor's initialContent (which
-    // reports hasContent=true on mount), so both modes gate on hasContent.
+    // Edit mode seeds the body via `initialContent`, which reports
+    // hasContent=true on mount — so both modes can gate on it.
     const nicknameReady = !anonymous || nickname.trim().length > 0;
-    // Images no longer gate submit: nothing is in flight before submit, so
-    // there is no half-finished gallery to wait for.
+    // Images don't gate submit: nothing uploads before submit, so there is no
+    // half-finished gallery to wait on.
     return requiredFieldsFilled && hasContent && nicknameReady;
   }, [recipient, honorTitle, hashtags, hasContent, anonymous, nickname]);
 
@@ -72,8 +71,7 @@ export default function WriteKudosForm({
     setContent(state.text);
   }, []);
 
-  // A failed upload names the file that broke; once the gallery changes that
-  // message is about a tile that may no longer be there, so drop it.
+  // The failure message names a file that may no longer be in the gallery.
   const handleImagesChange = useCallback(
     (next: PendingImage[]) => {
       setImages(next);
@@ -86,8 +84,7 @@ export default function WriteKudosForm({
     if (!canSubmit || isPending) return;
 
     if (mode === "edit") {
-      // Editing an existing kudos is out of scope for this phase — keep the
-      // original close-only stub (no backend call).
+      // Edit is still a stub — no backend call.
       onSubmitted();
       return;
     }

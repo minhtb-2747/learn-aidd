@@ -1,9 +1,6 @@
 /**
- * Pure countdown domain logic for the SAA 2025 event.
- *
- * Deliberately framework-free and side-effect-free: every function takes its
- * inputs explicitly (including `now`) so it is trivially unit-testable and
- * carries no hidden `Date.now()` calls.
+ * Pure countdown logic. Every function takes its inputs explicitly (including
+ * `now`) — no hidden `Date.now()` calls, so it is trivially testable.
  */
 
 const MS_PER_MINUTE = 60_000;
@@ -19,15 +16,9 @@ export interface Countdown {
 }
 
 /**
- * Compute the remaining time between `now` and `target`.
- *
- * - `target === null` → treated as "passed" (event has no configured date).
- * - `now >= target` → treated as "passed" (event already started/ended).
- * - Otherwise → whole days/hours/minutes remaining, `isBeforeEvent: true`.
- *
- * Uses the absolute epoch millisecond difference — never reconstructs local
- * wall-clock components — so timezone offsets baked into the ISO strings are
- * respected without drift.
+ * Remaining time between `now` and `target`. A null or already-passed `target`
+ * counts as "passed". Works off the epoch-millisecond difference, never local
+ * wall-clock components, so ISO timezone offsets are respected without drift.
  */
 export function computeCountdown(target: Date | null, now: Date): Countdown {
   if (target === null || now.getTime() >= target.getTime()) {

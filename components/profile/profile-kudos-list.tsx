@@ -27,11 +27,10 @@ export interface ProfileKudosListProps {
   receivedLabel: string;
   emptyLabel: string;
   /**
-   * The viewer's own profile gets the Đã gửi/Đã nhận switch; anyone else's is
-   * received-only, so the switch is replaced by a static count. That is a
-   * privacy boundary, not just a layout one — see `app/profile/[id]/page.tsx`,
-   * which pins `filter` server-side so `?filter=sent` cannot reveal another
-   * person's unpublished or spam-flagged drafts.
+   * Own profile gets the Đã gửi/Đã nhận switch; anyone else's is received-only.
+   * A privacy boundary, not just layout — `app/profile/[id]/page.tsx` pins
+   * `filter` server-side so `?filter=sent` cannot reveal another person's
+   * unpublished or spam-flagged drafts.
    */
   isOwnProfile: boolean;
   /** Pre-translated "Đã nhận: N Kudos", shown when `isOwnProfile` is false. */
@@ -39,12 +38,9 @@ export interface ProfileKudosListProps {
 }
 
 /**
- * "Sun* Annual Awards 2025 / KUDOS" section (MoMorph spec `C`/`D`): section
- * header with the "Đã gửi (N)" filter dropdown, followed by the post list.
- * `filter` is URL-driven (`?filter=received`, "sent" is the default/omitted
- * case) so switching it re-queries sent vs. received kudos server-side and a
- * reload preserves the selection — mirrors the Kudos board's hashtag/
- * department filters (`components/kudos/highlight-carousel.tsx`).
+ * Profile kudos section: header with the "Đã gửi (N)" filter, then the post
+ * list. `filter` is URL-driven ("sent" is the omitted default) so switching
+ * re-queries server-side and a reload preserves the selection.
  */
 export default function ProfileKudosList({
   posts,

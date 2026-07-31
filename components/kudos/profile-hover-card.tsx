@@ -19,12 +19,10 @@ export interface ProfileHoverCardProps {
 }
 
 /**
- * Wraps an avatar/name trigger and reveals a mini-profile card on hover
- * (MoMorph node `2268:35101`): name, department, Hero badge, kudos counts,
- * and a "Gửi KUDO" button that opens the Write dialog. Fixed-positioned so it
- * escapes card/carousel `overflow`; a short close delay lets the pointer
- * travel into the card to click the button. Only rendered for non-anonymous
- * people (`kudos-person-info.tsx` skips it entirely for anonymous senders).
+ * Mini-profile card revealed on hover, with a "Gửi KUDO" button. FIXED-positioned
+ * so it escapes card/carousel `overflow`, and the close is delayed so the
+ * pointer can travel into the card to click. Never rendered for anonymous
+ * senders — `kudos-person-info.tsx` skips it.
  */
 export default function ProfileHoverCard({
   person,
@@ -85,7 +83,7 @@ export default function ProfileHoverCard({
             <p className="text-xl leading-7 font-bold text-white">
               {person.name}
             </p>
-            {/* Schema has no unit hierarchy — `department` is the flat
+            {/* Schema has no unit hierarchy; `department` is the flat
                 department name, not a full org path. */}
             <p className="text-sm leading-5 font-bold text-white/70">
               {t("unitLabel")} {person.department}
@@ -105,12 +103,10 @@ export default function ProfileHoverCard({
 
           <button
             type="button"
-            // Seeds the recipient: the card is only ever open because the
-            // pointer is on this person, so making the viewer re-pick them
-            // from the dropdown was busywork. `profileId` is non-null in
-            // practice (anonymous senders never get a hover card, see
-            // `kudos-person-info.tsx`) — `?? undefined` just satisfies the
-            // optional-string contract without inventing an id.
+            // Seeds the recipient — the card is only open because the pointer
+            // is on this person, so re-picking them would be busywork.
+            // `profileId` is non-null here in practice; `?? undefined` only
+            // satisfies the optional-string contract.
             onClick={() =>
               openWrite({
                 recipientId: person.profileId ?? undefined,

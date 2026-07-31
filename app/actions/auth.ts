@@ -6,11 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 import { safeNext } from "@/lib/auth/safe-next";
 
 /**
- * Resolve the app origin for OAuth redirect URLs (server-side env first).
- *
- * Whatever this returns must be present in `supabase/config.toml`'s
- * `[auth] additional_redirect_urls`, or GoTrue rejects the callback. The
- * last-resort fallback tracks the dev port in package.json (`next dev -p 3333`).
+ * App origin for OAuth redirect URLs. Whatever this returns must appear in
+ * `supabase/config.toml`'s `[auth] additional_redirect_urls`, or GoTrue rejects
+ * the callback. The fallback tracks the dev port in package.json.
  */
 async function resolveOrigin(): Promise<string> {
   if (process.env.SITE_URL) return process.env.SITE_URL;
@@ -19,18 +17,15 @@ async function resolveOrigin(): Promise<string> {
 }
 
 /**
- * Start the Google OAuth flow server-side. Supabase returns the provider URL;
- * we hand off to it with `redirect()`.
+ * Start the Google OAuth flow server-side.
  *
- * `formData` carries the hidden `next` field rendered by the login form, which
- * originates from the `?next=` that `proxy.ts` attaches when it bounces an
- * unauthenticated user off a protected route. Threading it through here is what
- * makes deep-linking work: sign in from /kudos and you land back on /kudos, not
- * on the home page. The value is user-controlled, so it is sanitised by
- * `safeNext` before it ever reaches `redirectTo`.
+ * `formData`'s hidden `next` field traces back to the `?next=` that `proxy.ts`
+ * attaches when bouncing an unauthenticated user, which is what makes
+ * deep-linking work — sign in from /kudos and land back on /kudos. It is
+ * user-controlled, hence `safeNext` before it reaches `redirectTo`.
  *
- * `redirect()` works by throwing NEXT_REDIRECT, so it MUST stay outside any
- * try/catch — otherwise the redirect gets swallowed as an error.
+ * `redirect()` throws NEXT_REDIRECT, so it MUST stay outside any try/catch or
+ * the redirect is swallowed as an error.
  */
 export async function signInWithGoogle(formData?: FormData) {
   const supabase = await createClient();

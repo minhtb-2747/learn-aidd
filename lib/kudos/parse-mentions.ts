@@ -1,20 +1,12 @@
 /**
- * Extract `@name` mention *candidates* from plain kudos content.
+ * Extract `@name` mention CANDIDATES from kudos content. Pure and Supabase-free;
+ * matching against real Sunners happens in `app/actions/kudos.ts`.
  *
- * Pure and Supabase-free by design (phase-07 spec) so it stays trivially
- * testable-by-inspection — the actual "does this candidate match a real
- * Sunner" check happens in `app/actions/kudos.ts`, against
- * `profiles.full_name`.
- *
- * Limitation (documented, not "fixed"): Vietnamese full names are made of
- * multiple words ("Trần Bình Minh"), and a mention has no delimiter marking
- * where the name ends and the surrounding sentence begins. Rather than
- * guessing, this returns every word-count prefix (1 word, 2 words, ... up to
- * `MAX_MENTION_WORDS`) starting at each "@" as its own candidate — e.g.
- * "@Trần Bình Minh ơi" yields "Trần", "Trần Bình", and "Trần Bình Minh". The
- * caller does an exact (case-insensitive) match against real names, so
- * false-positive candidates that don't match anything are silently dropped;
- * this only produces false negatives for names longer than the cap.
+ * A Vietnamese full name spans several words and a mention has no delimiter
+ * marking where the name ends and the sentence resumes. Rather than guess, this
+ * emits every word-count prefix up to `MAX_MENTION_WORDS` — "@Trần Bình Minh ơi"
+ * yields "Trần", "Trần Bình", "Trần Bình Minh". The caller's exact match drops
+ * the false positives; only names longer than the cap are missed.
  */
 
 const MAX_MENTION_WORDS = 4;

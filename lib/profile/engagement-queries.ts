@@ -2,12 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import type { CollectionIcon } from "@/lib/profile/types";
 
 /**
- * Engagement + Secret Box reward counters for a profile.
- *
- * Split out of `./queries.ts` (which owns identity and the kudos lists) to
- * keep both files inside the 200-line cap and because these two functions
- * share one concern: reading `secret_boxes` under the RLS rules that make
- * OPENED boxes public and UNOPENED boxes owner-only.
+ * Engagement + Secret Box counters for a profile. Both functions read
+ * `secret_boxes` under the RLS rules that make OPENED boxes public and
+ * UNOPENED boxes owner-only. (`./queries.ts` owns identity and kudos lists.)
  */
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -32,22 +29,15 @@ const ZERO_ENGAGEMENT: ProfileEngagementStats = {
 };
 
 /**
- * Per-profile engagement counters, for ANY profile id — the id-scoped
- * counterpart to `getCurrentUserStats()` (which resolves `auth.uid()` and so
- * only ever describes the session user).
+ * Engagement counters for ANY profile id — the id-scoped counterpart to
+ * `getCurrentUserStats()`, which only ever describes the session user.
  *
- * How RLS shapes each number, viewed from someone else's profile:
- *  - `heartsReceived` — sums `like_count` over that profile's PUBLISHED kudos.
- *    `kudos_select` exposes published rows to everyone, so this is accurate
- *    for any viewer. Summing `like_count` is the only correct source because
- *    the trigger has already folded campaign heart multipliers into it.
- *  - `boxesOpened` — accurate for any viewer, via the `secret_boxes_select_opened`
- *    policy (the same one the board's gift leaderboard depends on).
- *  - `boxesUnopened` — intentionally 0 for anyone but the owner. `secret_boxes_select`
- *    is owner-scoped and no policy exposes UNOPENED boxes, because an unopened
- *    box is meant to stay a surprise. This is a privacy decision expressed in
- *    the schema, not a gap to work around: RLS simply filters those rows out,
- *    so the count arrives as 0 without any branching here.
+ * How RLS shapes each number when viewing someone else's profile:
+ *  - `heartsReceived` — accurate for any viewer. Summing `like_count` is the
+ *    only correct source: the trigger already folded campaign multipliers in.
+ *  - `boxesOpened` — accurate for any viewer (`secret_boxes_select_opened`).
+ *  - `boxesUnopened` — intentionally 0 for anyone but the owner; an unopened box
+ *    stays a surprise. RLS filters the rows out, so no branching is needed here.
  */
 export async function getProfileEngagementStats(
   id: string,
@@ -90,10 +80,9 @@ export async function getProfileEngagementStats(
 }
 
 /**
- * 6 icon-collection slots, unlocked from this profile's opened Secret Box
- * count. `secret_boxes_select_opened` (phase 01) makes opened boxes readable
- * regardless of viewer, so — unlike the spec's fallback note — this reflects
- * real data for any profile id, not just the current session's own.
+ * 6 icon-collection slots, unlocked from this profile's opened Secret Box count.
+ * `secret_boxes_select_opened` makes opened boxes readable regardless of viewer,
+ * so this is real data for any profile id, not just the session's own.
  */
 export async function getCollectionIcons(id: string): Promise<CollectionIcon[]> {
   if (!isValidUuid(id)) {

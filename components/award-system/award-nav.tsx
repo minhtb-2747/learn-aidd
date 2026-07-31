@@ -22,11 +22,11 @@ export interface AwardNavProps {
  */
 export default function AwardNav({ items, navAriaLabel }: AwardNavProps) {
   const [activeSlug, setActiveSlug] = useState(items[0]?.slug ?? "");
-  // Suppresses the scroll-spy for a moment after a click so the observer
-  // doesn't fight the just-set active item while the smooth scroll settles.
+  // Suppresses the spy briefly after a click, so the observer doesn't fight
+  // the just-set active item while the smooth scroll settles.
   const suppressSpyRef = useRef(false);
-  // Pending "un-suppress" timer — a rapid second click cancels the first
-  // click's timeout instead of letting it clear suppression mid-scroll.
+  // A rapid second click cancels the first's timeout, instead of letting it
+  // clear suppression mid-scroll.
   const suppressTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -36,10 +36,9 @@ export default function AwardNav({ items, navAriaLabel }: AwardNavProps) {
 
     if (sections.length === 0) return;
 
-    // Running ratio of EVERY section. An IntersectionObserver batch only
-    // carries the sections whose ratio just crossed a threshold, so choosing
-    // the argmax over this accumulated map (not the batch alone) keeps the
-    // correct item active when several sections overlap the viewport.
+    // Running ratio of EVERY section. An observer batch only carries sections
+    // that just crossed a threshold, so the argmax must be taken over this
+    // accumulated map, not the batch alone.
     const ratios = new Map<string, number>();
 
     const observer = new IntersectionObserver(

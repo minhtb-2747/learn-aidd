@@ -3,17 +3,12 @@ import { updateSession } from "@/lib/supabase/middleware";
 import { getEventDateTime } from "@/lib/event/config";
 
 /**
- * Next.js 16 middleware — the file is `proxy.ts` (the v16 rename of
- * `middleware.ts`), the export is named `proxy`, and it runs on the Node.js
- * runtime (setting `runtime` here would throw).
+ * Next.js 16 middleware — `proxy.ts` is the v16 rename of `middleware.ts`, the
+ * export must be named `proxy`, and setting `runtime` here would throw.
  *
- * Responsibilities:
- *  1. Prelaunch gate: before `EVENT_DATETIME`, lock the whole site to the
- *     /prelaunch countdown; once the event starts, open it back up.
+ *  1. Prelaunch gate: lock the site to /prelaunch until `EVENT_DATETIME`.
  *  2. Refresh the Supabase session cookie on every matched request.
- *  3. Guard routes: unauthenticated → off /todo, authenticated → off /login.
- *
- * Cookie-mode i18n needs no middleware step, so this stays Supabase-only.
+ *  3. Guard routes: unauthenticated off protected, authenticated off /login.
  */
 const PROTECTED_ROUTES = ["/todo", "/award-system", "/kudos", "/profile"];
 const AUTH_ROUTES = ["/login"];
@@ -28,9 +23,8 @@ function matches(pathname: string, routes: string[]): boolean {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Prelaunch gate — runs first so it supersedes the auth guards. Before the
-  // event nothing is reachable except the countdown; after it, the countdown
-  // page itself is no longer a gate and bounces home.
+  // Runs first so it supersedes the auth guards. After the event the countdown
+  // page stops being a gate and bounces home.
   const target = getEventDateTime();
   const beforeEvent = target !== null && Date.now() < target.getTime();
   const onPrelaunch = matches(pathname, [PRELAUNCH_ROUTE]);
@@ -73,10 +67,8 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match every path except Next.js internals and static image assets, so
-     * refreshed cookies reach the browser without intercepting /_next or media.
-     */
+    // Everything except Next internals and static assets, so refreshed cookies
+    // reach the browser without intercepting /_next or media.
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

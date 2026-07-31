@@ -12,13 +12,9 @@ import KudosRulesPanel from "./kudos-rules-panel";
 
 interface KudosModalsContextValue {
   /**
-   * Opens a fresh compose session. `initial` seeds the form — the profile CTA
-   * passes the viewed Sunner as the recipient. Mode stays "create"; `openEdit`
-   * remains the only path that edits an existing post.
-   *
-   * Note for callers: this takes an optional argument, so it must never be
-   * handed straight to `onClick` — React would pass the `MouseEvent` as
-   * `initial`. Wrap it: `onClick={() => openWrite()}`.
+   * Opens a fresh compose session; `initial` seeds the form. Takes an OPTIONAL
+   * argument, so never hand it straight to `onClick` — React would pass the
+   * `MouseEvent` as `initial`. Wrap it: `onClick={() => openWrite()}`.
    */
   openWrite: (initial?: WriteKudosInitial) => void;
   openEdit: (initial: WriteKudosInitial) => void;
@@ -28,9 +24,8 @@ interface KudosModalsContextValue {
 const noop = () => {};
 const noopEdit: (initial: WriteKudosInitial) => void = () => {};
 
-// Defaults to no-ops so a consumer rendered without the provider degrades
-// gracefully instead of throwing. The provider lives in the root layout, so
-// the real openers are available on every page in practice.
+// No-op defaults so a consumer rendered without the provider degrades instead
+// of throwing; in practice the root layout mounts it on every page.
 const KudosModalsContext = createContext<KudosModalsContextValue>({
   openWrite: noop,
   openEdit: noopEdit,
@@ -43,10 +38,9 @@ export function useKudosModals(): KudosModalsContextValue {
 }
 
 /**
- * Holds the Write-Kudos dialog + Rules-panel open state once for the whole app
- * (mounted in the root layout) and renders both modals, so every trigger — the
- * `/kudos` banner pill via `KudosComposer` and the floating `WidgetButton` on
- * any page — drives the same instances. The dialog ⇄ rules handoff is wired here.
+ * Holds Write-dialog + Rules-panel state once for the whole app (mounted in the
+ * root layout), so every trigger drives the same instances. The dialog ⇄ rules
+ * hand-off is wired here.
  */
 export default function KudosModalsProvider({
   children,
@@ -57,11 +51,10 @@ export default function KudosModalsProvider({
   const [rulesOpen, setRulesOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [initial, setInitial] = useState<WriteKudosInitial | undefined>(undefined);
-  // Bumped on every openWrite/openEdit call and used as the dialog's React
-  // `key` — forces a fresh mount (fresh initial state) each time a NEW
-  // compose/edit session starts. The Rules-panel hand-off below toggles
-  // `writeOpen` directly (not through openWrite/openEdit), so it keeps the
-  // same instance and the in-progress draft survives that round-trip.
+  // The dialog's React `key`, bumped per openWrite/openEdit so each NEW compose
+  // session remounts with a fresh `initial`. (The rules hand-off toggles
+  // `writeOpen` directly and keeps the same instance, but that does NOT save the
+  // draft — the dialog returns null while closed, unmounting the form with it.)
   const [seedToken, setSeedToken] = useState(0);
 
   const value = useMemo(
