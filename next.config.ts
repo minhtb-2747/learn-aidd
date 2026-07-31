@@ -12,25 +12,42 @@ const DEFAULT_SUPABASE_URL = "http://127.0.0.1:54321";
  * default if the env var is unset or not a valid URL (e.g. still a
  * placeholder), so the build never breaks on a bad env value.
  */
-function supabaseImageRemotePattern() {
-  let url: URL;
+function resolveSupabaseUrl(): URL {
   try {
-    url = new URL(process.env.SUPABASE_URL || DEFAULT_SUPABASE_URL);
+    return new URL(process.env.SUPABASE_URL || DEFAULT_SUPABASE_URL);
   } catch {
-    url = new URL(DEFAULT_SUPABASE_URL);
+    return new URL(DEFAULT_SUPABASE_URL);
   }
-
-  return {
-    protocol: url.protocol.replace(":", "") as "http" | "https",
-    hostname: url.hostname,
-    port: url.port,
-    pathname: "/storage/v1/object/public/**",
-  };
 }
+
+const supabaseUrl = resolveSupabaseUrl();
+
+/**
+ * Next 16 refuses to let the image optimizer fetch a loopback or private
+ * address — an SSRF guard, since the optimizer takes a URL from the query
+ * string. Locally that guard blocks our own Supabase stack: every kudos
+ * gallery image 404s with a bare `"url" parameter is not allowed`, which
+ * reads like a `remotePatterns` problem and is not one. The real reason only
+ * shows in the server log: `resolved to private ip`.
+ *
+ * So the escape hatch is tied to the Supabase host actually being loopback,
+ * not to `NODE_ENV`. Point `SUPABASE_URL` at a real project and the guard
+ * comes straight back on, which is what must happen in production.
+ */
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+const supabaseIsLoopback = LOOPBACK_HOSTS.has(supabaseUrl.hostname);
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [supabaseImageRemotePattern()],
+    remotePatterns: [
+      {
+        protocol: supabaseUrl.protocol.replace(":", "") as "http" | "https",
+        hostname: supabaseUrl.hostname,
+        port: supabaseUrl.port,
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+    dangerouslyAllowLocalIP: supabaseIsLoopback,
   },
   experimental: {
     serverActions: {

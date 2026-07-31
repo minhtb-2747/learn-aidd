@@ -116,6 +116,17 @@ The `kudo-images` bucket and its RLS policies are declared in
 `config.toml` — so the bucket and the policies protecting it stay in one
 reviewable unit. `db reset` recreates both.
 
+> **Kudos images 400 locally? It isn't a `remotePatterns` bug.** Next.js 16's
+> image optimizer refuses to fetch loopback/private IPs (an SSRF guard), and
+> local Supabase Storage lives at `http://127.0.0.1:54321`. `next.config.ts`
+> allows the local IP automatically when `SUPABASE_URL` resolves to
+> `localhost`/`127.0.0.1`/`::1`, and disallows it again for a real project —
+> so with `SUPABASE_URL` set as documented above, this just works. If you
+> still see a bare `400 "url" parameter is not allowed` on a kudos gallery
+> image, check the server log for `resolved to private ip`: it usually means
+> `SUPABASE_URL` resolves to some other private address (e.g. a custom Docker
+> network IP) that isn't in `next.config.ts`'s loopback allow-list.
+
 ---
 
 ## Google sign-in

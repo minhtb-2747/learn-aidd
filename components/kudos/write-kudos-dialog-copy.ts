@@ -28,3 +28,5 @@ export const NICKNAME_PLACEHOLDER = "Nhập nickname ẩn danh của bạn";
 export const CANCEL_LABEL = "Hủy";
 export const CREATE_SUBMIT_LABEL = "Gửi";
 export const EDIT_SUBMIT_LABEL = "Lưu";
+/** Shown while the held images upload — up to five sequential round-trips. */
+export const SUBMIT_PENDING_LABEL = "Đang gửi...";
