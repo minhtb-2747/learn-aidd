@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ArrowUpRightIcon } from "@/icons";
 
@@ -9,10 +10,10 @@ export interface KudosSectionProps {
 /**
  * "Sun* Kudos" promo block: dark background image, label + title + badge +
  * body copy, a "Chi tiết" CTA, and the KUDOS lockup image on the right.
- * Copy is i18n-driven; `href` is a stub (homepage-only scope).
+ * Copy is i18n-driven.
  */
 export default async function KudosSection({
-  detailHref = "#",
+  detailHref = "/kudos",
 }: KudosSectionProps) {
   const t = await getTranslations("HomePage");
 
@@ -43,13 +44,13 @@ export default async function KudosSection({
             </p>
           </div>
 
-          <a
+          <Link
             href={detailHref}
             className="flex items-center gap-2 rounded bg-gold px-4 py-4 text-base leading-6 font-bold tracking-[0.15px] text-ink transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(255,234,158,0.35)]"
           >
             {t("kudos.detail")}
             <ArrowUpRightIcon className="h-6 w-6 shrink-0" />
-          </a>
+          </Link>
         </div>
 
         {/* eslint-disable-next-line @next/next/no-img-element -- static presentational lockup image */}

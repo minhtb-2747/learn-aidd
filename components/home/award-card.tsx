@@ -17,8 +17,7 @@ export interface AwardCardData {
 /**
  * One card in the "Hệ thống giải thưởng" grid: glowing orb thumbnail with a
  * stylized name badge layered on top, plain-text title/description, and a
- * "Chi tiết" detail link. `href` is a stub (`/awards#<slug>`) for
- * integration to point at the real award detail route.
+ * "Chi tiết" link targeting `#award-<slug>` — the id `AwardDetailCard` renders.
  */
 export default function AwardCard({
   slug,
@@ -55,7 +54,7 @@ export default function AwardCard({
           {description}
         </p>
         <Link
-          href={`/awards#${slug}`}
+          href={`/award-system#award-${slug}`}
           className="mt-2 flex items-center gap-1 py-4 text-base leading-6 font-bold tracking-[0.15px] text-white transition-colors duration-200 hover:text-gold"
         >
           {detailLabel}
