@@ -16,7 +16,9 @@ export type UploadKudoImageResult =
 
 /**
  * Uploads one Kudos composer image to the public `kudo-images` Storage
- * bucket, immediately on file selection (not batched with `createKudos`).
+ * bucket. Called from the submit path, once per file: the composer only holds
+ * files locally until then, and `next.config.ts` caps server-action bodies at
+ * 6 MB, which forbids batching five 5 MB images into one call.
  * Runs as the signed-in user under Storage RLS — no service key — so the
  * object path is the authority the INSERT policy checks against:
  * `(storage.foldername(name))[1] = auth.uid()::text`. The path is always
@@ -51,8 +53,10 @@ export async function uploadKudoImage(formData: FormData): Promise<UploadKudoIma
 export type RemoveKudoImageResult = { ok: true } | { ok: false; error: string };
 
 /**
- * Best-effort cleanup for a thumbnail removed before submit, or discarded
- * mid-upload (the composer removed the tile before the upload resolved).
+ * Best-effort rollback for a submit that uploaded one or more objects but
+ * whose `kudos` row never landed — see `upload-kudos-images.ts`. Removing a
+ * thumbnail before submit needs nothing from the server: that file was never
+ * uploaded in the first place.
  * The `{auth.uid()}/...` prefix check mirrors the DELETE Storage policy so a
  * tampered path is rejected here too, not only by RLS.
  */

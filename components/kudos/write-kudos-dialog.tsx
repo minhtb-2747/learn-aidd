@@ -32,8 +32,21 @@ export interface WriteKudosDialogProps {
  * 200-line guideline). The parent (`KudosModalsProvider`) remounts this
  * component via a changing React `key` each time a NEW compose/edit session
  * starts (so a fresh `initial` always takes effect as `WriteKudosForm`'s own
- * initial state), while the Rules-panel hand-off toggles `open` on the SAME
- * instance so an in-progress draft survives that round-trip.
+ * initial state).
+ *
+ * Two things this shell is responsible for that are easy to miss:
+ *
+ * - **It refuses to close while the form is submitting.** Escape, the scrim
+ *   and Cancel all funnel through `handleCancel`, and the submit runs as a
+ *   promise chain that survives unmount — so without this guard a user who
+ *   "cancelled" mid-upload would still have their kudos posted, silently.
+ *   `WriteKudosForm` reports its pending state up through `onBusyChange`.
+ * - **The Rules-panel hand-off does NOT preserve the draft.** The parent sets
+ *   `open` false, this component returns `null`, and the whole form unmounts
+ *   with it — text, hashtags and picked images alike. An earlier version of
+ *   this comment claimed otherwise; it was wrong. What the deferred-upload
+ *   change fixed is narrower: the picked images are merely discarded now,
+ *   where they used to be uploaded first and then deleted from Storage.
  */
 export default function WriteKudosDialog({
   open,
@@ -43,8 +56,15 @@ export default function WriteKudosDialog({
   initial,
 }: WriteKudosDialogProps): JSX.Element | null {
   const dialogRef = useRef<HTMLDivElement>(null);
+  // A ref, not state: this is read inside `handleCancel` and must not
+  // re-subscribe the Escape listener every time the form starts or stops
+  // submitting.
+  const busyRef = useRef(false);
 
   const handleCancel = useCallback(() => {
+    // Closing mid-submit would not cancel anything — the upload/create chain
+    // keeps running after unmount and would post the kudos anyway.
+    if (busyRef.current) return;
     onClose();
   }, [onClose]);
 
@@ -107,6 +127,9 @@ export default function WriteKudosDialog({
             initial={initial}
             onOpenRules={onOpenRules}
             onCancel={handleCancel}
+            onBusyChange={(busy) => {
+              busyRef.current = busy;
+            }}
             onSubmitted={onClose}
           />
         </div>

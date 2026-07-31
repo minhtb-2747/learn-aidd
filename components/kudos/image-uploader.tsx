@@ -1,44 +1,65 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn.utils";
 import { CloseIcon, PlusIcon } from "./hashtag-input";
 import { validateImageFile } from "@/lib/kudos/validate-image-file";
-import { uploadKudoImage, removeKudoImage } from "@/app/actions/kudos-images";
 
-export interface UploadedImage {
+export interface PendingImage {
   id: string;
-  /** Local `blob:` preview while `status === "uploading"`, Supabase public URL once `"done"`. */
-  url: string;
-  /** Storage object path — set once the upload succeeds, used for cleanup on remove. */
-  path: string | null;
-  status: "uploading" | "done";
+  /** Held locally until the form is submitted — nothing is uploaded on pick. */
+  file: File;
+  /** `blob:` object URL; revoked on remove and on unmount. */
+  previewUrl: string;
+}
+
+/**
+ * Local tile id — a React key and a lookup handle, nothing more.
+ *
+ * `crypto.randomUUID()` is a secure-context-only API: served over a LAN IP
+ * (the usual way to test on a phone) it is `undefined` and throws inside the
+ * pick handler, before any error state exists to report it — the picker would
+ * appear completely dead. Nothing here needs cryptographic strength, so fall
+ * back rather than depend on the context.
+ */
+let tileCounter = 0;
+function nextTileId(): string {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return crypto.randomUUID();
+  }
+  tileCounter += 1;
+  return `tile-${Date.now()}-${tileCounter}`;
 }
 
 export interface ImageUploaderProps {
   label: string;
   addLabel: string;
   maxLabel: string;
-  uploadErrorMessage: string;
   removeAriaLabel: string;
-  value: UploadedImage[];
-  onChange: Dispatch<SetStateAction<UploadedImage[]>>;
+  value: PendingImage[];
+  onChange: (next: PendingImage[]) => void;
   max?: number;
   className?: string;
 }
 
 /**
- * "Image" gallery field (MoMorph spec F, node `520:9896`) — real upload to
- * the public `kudo-images` Storage bucket via `uploadKudoImage`. `onChange`
- * takes `Dispatch<SetStateAction<...>>` so async callbacks can apply
- * functional updates against the live array, not a stale closure.
+ * "Image" gallery field (MoMorph spec F, node `520:9896`).
+ *
+ * Purely presentational: picking a file only holds the `File` and shows a
+ * local `blob:` preview — no network call happens here. The files are uploaded
+ * at submit time by `write-kudos-form.tsx` via `upload-kudos-images.ts`.
+ *
+ * That ordering is what makes abandoning the dialog free: nothing has reached
+ * Storage yet, so there is nothing to clean up.
  */
 export default function ImageUploader({
   label,
   addLabel,
   maxLabel,
-  uploadErrorMessage,
   removeAriaLabel,
   value,
   onChange,
@@ -55,12 +76,12 @@ export default function ImageUploader({
     valueRef.current = value;
   }, [value]);
 
-  // Revoke any still-pending preview URLs if the composer unmounts mid-upload.
+  // Revoke every preview URL if the composer unmounts with files still held.
   useEffect(
     () => () =>
-      valueRef.current.forEach((image) => {
-        if (image.status === "uploading") URL.revokeObjectURL(image.url);
-      }),
+      valueRef.current.forEach((image) =>
+        URL.revokeObjectURL(image.previewUrl),
+      ),
     [],
   );
 
@@ -70,62 +91,44 @@ export default function ImageUploader({
   }
 
   function handleFilesSelected(event: ChangeEvent<HTMLInputElement>) {
-    const fileList = event.target.files;
+    // Copy the FileList out BEFORE clearing the input. `input.files` is live:
+    // setting `value = ""` empties the very object this reference points at,
+    // so reading it afterwards yields zero files — the picker would appear to
+    // do nothing at all, with no tile and no error.
+    const files = Array.from(event.target.files ?? []).slice(
+      0,
+      Math.max(0, max - value.length),
+    );
     event.target.value = ""; // allow re-selecting the same file later
-    if (!fileList) return;
+    if (files.length === 0) return;
 
-    const files = Array.from(fileList).slice(0, Math.max(0, max - value.length));
+    // Accumulated, then applied in ONE `onChange`. `value` is a plain array
+    // here, not a state updater, so calling `onChange` per file would build
+    // each batch off the same stale `value` and keep only the last tile.
+    const added: PendingImage[] = [];
     const nextErrors: string[] = [];
+
     for (const file of files) {
       const validationError = validateImageFile(file);
-      if (validationError) nextErrors.push(`${file.name}: ${validationError}`);
-      else startUpload(file);
+      if (validationError) {
+        nextErrors.push(`${file.name}: ${validationError}`);
+        continue;
+      }
+      added.push({
+        id: nextTileId(),
+        file,
+        previewUrl: URL.createObjectURL(file),
+      });
     }
+
+    if (added.length > 0) onChange([...value, ...added]);
     setErrors(nextErrors);
   }
 
-  function startUpload(file: File) {
-    const id = crypto.randomUUID();
-    const previewUrl = URL.createObjectURL(file);
-    onChange((current) => [...current, { id, url: previewUrl, path: null, status: "uploading" }]);
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    uploadKudoImage(formData)
-      .catch((): { ok: false; error: string } => ({
-        ok: false,
-        error: uploadErrorMessage,
-      }))
-      .then((result) => {
-        URL.revokeObjectURL(previewUrl);
-        onChange((current) => {
-          const stillPresent = current.some((image) => image.id === id);
-          if (!stillPresent) {
-            // Removed while the upload was in flight — clean up the orphan.
-            if (result.ok) void removeKudoImage(result.path);
-            return current;
-          }
-          if (!result.ok) {
-            setErrors((currentErrors) => [...currentErrors, `${file.name}: ${result.error}`]);
-            return current.filter((image) => image.id !== id);
-          }
-          return current.map((image) =>
-            image.id === id
-              ? { id, url: result.publicUrl, path: result.path, status: "done" as const }
-              : image,
-          );
-        });
-      });
-  }
-
   function handleRemove(id: string) {
-    onChange((current) => {
-      const target = current.find((image) => image.id === id);
-      if (target?.status === "done" && target.path) void removeKudoImage(target.path);
-      else if (target?.status === "uploading") URL.revokeObjectURL(target.url);
-      return current.filter((image) => image.id !== id);
-    });
+    const target = value.find((image) => image.id === id);
+    if (target) URL.revokeObjectURL(target.previewUrl);
+    onChange(value.filter((image) => image.id !== id));
   }
 
   return (
@@ -133,26 +136,19 @@ export default function ImageUploader({
       <span className="text-[22px] leading-7 font-bold text-ink">{label}</span>
       <div className="flex flex-wrap items-center gap-4">
         {value.map((image) => (
-          <div
-            key={image.id}
-            className="relative h-20 w-20 shrink-0 rounded-[18px] border border-gold-line bg-white p-0.5"
-          >
-            <div className="relative h-full w-full overflow-hidden rounded border border-gold">
-              {image.status === "uploading" ? (
-                // eslint-disable-next-line @next/next/no-img-element -- blob: preview, not eligible for next/image optimization
-                <img src={image.url} alt="" className="h-full w-full object-cover opacity-50" />
-              ) : (
-                <Image src={image.url} alt="" fill sizes="80px" className="object-cover" />
-              )}
-              {image.status === "uploading" && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span
-                    aria-hidden="true"
-                    className="h-5 w-5 animate-spin rounded-full border-2 border-gold border-t-transparent"
-                  />
-                </div>
-              )}
-            </div>
+          <div key={image.id} className="relative h-20 w-20 shrink-0">
+            {/* Border and radius belong on the image, not on a wrapper: the
+                old markup nested an 18px frame around a 4px one, so the curves
+                never lined up. `unoptimized` is required — a `blob:` src lives
+                only in this tab, and Next's optimizer fetches server-side. */}
+            <Image
+              src={image.previewUrl}
+              alt=""
+              width={80}
+              height={80}
+              unoptimized
+              className="h-20 w-20 rounded-[18px] border border-gold-line object-cover"
+            />
             <button
               type="button"
               aria-label={removeAriaLabel}
@@ -188,7 +184,11 @@ export default function ImageUploader({
       {errors.length > 0 && (
         <ul className="flex flex-col gap-1">
           {errors.map((message) => (
-            <li key={message} role="alert" className="text-sm font-bold text-danger">
+            <li
+              key={message}
+              role="alert"
+              className="text-sm font-bold text-danger"
+            >
               {message}
             </li>
           ))}

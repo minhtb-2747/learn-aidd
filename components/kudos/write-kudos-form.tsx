@@ -1,17 +1,16 @@
 "use client";
 
-import { useCallback, useMemo, useState, useTransition, type JSX } from "react";
+import { useCallback, useMemo, useState, type JSX } from "react";
 import { useTranslations } from "next-intl";
 import { SaveIcon, SendIcon } from "@/icons";
 import RichTextEditor, { type RichTextEditorState } from "./rich-text-editor";
 import RecipientSelect, { type RecipientOption } from "./recipient-select";
 import HashtagInput, { CloseIcon } from "./hashtag-input";
-import ImageUploader, { type UploadedImage } from "./image-uploader";
-import { useDiscardUnsubmittedImages } from "./use-discard-unsubmitted-images";
+import ImageUploader, { type PendingImage } from "./image-uploader";
+import { useSubmitKudos } from "./use-submit-kudos";
 import KudosAnonymousField from "./kudos-anonymous-field";
 import KudosHonorTitleField from "./kudos-honor-title-field";
 import * as Copy from "./write-kudos-dialog-copy";
-import { createKudos } from "@/app/actions/kudos";
 import type { WriteKudosInitial } from "./write-kudos-dialog";
 
 export interface WriteKudosFormProps {
@@ -19,6 +18,8 @@ export interface WriteKudosFormProps {
   initial?: WriteKudosInitial;
   onOpenRules?: () => void;
   onCancel: () => void;
+  /** Reports in-flight submits so the shell can block its close paths. */
+  onBusyChange?: (busy: boolean) => void;
   /** Called after a successful create, or on the edit-mode stub — closes the dialog. */
   onSubmitted: () => void;
 }
@@ -34,6 +35,7 @@ export default function WriteKudosForm({
   initial,
   onOpenRules,
   onCancel,
+  onBusyChange,
   onSubmitted,
 }: WriteKudosFormProps): JSX.Element {
   const t = useTranslations("Kudos");
@@ -46,13 +48,13 @@ export default function WriteKudosForm({
   const [content, setContent] = useState(initial?.content ?? "");
   const [anonymous, setAnonymous] = useState(initial?.anonymous ?? false);
   const [nickname, setNickname] = useState(initial?.nickname ?? "");
-  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [images, setImages] = useState<PendingImage[]>([]);
 
-  // Discards uploads if the compose is abandoned; see the hook for why this
-  // hangs off unmount rather than the individual close handlers.
-  const { markSubmitted } = useDiscardUnsubmittedImages(images);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const { submit, isPending, errorMessage, clearError } = useSubmitKudos({
+    uploadErrorMessage: t("imageUploader.uploadError"),
+    onBusyChange,
+    onSubmitted,
+  });
 
   const canSubmit = useMemo(() => {
     const requiredFieldsFilled =
@@ -60,47 +62,44 @@ export default function WriteKudosForm({
     // Edit mode seeds the body via RichTextEditor's initialContent (which
     // reports hasContent=true on mount), so both modes gate on hasContent.
     const nicknameReady = !anonymous || nickname.trim().length > 0;
-    // Block submit while any image is still uploading so `createKudos` never
-    // receives a half-finished gallery.
-    const imagesReady = images.every((image) => image.status === "done");
-    return requiredFieldsFilled && hasContent && nicknameReady && imagesReady;
-  }, [recipient, honorTitle, hashtags, hasContent, anonymous, nickname, images]);
+    // Images no longer gate submit: nothing is in flight before submit, so
+    // there is no half-finished gallery to wait for.
+    return requiredFieldsFilled && hasContent && nicknameReady;
+  }, [recipient, honorTitle, hashtags, hasContent, anonymous, nickname]);
 
   const handleRichTextChange = useCallback((state: RichTextEditorState) => {
     setHasContent(state.hasContent);
     setContent(state.text);
   }, []);
 
+  // A failed upload names the file that broke; once the gallery changes that
+  // message is about a tile that may no longer be there, so drop it.
+  const handleImagesChange = useCallback(
+    (next: PendingImage[]) => {
+      setImages(next);
+      clearError();
+    },
+    [clearError],
+  );
+
   function handleSubmit() {
     if (!canSubmit || isPending) return;
-    setErrorMessage(null);
 
     if (mode === "edit") {
       // Editing an existing kudos is out of scope for this phase — keep the
-      // original close-only stub (no backend call). Edit mode never uploads,
-      // so the unmount cleanup has nothing to discard either way.
+      // original close-only stub (no backend call).
       onSubmitted();
       return;
     }
 
-    startTransition(async () => {
-      const result = await createKudos({
-        recipientId: recipient!.id,
-        honorTitle,
-        content,
-        hashtags,
-        isAnonymous: anonymous,
-        anonymousName: anonymous ? nickname : undefined,
-        imageUrls: images.filter((image) => image.status === "done").map((image) => image.url),
-      });
-      if (result.ok) {
-        // The uploaded objects now belong to a persisted kudos row, so the
-        // unmount cleanup must NOT delete them.
-        markSubmitted();
-        onSubmitted();
-      } else {
-        setErrorMessage(result.error);
-      }
+    submit({
+      recipientId: recipient!.id,
+      honorTitle,
+      content,
+      hashtags,
+      anonymous,
+      nickname,
+      images,
     });
   }
 
@@ -152,10 +151,9 @@ export default function WriteKudosForm({
           label={Copy.IMAGE_LABEL}
           addLabel={Copy.IMAGE_ADD_LABEL}
           maxLabel={Copy.IMAGE_MAX_LABEL}
-          uploadErrorMessage={t("imageUploader.uploadError")}
           removeAriaLabel={t("imageUploader.removeAria")}
           value={images}
-          onChange={setImages}
+          onChange={handleImagesChange}
         />
       </div>
 
@@ -179,7 +177,8 @@ export default function WriteKudosForm({
         <button
           type="button"
           onClick={onCancel}
-          className="flex cursor-pointer items-center gap-2 rounded border border-gold-line bg-gold/10 px-10 py-4 text-base leading-6 font-bold tracking-[0.15px] text-ink transition-colors hover:bg-gold/20"
+          disabled={isPending}
+          className="flex cursor-pointer items-center gap-2 rounded border border-gold-line bg-gold/10 px-10 py-4 text-base leading-6 font-bold tracking-[0.15px] text-ink transition-colors hover:bg-gold/20 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {Copy.CANCEL_LABEL}
           <CloseIcon className="h-6 w-6" />
@@ -190,7 +189,7 @@ export default function WriteKudosForm({
           disabled={!canSubmit || isPending}
           className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-gold p-4 text-[22px] leading-7 font-bold text-ink transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {submitLabel}
+          {isPending && mode === "create" ? Copy.SUBMIT_PENDING_LABEL : submitLabel}
           <SubmitIcon className="h-6 w-6" />
         </button>
       </div>
