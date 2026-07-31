@@ -1,61 +1,66 @@
 import { GiftIcon } from "@/icons";
 import CampaignX2Badge from "@/components/kudos/campaign-x2-badge";
-import type { ProfileStats } from "@/lib/profile/mock-data";
+import KudosStatRow from "@/components/kudos/kudos-stat-row";
+import type { ActiveCampaign } from "@/lib/kudos/queries/engagement";
+import type { ProfileStats } from "@/lib/profile/types";
 
 export interface ProfileStatsCardProps {
   stats: ProfileStats;
+  /** `null` when no campaign is currently running — hides the x2 badge entirely. */
+  campaign: ActiveCampaign | null;
+  receivedLabel: string;
+  sentLabel: string;
+  heartsLabel: string;
+  boxesOpenedLabel: string;
+  boxesUnopenedLabel: string;
+  openGiftLabel: string;
 }
 
 /**
- * Stats card (MoMorph spec `B`): the same 5-counter layout as the Kudos page
- * sidebar (`KudosSidebar`'s `StatRow`), plus the "Mở Secret Box" button.
- * Rebuilt locally rather than importing from `components/kudos` because that
- * component isn't in this task's reuse list and doesn't export its row
- * helper; labels stay as VN literals since this task's scope excludes
- * touching `i18n/messages/*.json`.
+ * Stats card (MoMorph spec `B`): the same 5-counter block as the Kudos board
+ * sidebar, sharing `KudosStatRow` with it so the two can no longer drift.
+ * Labels arrive as props from the page (translated there) rather than as local
+ * literals, so this stays presentational and fully localized.
  */
-export default function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
+export default function ProfileStatsCard({
+  stats,
+  campaign,
+  receivedLabel,
+  sentLabel,
+  heartsLabel,
+  boxesOpenedLabel,
+  boxesUnopenedLabel,
+  openGiftLabel,
+}: ProfileStatsCardProps) {
   return (
     <section className="mx-auto flex w-full max-w-170 flex-col gap-4 rounded-[17px] border border-gold-line bg-[#00070C] p-10">
-      <StatRow value={stats.kudosReceived} label="Số Kudos bạn nhận được" />
-      <StatRow value={stats.kudosSent} label="Số Kudos bạn đã gửi" />
-      <StatRow
+      <KudosStatRow value={stats.kudosReceived} label={receivedLabel} />
+      <KudosStatRow value={stats.kudosSent} label={sentLabel} />
+      <KudosStatRow
         value={stats.heartsReceived}
-        label="Số tim bạn nhận được"
-        multiplier="x2"
+        label={heartsLabel}
+        badge={
+          campaign && (
+            <CampaignX2Badge
+              heartMultiplier={campaign.heartMultiplier}
+              startDate={campaign.startDate}
+              endDate={campaign.endDate}
+            />
+          )
+        }
       />
       <div className="h-px w-full bg-divider" aria-hidden="true" />
-      <StatRow value={stats.boxesOpened} label="Số Secret Box đã mở" />
-      <StatRow value={stats.boxesUnopened} label="Số Secret Box chưa mở" />
+      <KudosStatRow value={stats.boxesOpened} label={boxesOpenedLabel} />
+      <KudosStatRow value={stats.boxesUnopened} label={boxesUnopenedLabel} />
 
       {/* Stub — opening the Secret Box dialog is out of this build's scope. */}
       <button
         type="button"
-        className="flex items-center justify-center gap-1 rounded-lg bg-gold p-4 text-lg leading-7 font-bold text-ink transition-transform duration-150 hover:scale-[1.02]"
+        className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-gold p-4 text-lg leading-7 font-bold text-ink transition-transform duration-150 hover:scale-[1.02]"
       >
-        Mở Secret Box
+        {openGiftLabel}
         <GiftIcon className="h-6 w-6 shrink-0" />
       </button>
     </section>
-  );
-}
-
-function StatRow({
-  value,
-  label,
-  multiplier,
-}: {
-  value: number;
-  label: string;
-  multiplier?: string;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-2">
-      <span className="flex items-center gap-1 text-3xl leading-10 font-bold text-gold">
-        {value}
-        {multiplier && <CampaignX2Badge />}
-      </span>
-      <span className="text-right text-xl leading-7 font-bold text-white">{label}</span>
-    </div>
   );
 }

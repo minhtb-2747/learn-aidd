@@ -1,16 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-
-/**
- * Restrict `?next=` to same-origin relative paths so it can't be turned into an
- * open redirect (must start with a single "/").
- */
-function safeNext(next: string | null): string {
-  if (next && next.startsWith("/") && !next.startsWith("//")) {
-    return next;
-  }
-  return "/";
-}
+import { safeNext } from "@/lib/auth/safe-next";
 
 /**
  * OAuth callback. Google redirects here with a `code`; we exchange it for a

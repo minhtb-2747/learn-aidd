@@ -1,10 +1,15 @@
 /**
- * Copy + local mock data for the Kudos "Thể lệ" (Rules) panel.
+ * Design copy for the Kudos "Thể lệ" (Rules) panel.
  *
  * Transcribed verbatim from the MoMorph design (frame `Thể lệ UPDATE`,
  * node 3204:6052 "Thể Lệ", screenId `b1Filzi9i6`). Vietnamese text lives
- * here as local literals — this screen has no i18n key set assigned yet,
- * matching the precedent in `./spotlight-names.ts`.
+ * here as local literals because this screen has no i18n key set assigned yet.
+ *
+ * `HERO_TIERS` below is not just copy — it is the AUTHORITATIVE source of the
+ * recognition-tier thresholds, and `lib/kudos/hero-tier.ts` derives its badge
+ * labels from it so the rule and the text users read can never drift. Note the
+ * ranges count PEOPLE ("người gửi Kudos cho bạn"), i.e. distinct senders, not
+ * total kudos received.
  *
  * Two of the design's six collectible-icon assets and all four hero-tier
  * pill backgrounds are composite/sprite Figma renders with no clean single

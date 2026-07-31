@@ -11,6 +11,7 @@ export interface AwardNavItem {
 
 export interface AwardNavProps {
   items: AwardNavItem[];
+  navAriaLabel: string;
 }
 
 /**
@@ -19,7 +20,7 @@ export interface AwardNavProps {
  * scroll-spy (IntersectionObserver) keeps the active item in sync while the
  * user scrolls the page directly. Only one item is ever active at a time.
  */
-export default function AwardNav({ items }: AwardNavProps) {
+export default function AwardNav({ items, navAriaLabel }: AwardNavProps) {
   const [activeSlug, setActiveSlug] = useState(items[0]?.slug ?? "");
   // Suppresses the scroll-spy for a moment after a click so the observer
   // doesn't fight the just-set active item while the smooth scroll settles.
@@ -93,7 +94,7 @@ export default function AwardNav({ items }: AwardNavProps) {
 
   return (
     <nav
-      aria-label="Award categories"
+      aria-label={navAriaLabel}
       className="flex w-full flex-row flex-wrap gap-2 lg:sticky lg:top-28 lg:w-45 lg:shrink-0 lg:flex-col lg:flex-nowrap lg:gap-4"
     >
       {items.map((item) => {

@@ -24,7 +24,7 @@ export default function WidgetButton() {
   const containerRef = useClickOutside<HTMLDivElement>(() => setOpen(false));
 
   const pillClass =
-    "flex items-center gap-2 rounded bg-gold p-4 shadow-[0_4px_4px_rgba(0,0,0,0.25),0_0_6px_var(--color-gold-glow)] transition-transform duration-200 hover:scale-[1.03]";
+    "flex cursor-pointer items-center gap-2 rounded bg-gold p-4 shadow-[0_4px_4px_rgba(0,0,0,0.25),0_0_6px_var(--color-gold-glow)] transition-transform duration-200 hover:scale-[1.03]";
   const pillLabel =
     "text-2xl leading-8 font-bold text-ink no-wrap text-nowrap";
 

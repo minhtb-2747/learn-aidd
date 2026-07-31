@@ -1,32 +1,23 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { MOCK_AUTH_COOKIE, MOCK_USER, hasMockAuth } from "@/lib/auth/mock-session";
 import { SignOutButton } from "@/components/sign-out-button";
 
 /**
  * Minimal authenticated placeholder. Defense-in-depth: re-verifies the user
- * server-side rather than trusting the proxy guard alone — honoring the
- * TEMPORARY mock-auth cookie (login stub) before falling back to `getUser()`.
+ * server-side rather than trusting the proxy guard alone.
  */
 export default async function TodoPage() {
-  const cookieStore = await cookies();
-  let email: string;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (hasMockAuth(cookieStore.get(MOCK_AUTH_COOKIE)?.value)) {
-    email = MOCK_USER.email;
-  } else {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      redirect("/login");
-    }
-    email = user.email ?? "";
+  if (!user) {
+    redirect("/login");
   }
 
+  const email = user.email ?? "";
   const t = await getTranslations("TodoPage");
 
   return (

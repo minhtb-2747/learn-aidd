@@ -20,8 +20,11 @@ const OPTIONS: Array<{ value: Locale; label: string; Flag: typeof FlagVnIcon }> 
 
 /**
  * VN/EN language selector shown top-right of the login header.
- * Presentational for now: selection is mocked in local state; `onSelect`
- * lets a parent (phase 06) wire it to real locale switching.
+ *
+ * Selection is real: it calls the `setLocale` server action (which persists
+ * the `NEXT_LOCALE` cookie) and then `router.refresh()` so the whole tree
+ * re-renders in the new language. Local state only mirrors `current` so the
+ * pill updates optimistically while the transition is pending.
  */
 export default function LanguageSelector({
   current = "vi",
@@ -76,7 +79,7 @@ export default function LanguageSelector({
         aria-expanded={open}
         aria-busy={isPending}
         disabled={isPending}
-        className="flex items-center gap-1 rounded px-4 py-4 text-white transition-colors duration-200 hover:bg-white/10 disabled:opacity-60"
+        className="flex cursor-pointer items-center gap-1 rounded px-4 py-4 text-white transition-colors duration-200 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <active.Flag className="h-6 w-6 shrink-0" />
         <span className="text-base leading-6 font-bold tracking-[0.15px]">
@@ -103,7 +106,7 @@ export default function LanguageSelector({
                 aria-selected={option.value === selected}
                 onClick={() => handleSelect(option.value)}
                 className={cn(
-                  "flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-bold text-white transition-colors duration-150 hover:bg-white/10",
+                  "flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left text-sm font-bold text-white transition-colors duration-150 hover:bg-white/10",
                   option.value === selected && "bg-white/5",
                 )}
               >

@@ -1,10 +1,5 @@
-import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import {
-  MOCK_AUTH_COOKIE,
-  MOCK_USER,
-  hasMockAuth,
-} from "@/lib/auth/mock-session";
+import { getHeaderData } from "@/lib/home/header-queries";
 
 /**
  * Plain, serializable view-model for the homepage header. Server-only —
@@ -14,9 +9,16 @@ import {
 export interface HeaderViewModel {
   isAuthenticated: boolean;
   user: {
+    /** Profile uuid — doubles as the `/profile/[id]` route key. */
+    id: string;
     name: string;
     avatarUrl: string | null;
   } | null;
+  /**
+   * DISPLAY flag only — it decides whether the admin menu item is rendered.
+   * It is NOT an authorization gate: any future admin route must do its own
+   * server-side `profiles.role` check and rely on RLS.
+   */
   isAdmin: boolean;
   notifications: {
     unreadCount: number;
@@ -37,22 +39,12 @@ function resolveDisplayName(metadata: Record<string, unknown>, email: string | u
 /**
  * Resolve the homepage header's auth-aware view-model.
  *
- * Auth state and profile fields come from the real Supabase session. The
- * role and notification fields are mock — there is no roles/notifications
- * backend yet — and are documented as such below.
+ * Every field is backed by real data: auth state and display name from the
+ * Supabase session, `isAdmin` from `profiles.role`, and the unread count from
+ * `notifications` (see `getHeaderData`). Signed-out requests short-circuit
+ * before any database query runs.
  */
 export async function getHeaderViewModel(): Promise<HeaderViewModel> {
-  // TEMPORARY: honor the mock-auth cookie (login stub) before hitting Supabase.
-  const cookieStore = await cookies();
-  if (hasMockAuth(cookieStore.get(MOCK_AUTH_COOKIE)?.value)) {
-    return {
-      isAuthenticated: true,
-      user: { name: MOCK_USER.name, avatarUrl: null },
-      isAdmin: false,
-      notifications: { unreadCount: 0 },
-    };
-  }
-
   const supabase = await createClient();
   const {
     data: { user },
@@ -69,15 +61,16 @@ export async function getHeaderViewModel(): Promise<HeaderViewModel> {
 
   const metadata = user.user_metadata ?? {};
   const avatarUrl = metadata.avatar_url;
+  const { isAdmin, unreadCount } = await getHeaderData(user.id);
 
   return {
     isAuthenticated: true,
     user: {
+      id: user.id,
       name: resolveDisplayName(metadata, user.email),
       avatarUrl: typeof avatarUrl === "string" ? avatarUrl : null,
     },
-    // mock — no roles/notifications backend yet
-    isAdmin: false,
-    notifications: { unreadCount: 0 },
+    isAdmin,
+    notifications: { unreadCount },
   };
 }

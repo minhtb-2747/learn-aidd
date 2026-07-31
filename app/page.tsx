@@ -36,7 +36,11 @@ export default async function Home() {
 
   const user =
     vm.isAuthenticated && vm.user
-      ? { name: vm.user.name, isAdmin: vm.isAdmin }
+      ? {
+          name: vm.user.name,
+          isAdmin: vm.isAdmin,
+          profileHref: `/profile/${vm.user.id}`,
+        }
       : null;
 
   return (

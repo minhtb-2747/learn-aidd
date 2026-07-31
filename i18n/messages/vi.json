@@ -117,6 +117,7 @@
     "quantityLabel": "Số lượng giải thưởng:",
     "prizeValueLabel": "Giá trị giải thưởng:",
     "orLabel": "Hoặc",
+    "navAriaLabel": "Danh mục giải thưởng",
     "awards": {
       "topTalent": {
         "title": "Top Talent",
@@ -125,7 +126,10 @@
         "quantityValue": "10",
         "quantityUnit": "Cá nhân",
         "prizes": [
-          { "value": "7.000.000 VNĐ", "suffix": "cho mỗi giải thưởng" }
+          {
+            "value": "7.000.000 VNĐ",
+            "suffix": "cho mỗi giải thưởng"
+          }
         ]
       },
       "topProject": {
@@ -135,7 +139,10 @@
         "quantityValue": "02",
         "quantityUnit": "Tập thể",
         "prizes": [
-          { "value": "15.000.000 VNĐ", "suffix": "cho mỗi giải thưởng" }
+          {
+            "value": "15.000.000 VNĐ",
+            "suffix": "cho mỗi giải thưởng"
+          }
         ]
       },
       "topProjectLeader": {
@@ -145,7 +152,10 @@
         "quantityValue": "03",
         "quantityUnit": "Cá nhân",
         "prizes": [
-          { "value": "7.000.000 VNĐ", "suffix": "cho mỗi giải thưởng" }
+          {
+            "value": "7.000.000 VNĐ",
+            "suffix": "cho mỗi giải thưởng"
+          }
         ]
       },
       "bestManager": {
@@ -154,7 +164,11 @@
         "description": "Giải thưởng Best Manager vinh danh những nhà lãnh đạo tiêu biểu – người đã dẫn dắt đội ngũ của mình tạo ra kết quả vượt kỳ vọng, tác động nổi bật đến hiệu quả kinh doanh và sự phát triển bền vững của tổ chức. Dưới sự lãnh đạo của họ, đội ngũ luôn chinh phục và làm chủ mọi mục tiêu bằng năng lực đa nhiệm, khả năng phối hợp hiệu quả, và tư duy ứng dụng công nghệ linh hoạt trong kỷ nguyên số. Họ truyền cảm hứng để tập thể trở nên tự tin tràn đầy năng lượng, sẵn sàng đón nhận, thậm chí dẫn dắt tạo ra những thay đổi có tính cách mạng.",
         "quantityValue": "01",
         "quantityUnit": "Cá nhân",
-        "prizes": [{ "value": "10.000.000 VNĐ" }]
+        "prizes": [
+          {
+            "value": "10.000.000 VNĐ"
+          }
+        ]
       },
       "signatureCreator": {
         "title": "Signature 2025 - Creator",
@@ -163,8 +177,14 @@
         "quantityValue": "01",
         "quantityUnit": "Cá nhân hoặc tập thể",
         "prizes": [
-          { "value": "5.000.000 VNĐ", "suffix": "cho giải cá nhân" },
-          { "value": "8.000.000 VNĐ", "suffix": "cho giải tập thể" }
+          {
+            "value": "5.000.000 VNĐ",
+            "suffix": "cho giải cá nhân"
+          },
+          {
+            "value": "8.000.000 VNĐ",
+            "suffix": "cho giải tập thể"
+          }
         ]
       },
       "mvp": {
@@ -173,7 +193,11 @@
         "description": "Giải thưởng MVP vinh danh cá nhân xuất sắc nhất năm – gương mặt tiêu biểu đại diện cho toàn bộ tập thể Sun*. Họ là người đã thể hiện năng lực vượt trội, tinh thần cống hiến bền bỉ, và tầm ảnh hưởng sâu rộng, để lại dấu ấn mạnh mẽ trong hành trình của Sun* suốt năm qua. Không chỉ nổi bật bởi hiệu suất và kết quả công việc, họ còn là nguồn cảm hứng lan tỏa – thông qua suy nghĩ, hành động và ảnh hưởng tích cực của mình đối với tập thể. MVP là người hội tụ đầy đủ phẩm chất của người Sun* ưu tú, đồng thời mang trên mình trọng trách lớn lao: trở thành hình mẫu đại diện cho con người và tinh thần Sun*, góp phần dẫn dắt tập thể vươn tới những đỉnh cao mới.",
         "quantityValue": "01",
         "quantityUnit": "Cá nhân",
-        "prizes": [{ "value": "15.000.000 VNĐ" }]
+        "prizes": [
+          {
+            "value": "15.000.000 VNĐ"
+          }
+        ]
       }
     }
   },
@@ -190,22 +214,58 @@
       "departmentLabel": "Phòng ban",
       "prevAria": "Slide trước",
       "nextAria": "Slide tiếp theo",
-      "viewDetail": "Xem chi tiết"
+      "viewDetail": "Xem chi tiết",
+      "empty": "Không có Kudos nào phù hợp với bộ lọc này."
     },
     "card": {
       "likeAria": "Thích",
       "unlikeAria": "Bỏ thích",
-      "copyLink": "Copy Link"
+      "copyLink": "Copy Link",
+      "editAria": "Chỉnh sửa bài viết",
+      "spamBadge": "Spam"
     },
     "spotlight": {
       "subtitle": "Sun* Annual Awards 2025",
       "title": "SPOTLIGHT BOARD",
-      "total": "388 KUDOS",
+      "total": "{count} KUDOS",
       "board": "Bảng Spotlight",
       "zoomIn": "Phóng to",
       "zoomOut": "Thu nhỏ",
       "resetView": "Đặt lại chế độ xem",
-      "searchPlaceholder": "Tìm kiếm"
+      "searchPlaceholder": "Tìm kiếm",
+      "tooltipReceivedAt": "{name} · nhận Kudos lúc {time}",
+      "tickerText": "{name} đã nhận được một Kudos mới"
+    },
+    "hashtagInput": {
+      "placeholder": "Nhập hashtag",
+      "removeAria": "Xóa hashtag {tag}"
+    },
+    "imageUploader": {
+      "uploadError": "Tải ảnh lên thất bại, vui lòng thử lại.",
+      "removeAria": "Xóa ảnh"
+    },
+    "editor": {
+      "bold": "Đậm",
+      "italic": "Nghiêng",
+      "strikethrough": "Gạch ngang",
+      "orderedList": "Danh sách có số",
+      "bulletList": "Danh sách dấu chấm",
+      "insertLink": "Chèn liên kết",
+      "quote": "Trích dẫn",
+      "insertLinkPrompt": "Nhập đường dẫn liên kết"
+    },
+    "rulesPanel": {
+      "closeOverlayAria": "Đóng bảng thể lệ"
+    },
+    "campaignBadge": {
+      "title": "Ngày x{multiplier} tim – lan tỏa gấp đôi yêu thương!",
+      "description": "Từ {start} đến {end}, tất cả tim bạn nhận được đều được nhân đôi."
+    },
+    "profileHoverCard": {
+      "unitLabel": "Tên đơn vị:",
+      "kudosReceivedLabel": "Số Kudos nhận được:",
+      "kudosSentLabel": "Số Kudos đã gửi:",
+      "sendKudoButton": "Gửi KUDO"
     },
     "allKudos": {
       "subtitle": "Sun* Annual Awards 2025",
@@ -223,6 +283,24 @@
     },
     "toast": {
       "linkCopied": "Đã sao chép link — sẵn sàng chia sẻ!"
+    },
+    "recipient": {
+      "noResults": "Không tìm thấy kết quả",
+      "searching": "Đang tìm kiếm...",
+      "openList": "Mở danh sách",
+      "closeList": "Đóng danh sách"
     }
+  },
+  "Profile": {
+    "iconCollectionTitle": "Bộ sưu tập icon của tôi",
+    "kudosSection": {
+      "subtitle": "Sun* Annual Awards 2025",
+      "title": "KUDOS",
+      "sentLabel": "Đã gửi",
+      "receivedLabel": "Đã nhận",
+      "empty": "Chưa có KUDOS nào.",
+      "receivedCount": "Đã nhận: {count} Kudos"
+    },
+    "writeKudosCta": "Gửi lời cảm ơn và ghi nhận tới {name}"
   }
 }

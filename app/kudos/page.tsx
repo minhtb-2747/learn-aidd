@@ -11,20 +11,32 @@ import HighlightCarousel from "@/components/kudos/highlight-carousel";
 import SpotlightBoard from "@/components/kudos/spotlight-board";
 import AllKudosFeed from "@/components/kudos/all-kudos-feed";
 import KudosSidebar from "@/components/kudos/kudos-sidebar";
+import { getBoardData } from "./board-data";
+
+interface KudosPageProps {
+  /**
+   * Highlight-carousel filters, URL-driven so a reload or shared link
+   * preserves the selection. Next.js 16 passes `searchParams` as a Promise.
+   */
+  searchParams: Promise<{ hashtag?: string; department?: string }>;
+}
 
 /**
  * "Sun* Kudos - Live board" screen (MoMorph frame `2940:13431`): the hero
  * banner, HIGHLIGHT KUDOS carousel, SPOTLIGHT BOARD word-cloud, and the
- * two-column ALL KUDOS feed + sidebar. Mock-data UI + light client
- * interactions only — mirrors `app/award-system/page.tsx`'s header/keyvisual
- * backdrop/footer wiring; the route itself is auth-gated in `proxy.ts`
- * (owned by the orchestrator).
+ * two-column ALL KUDOS feed + sidebar. Server-rendered from Supabase via
+ * `getBoardData` — every child below only receives plain, serializable
+ * props; none of them import a query module directly (see
+ * `app/kudos/board-data.ts`). Mirrors `app/award-system/page.tsx`'s
+ * header/keyvisual backdrop/footer wiring; the route itself is auth-gated
+ * in `proxy.ts` (owned by the orchestrator).
  */
-export default async function KudosPage() {
-  const [locale, vm, t] = await Promise.all([
+export default async function KudosPage({ searchParams }: KudosPageProps) {
+  const [locale, vm, t, params] = await Promise.all([
     getLocale(),
     getHeaderViewModel(),
     getTranslations("HomePage"),
+    searchParams,
   ]);
   const tk = await getTranslations("Kudos");
 
@@ -35,6 +47,11 @@ export default async function KudosPage() {
     redirect("/login");
   }
 
+  const data = await getBoardData({
+    hashtag: params.hashtag,
+    department: params.department,
+  });
+
   const navLinks = [
     { label: t("nav.about"), href: "/" },
     { label: t("nav.awards"), href: "/award-system" },
@@ -43,10 +60,19 @@ export default async function KudosPage() {
 
   const user =
     vm.isAuthenticated && vm.user
-      ? { name: vm.user.name, isAdmin: vm.isAdmin }
+      ? {
+          name: vm.user.name,
+          isAdmin: vm.isAdmin,
+          profileHref: `/profile/${vm.user.id}`,
+        }
       : null;
 
+  // One like is worth this many hearts right now — drives the heart button's
+  // optimistic delta so the counter doesn't visibly correct itself.
+  const heartMultiplier = data.campaign?.heartMultiplier ?? 1;
+
   const cardCopy = {
+    heartMultiplier,
     viewDetailLabel: tk("highlight.viewDetail"),
     likeAriaLabel: tk("card.likeAria"),
     unlikeAriaLabel: tk("card.unlikeAria"),
@@ -94,12 +120,21 @@ export default async function KudosPage() {
         />
 
         <HighlightCarousel
+          // Remounting on filter change resets the slide index for free
+          // (see highlight-carousel.tsx) — no client effect required.
+          key={`${params.hashtag ?? ""}::${params.department ?? ""}`}
           subtitle={tk("highlight.subtitle")}
           title={tk("highlight.title")}
           hashtagLabel={tk("highlight.hashtagLabel")}
           departmentLabel={tk("highlight.departmentLabel")}
           prevAriaLabel={tk("highlight.prevAria")}
           nextAriaLabel={tk("highlight.nextAria")}
+          emptyLabel={tk("highlight.empty")}
+          kudos={data.highlightKudos}
+          hashtagOptions={data.hashtagOptions}
+          departmentOptions={data.departmentOptions}
+          activeHashtag={params.hashtag}
+          activeDepartment={params.department}
           {...cardCopy}
         />
 
@@ -114,7 +149,9 @@ export default async function KudosPage() {
             </h2>
           </div>
           <SpotlightBoard
-            totalLabel={tk("spotlight.total")}
+            names={data.spotlightNames}
+            ticker={data.spotlightTicker}
+            totalLabel={tk("spotlight.total", { count: data.totalKudos })}
             searchPlaceholder={tk("spotlight.searchPlaceholder")}
           />
         </section>
@@ -131,7 +168,11 @@ export default async function KudosPage() {
           </div>
 
           <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
-            <AllKudosFeed {...cardCopy} />
+            <AllKudosFeed
+              posts={data.allKudosPosts}
+              {...cardCopy}
+              editAriaLabel={tk("card.editAria")}
+            />
             <KudosSidebar
               receivedLabel={tk("sidebar.received")}
               sentLabel={tk("sidebar.sent")}
@@ -140,6 +181,9 @@ export default async function KudosPage() {
               boxesUnopenedLabel={tk("sidebar.boxesUnopened")}
               openGiftLabel={tk("sidebar.openGift")}
               giftBoardTitle={tk("sidebar.giftBoardTitle")}
+              stats={data.stats}
+              giftRecipients={data.giftRecipients}
+              campaign={data.campaign}
             />
           </div>
         </section>

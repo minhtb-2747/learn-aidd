@@ -37,7 +37,7 @@ export default function SentFilter({ options, value, onChange }: SentFilterProps
         onClick={() => setOpen((current) => !current)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex items-center gap-2 rounded border border-gold-line bg-gold/10 px-6 py-4 text-base leading-6 font-bold tracking-[0.15px] text-white transition-colors duration-150 hover:bg-gold/20"
+        className="flex cursor-pointer items-center gap-2 rounded border border-gold-line bg-gold/10 px-6 py-4 text-base leading-6 font-bold tracking-[0.15px] text-white transition-colors duration-150 hover:bg-gold/20"
       >
         {active.label} ({active.count})
         <ChevronDownIcon

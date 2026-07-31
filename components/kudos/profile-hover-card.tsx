@@ -1,21 +1,16 @@
 "use client";
 
 import { useRef, useState, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { PenIcon } from "@/icons";
 import { cn } from "@/lib/utils/cn.utils";
-import type { KudosPerson } from "@/lib/kudos/mock-data";
+import type { KudosPerson } from "@/lib/kudos/types";
 import { useKudosModals } from "./kudos-modals-provider";
 import HeroBadge from "./hero-badge";
 
 const CARD_WIDTH = 344;
 const CARD_HEIGHT = 320; // approximate, for the below/above flip decision
 const CLOSE_DELAY = 150;
-// Mock — the full unit path + kudos counts (design values). Real data would
-// come from the user record; every mock person resolves to the same demo card.
-const DEPARTMENT_PATH =
-  "Culture & Communication Executive/C&C Line/HRD Unit/OPD Center";
-const KUDOS_RECEIVED = 25;
-const KUDOS_SENT = 25;
 
 export interface ProfileHoverCardProps {
   person: KudosPerson;
@@ -25,16 +20,18 @@ export interface ProfileHoverCardProps {
 
 /**
  * Wraps an avatar/name trigger and reveals a mini-profile card on hover
- * (MoMorph node `2268:35101`): name, unit path, Hero badge, kudos counts, and
- * a "Gửi KUDO" button that opens the Write dialog. Fixed-positioned so it
+ * (MoMorph node `2268:35101`): name, department, Hero badge, kudos counts,
+ * and a "Gửi KUDO" button that opens the Write dialog. Fixed-positioned so it
  * escapes card/carousel `overflow`; a short close delay lets the pointer
- * travel into the card to click the button. Unit/counts are mock literals.
+ * travel into the card to click the button. Only rendered for non-anonymous
+ * people (`kudos-person-info.tsx` skips it entirely for anonymous senders).
  */
 export default function ProfileHoverCard({
   person,
   children,
   className,
 }: ProfileHoverCardProps) {
+  const t = useTranslations("Kudos.profileHoverCard");
   const { openWrite } = useKudosModals();
   const ref = useRef<HTMLSpanElement>(null);
   const timer = useRef<number | null>(null);
@@ -88,29 +85,42 @@ export default function ProfileHoverCard({
             <p className="text-xl leading-7 font-bold text-white">
               {person.name}
             </p>
+            {/* Schema has no unit hierarchy — `department` is the flat
+                department name, not a full org path. */}
             <p className="text-sm leading-5 font-bold text-white/70">
-              Tên đơn vị: {DEPARTMENT_PATH}
+              {t("unitLabel")} {person.department}
             </p>
             <HeroBadge badge={person.badge} className="mt-1 w-fit" />
           </div>
 
           <div className="flex flex-col gap-1">
             <p className="text-base leading-6 font-bold text-white">
-              Số Kudos nhận được:{" "}
-              <span className="text-gold">{KUDOS_RECEIVED}</span>
+              {t("kudosReceivedLabel")}{" "}
+              <span className="text-gold">{person.kudosReceived}</span>
             </p>
             <p className="text-base leading-6 font-bold text-white">
-              Số Kudos đã gửi: <span className="text-gold">{KUDOS_SENT}</span>
+              {t("kudosSentLabel")} <span className="text-gold">{person.kudosSent}</span>
             </p>
           </div>
 
           <button
             type="button"
-            onClick={openWrite}
-            className="flex items-center justify-center gap-2 rounded-lg bg-gold px-4 py-3 text-base leading-6 font-bold text-ink transition-colors duration-150 hover:bg-gold-glow"
+            // Seeds the recipient: the card is only ever open because the
+            // pointer is on this person, so making the viewer re-pick them
+            // from the dropdown was busywork. `profileId` is non-null in
+            // practice (anonymous senders never get a hover card, see
+            // `kudos-person-info.tsx`) — `?? undefined` just satisfies the
+            // optional-string contract without inventing an id.
+            onClick={() =>
+              openWrite({
+                recipientId: person.profileId ?? undefined,
+                recipient: person.name,
+              })
+            }
+            className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gold px-4 py-3 text-base leading-6 font-bold text-ink transition-colors duration-150 hover:bg-gold-glow"
           >
             <PenIcon className="h-5 w-5 shrink-0" />
-            Gửi KUDO
+            {t("sendKudoButton")}
           </button>
         </div>
       )}

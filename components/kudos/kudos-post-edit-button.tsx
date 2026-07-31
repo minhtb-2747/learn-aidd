@@ -1,11 +1,12 @@
 "use client";
 
 import { PenIcon } from "@/icons";
-import type { KudosPost } from "@/lib/kudos/mock-data";
+import type { KudosPost } from "@/lib/kudos/types";
 import { useKudosModals } from "./kudos-modals-provider";
 
 export interface KudosPostEditButtonProps {
   post: KudosPost;
+  ariaLabel: string;
 }
 
 /**
@@ -14,15 +15,19 @@ export interface KudosPostEditButtonProps {
  * can stay a server component; clicking seeds the shared Write-Kudos dialog
  * (in "edit" mode) from this post via `useKudosModals().openEdit`.
  */
-export default function KudosPostEditButton({ post }: KudosPostEditButtonProps) {
+export default function KudosPostEditButton({
+  post,
+  ariaLabel,
+}: KudosPostEditButtonProps) {
   const { openEdit } = useKudosModals();
 
   return (
     <button
       type="button"
-      aria-label="Chỉnh sửa bài viết"
+      aria-label={ariaLabel}
       onClick={() =>
         openEdit({
+          recipientId: post.receiver.profileId ?? undefined,
           recipient: post.receiver.name,
           honorTitle: post.title,
           hashtags: post.hashtags,
@@ -31,7 +36,7 @@ export default function KudosPostEditButton({ post }: KudosPostEditButtonProps) 
           nickname: "",
         })
       }
-      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-gold-line text-ink transition-colors hover:bg-gold/10"
+      className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center text-ink transition-colors hover:bg-gold/10"
     >
       <PenIcon className="h-5 w-5" />
     </button>
