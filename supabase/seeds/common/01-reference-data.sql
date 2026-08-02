@@ -73,9 +73,17 @@ ON CONFLICT (name) DO NOTHING;
 -- -----------------------------------------------------------------------------
 -- No unique column exists on campaigns, so guard the whole insert with a
 -- "table is still empty" check instead of ON CONFLICT.
+--
+-- Both rows are seeded as ENDED campaigns — inactive AND entirely in the past —
+-- so no campaign runs by default and a like is worth exactly 1 heart. That
+-- matches the seeded likes, which are all heart_value 1.
+--
+-- `getActiveCampaign()` requires `is_active` AND `start_date <= now() <=
+-- end_date`, so both conditions have to be undone to run an x2 week: flip the
+-- flag and move the window onto today. The app code needs no change either way.
 INSERT INTO public.campaigns (name, description, start_date, end_date, heart_multiplier, is_active)
 SELECT * FROM (VALUES
-  ('Tuần Lễ Tri Ân Nhân Đôi', 'Mọi lượt thả tim trong tuần này được tính x2 giá trị.', now() - interval '3 days', now() + interval '11 days', 2, true),
+  ('Tuần Lễ Tri Ân Nhân Đôi', 'Mọi lượt thả tim trong tuần diễn ra chiến dịch được tính x2 giá trị.', now() - interval '30 days', now() - interval '16 days', 2, false),
   ('Chiến Dịch Quý Trước', 'Chiến dịch tri ân đã kết thúc của quý trước.', now() - interval '90 days', now() - interval '60 days', 2, false)
 ) AS v(name, description, start_date, end_date, heart_multiplier, is_active)
 WHERE NOT EXISTS (SELECT 1 FROM public.campaigns LIMIT 1);

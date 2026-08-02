@@ -23,9 +23,8 @@ export default async function AwardSystemPage() {
     getTranslations("HomePage"),
   ]);
 
-  // Defense-in-depth: the route is already guarded in proxy.ts, but re-verify
-  // the Supabase session server-side (the view-model is backed by getUser())
-  // so a proxy misconfiguration can never expose this page — mirrors /todo.
+  // Defense-in-depth: proxy.ts already guards this route, but re-verifying the
+  // session here means a proxy misconfiguration can never expose the page.
   if (!vm.isAuthenticated) {
     redirect("/login");
   }

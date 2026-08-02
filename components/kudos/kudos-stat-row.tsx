@@ -8,14 +8,10 @@ export interface KudosStatRowProps {
 }
 
 /**
- * One counter row of the stats card: label on the LEFT, value on the RIGHT.
+ * One counter row of the stats card, shared by `KudosSidebar` and
+ * `ProfileStatsCard` so the identical 5-counter block cannot drift apart.
  *
- * Shared by `KudosSidebar` (Kudos board) and `ProfileStatsCard` (profile
- * screen), which render the identical 5-counter block — they previously each
- * kept a private copy of this markup, so a design change had to be made twice
- * and had already drifted.
- *
- * `badge` sits beside the LABEL, not the number: the x2 marker annotates
+ * `badge` sits beside the LABEL, not the number — the x2 marker annotates
  * "hearts received" as a concept, so it reads with the wording.
  */
 export default function KudosStatRow({ value, label, badge }: KudosStatRowProps) {

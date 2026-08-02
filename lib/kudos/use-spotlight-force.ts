@@ -40,15 +40,10 @@ export interface UseSpotlightForceOptions {
 const VELOCITY_RETAINED = 0.18;
 
 /**
- * Drift and home are quasi-static against each other: the drift oscillates far
- * slower than the spring settles, so a node parks where the two balance —
- * `amplitude ≈ DRIFT / HOME`, here about 15px of wander. The ratio matters
- * more than either number on its own; a home spring in the same order as the
- * drift pins everything to ~1px and the board looks frozen.
- *
- * The absolute size then sets the speed: a node settles at
- * `VELOCITY_RETAINED / (1 - VELOCITY_RETAINED) × DRIFT` px per step, so 0.3
- * works out to roughly 2.5px/s.
+ * The RATIO sets how far a node wanders (`amplitude ≈ DRIFT / HOME`, ~15px
+ * here); a home spring in the same order as the drift pins it to ~1px and the
+ * board looks frozen. The absolute size sets speed:
+ * `VELOCITY_RETAINED / (1 - VELOCITY_RETAINED) × DRIFT` px/step ≈ 2.5px/s.
  */
 const DRIFT_STRENGTH = 0.3;
 const HOME_STRENGTH = 0.02;
@@ -67,31 +62,22 @@ const STEP_SECONDS = 1 / 60;
 const MAX_STEPS_PER_FRAME = 3;
 
 /**
- * Motion behind the Spotlight board: every Sunner name is a vertex of the mesh
- * the design draws as a static plexus texture, and the vertices never settle.
+ * Motion behind the Spotlight board: every Sunner name is a mesh vertex, and
+ * the vertices never settle.
  *
- * This is a hand-rolled integrator rather than d3-force, because almost none
- * of d3 was being used — `home` and `drift` were always custom, and springs at
- * their own rest length exert nearly no force. That left `forceCollide`, whose
- * circular hit area is the wrong shape for a name label: wide and short. Boxes
- * separated along their axis of least penetration model that exactly, and at
- * ~90 nodes the naive all-pairs pass is a few thousand comparisons a frame —
- * cheaper than building d3's quadtree.
+ * Hand-rolled rather than d3-force: `home`/`drift` were always custom, springs
+ * at their own rest length barely pull, and `forceCollide`'s circle is the
+ * wrong shape for a wide, short label. Box separation models that exactly, and
+ * at ~90 nodes all-pairs beats building a quadtree.
  *
- * Three things keep it from becoming a drifting blob:
+ * Three terms keep it from becoming a drifting blob: a **home spring** (physics
+ * perturbs the designed scatter, doesn't replace it), a **drift** (without it
+ * the system equilibrates and visibly freezes), and **box separation** (stops
+ * names piling up).
  *
- * - a per-node **home spring** back to the seeded scatter, so the physics
- *   perturbs the designed arrangement instead of replacing it;
- * - a **drift** term injecting slow, out-of-phase acceleration — without it
- *   the system reaches equilibrium and visibly freezes;
- * - **box separation**, which is what stops names overlapping into a pile.
- *
- * Positions are handed back through `onTick` rather than React state on
- * purpose: at ~90 nodes and 60fps a `setState` per frame would re-render the
- * whole board continuously.
- *
- * Honours `prefers-reduced-motion`: the loop never starts, and the
- * server-rendered seeded layout simply stays put.
+ * `onTick` hands back positions instead of React state — a `setState` per frame
+ * at ~90 nodes would re-render the board continuously. Honours
+ * `prefers-reduced-motion` by never starting the loop.
  */
 export function useSpotlightForce({
   names,
@@ -101,10 +87,8 @@ export function useSpotlightForce({
   widths,
   onTick,
 }: UseSpotlightForceOptions) {
-  // Keeping the callback in a ref lets the effect depend only on real inputs,
-  // so an inline `onTick` at the call site can't restart the simulation. The
-  // assignment is an effect rather than a render-time write, and is declared
-  // first so it lands before the simulation effect below reads it.
+  // Ref so an inline `onTick` at the call site can't restart the simulation.
+  // Declared first so the assignment lands before the loop below reads it.
   const onTickRef = useRef(onTick);
   useEffect(() => {
     onTickRef.current = onTick;
@@ -128,9 +112,8 @@ export function useSpotlightForce({
       rate: 0.35 + ((index * 7919) % 100) / 260,
     }));
 
-    // Each link rests at the distance its two nodes already sit apart in the
-    // seeded layout, so the springs hold the designed scatter rather than
-    // hauling the cloud toward some uniform spacing.
+    // Rest length = the seeded distance, so springs hold the designed scatter
+    // instead of hauling the cloud toward uniform spacing.
     const restDistances = edges.map((edge) =>
       Math.hypot(
         nodes[edge.target].homeX - nodes[edge.source].homeX,
@@ -179,11 +162,9 @@ export function useSpotlightForce({
     let previous = performance.now();
 
     function loop(now: number) {
-      // Fixed-step accumulator: real elapsed time drives how many steps run,
-      // so motion is identical at 60Hz, 120Hz or during a dropped frame. Only
-      // the time actually consumed is retired — advancing `previous` to `now`
-      // instead would discard the sub-step remainder and run slow on any
-      // refresh rate that isn't a multiple of 60.
+      // Fixed-step accumulator, so motion is identical at any refresh rate.
+      // Only time actually consumed is retired — advancing `previous` to `now`
+      // would drop the sub-step remainder and run slow off multiples of 60.
       let pending = Math.floor((now - previous) / (STEP_SECONDS * 1000));
       if (pending > MAX_STEPS_PER_FRAME) {
         pending = MAX_STEPS_PER_FRAME;
@@ -205,9 +186,8 @@ export function useSpotlightForce({
 }
 
 /**
- * Pushes overlapping label boxes apart along whichever axis they overlap least,
- * which is what makes two side-by-side names slide horizontally rather than
- * one of them jumping a whole line up or down.
+ * Pushes overlapping boxes apart along their axis of LEAST overlap — that is
+ * what makes side-by-side names slide sideways instead of jumping a line.
  */
 function separate(nodes: SpotlightNode[]) {
   for (let pass = 0; pass < SEPARATION_PASSES; pass += 1) {

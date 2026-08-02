@@ -12,11 +12,9 @@ const ZERO_STATS: KudosStats = {
 const GIFT_RECIPIENT_LIMIT = 10;
 
 /**
- * Current-user sidebar stats, per the phase-04 spec's stat→query mapping.
- * Every count uses `{ count: "exact", head: true }` so no rows cross the
- * wire; `heartsReceived` sums `like_count` (already includes heart-value
- * multipliers via `trg_update_like_count`). Returns all zeros — never
- * throws — when there is no session.
+ * Current-user sidebar stats. Counts use `head: true` so no rows cross the
+ * wire; `heartsReceived` sums `like_count`, which already includes the heart
+ * multipliers. Returns zeros, never throws, when signed out.
  */
 export async function getCurrentUserStats(): Promise<KudosStats> {
   const supabase = await createClient();
@@ -75,10 +73,9 @@ export async function getCurrentUserStats(): Promise<KudosStats> {
 }
 
 /**
- * 10 most-recently-opened secret boxes, across all users — relies on the
- * `secret_boxes_select_opened` RLS policy (phase 01) since the base
- * `secret_boxes_select` policy is owner-scoped. Only `full_name` + badge
- * `name` are projected; no `user_id` reaches the view-model.
+ * 10 most-recently-opened secret boxes across all users — needs the
+ * `secret_boxes_select_opened` policy, since the base one is owner-scoped.
+ * Only names are projected; no `user_id` reaches the view-model.
  */
 export async function getGiftRecipients(): Promise<LeaderboardEntry[]> {
   const supabase = await createClient();
@@ -108,7 +105,7 @@ export interface ActiveCampaign {
   endDate: string;
 }
 
-/** The currently-active campaign (x2 hearts badge, phase-07's heart weighting), or `null` when none is running. */
+/** The active campaign (x2 hearts), or `null` when none is running. */
 export async function getActiveCampaign(): Promise<ActiveCampaign | null> {
   const supabase = await createClient();
   const nowIso = new Date().toISOString();

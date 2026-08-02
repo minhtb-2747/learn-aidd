@@ -25,16 +25,12 @@ export interface UseSubmitKudosOptions {
 }
 
 /**
- * Submit orchestration for the Kudos composer: upload the held files, then
- * create the row, then roll the files back if the row never lands.
+ * Submit orchestration for the composer: upload the held files, create the row,
+ * roll the files back if the row never lands.
  *
- * Lives apart from `write-kudos-form.tsx` so that file stays inside the
- * project's 200-line rule; the split is along a real seam, since everything
- * here is about the write path and nothing about field state.
- *
- * Note the whole chain outlives this hook's component — `startTransition`
- * does not cancel on unmount. That is why `onBusyChange` exists: the shell has
- * to block its close paths, or a "cancelled" compose still posts.
+ * The chain OUTLIVES this hook's component — `startTransition` does not cancel
+ * on unmount. That is why `onBusyChange` exists: the shell must block its close
+ * paths, or a "cancelled" compose still posts.
  */
 export function useSubmitKudos({
   uploadErrorMessage,
@@ -54,8 +50,8 @@ export function useSubmitKudos({
     (input: SubmitKudosInput) => {
       setErrorMessage(null);
       startTransition(async () => {
-        // Files reach Storage here, not when they were picked, so abandoning
-        // the composer costs nothing and leaves no orphans behind.
+        // Files reach Storage here, not at pick time, so abandoning the
+        // composer costs nothing and leaves no orphans.
         const uploaded = await uploadKudosImages(
           input.images.map((image) => image.file),
           uploadErrorMessage,
@@ -78,8 +74,8 @@ export function useSubmitKudos({
         if (result.ok) {
           onSubmitted();
         } else {
-          // Objects landed but the kudos row did not — best-effort cleanup so
-          // they don't sit in the bucket unreferenced. Errors are swallowed.
+          // Objects landed but the row did not — best-effort cleanup so they
+          // don't sit in the bucket unreferenced.
           discardKudosImages(uploaded.paths);
           setErrorMessage(result.error);
         }

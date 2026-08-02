@@ -24,16 +24,12 @@ export interface KudosRulesPanelProps {
 }
 
 /**
- * Kudos "Thể lệ" (Rules) panel (MoMorph `Thể lệ UPDATE`, node 3204:6051,
- * screenId `b1Filzi9i6`): a dark right-side drawer explaining the Hero
- * badge tiers, the 6-icon Secret Box collection, and "Kudos Quốc Dân".
- * Purely presentational/controlled — mock copy lives in `rules-content.ts`.
+ * Kudos "Thể lệ" panel: a dark right-side drawer covering the Hero tiers, the
+ * 6-icon Secret Box collection and "Kudos Quốc Dân". Controlled and purely
+ * presentational; copy lives in `rules-content.ts`.
  *
- * The 4 hero-tier pills are rendered via the shared `HeroBadge` component
- * as real exported Figma images (see `hero-badge.tsx`). The 6
- * collectible-icon thumbnails are separate composite/sprite Figma nodes
- * with no clean single-image export, so those remain styled gradient
- * placeholders carrying their caption.
+ * The 6 collectible-icon thumbnails have no clean single-image export from the
+ * design, so they render as styled gradient placeholders with their caption.
  */
 export default function KudosRulesPanel({
   open,

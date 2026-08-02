@@ -30,14 +30,10 @@ function normalizeFilter(value: string | undefined): SentFilterValue {
 }
 
 /**
- * "Profile bản thân" (Sunner Profile) screen (MoMorph frame `362:5037`,
- * screenId `3FoIx6ALVb`): keyvisual banner with an overlapping avatar, name +
- * department + recognition badge, the icon-collection row, the stats card,
- * and the "Sun* Annual Awards 2025 / KUDOS" post list. Real per-user data via
- * `getProfileData` (see `./profile-data.ts`); a malformed or missing `id`
- * renders Next's `notFound()`. Mirrors `app/kudos/page.tsx`'s header/
- * keyvisual backdrop/footer wiring; the route itself is auth-gated in
- * `proxy.ts` (owned by the orchestrator).
+ * Sunner Profile screen (screenId `3FoIx6ALVb`): keyvisual banner with an
+ * overlapping avatar, identity + badge, icon collection, stats card and the
+ * kudos post list. A malformed or missing `id` renders `notFound()`. The route
+ * itself is auth-gated in `proxy.ts`.
  */
 export default async function ProfilePage({
   params,
@@ -53,19 +49,16 @@ export default async function ProfilePage({
   const tk = await getTranslations("Kudos");
   const tp = await getTranslations("Profile");
 
-  // Defense-in-depth: the route is already guarded in proxy.ts, but re-verify
-  // the Supabase session server-side (the view-model is backed by getUser())
-  // so a proxy misconfiguration can never expose this page — mirrors /todo.
+  // Defense-in-depth: proxy.ts already guards this route, but re-verifying the
+  // session here means a proxy misconfiguration can never expose the page.
   if (!vm.isAuthenticated) {
     redirect("/login");
   }
 
-  // The Đã gửi/Đã nhận switch is the viewer's own affordance. On anyone else's
-  // profile the filter is pinned to "received" HERE, server-side, rather than
-  // just hidden in the UI: `getProfileKudos(id, "sent")` deliberately applies
-  // no `status` filter (the owner is meant to see their own drafts and
-  // spam-flagged posts), so honouring `?filter=sent` on a stranger's profile
-  // would hand those out to anyone who edited the URL.
+  // Pinned to "received" server-side on anyone else's profile, not merely
+  // hidden in the UI: `getProfileKudos(id, "sent")` applies no `status` filter
+  // (owners see their own drafts and spam-flagged posts), so honouring
+  // `?filter=sent` on a stranger would hand those to anyone editing the URL.
   const isOwnProfile = vm.user?.id === id;
   const filter = isOwnProfile
     ? normalizeFilter(rawSearchParams.filter)
@@ -99,10 +92,8 @@ export default async function ProfilePage({
         hasUnreadNotifications={vm.notifications.unreadCount > 0}
       />
       <main className="relative isolate flex-1 bg-ink pt-20">
-        {/* Keyvisual backdrop — same contained hero-band treatment as the
-            award-system/kudos screens (header 80px + full-bleed artwork
-            fading back to `bg-ink`); the profile avatar overlaps its bottom
-            edge, per the design's "Bìa" (cover) frame. */}
+        {/* Keyvisual backdrop — the contained hero band used by the
+            award-system/kudos screens; the avatar overlaps its bottom edge. */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 -z-10 aspect-1440/512"
@@ -139,9 +130,8 @@ export default async function ProfilePage({
           />
         </div>
 
-        {/* Own profile: the stats card with the Secret Box control. Someone
-            else's: the "send them a kudos" CTA instead — their gift counters
-            and unopened boxes are not the viewer's business. */}
+        {/* Own profile gets the stats card; anyone else's gets the CTA — their
+            gift counters and unopened boxes are not the viewer's business. */}
         <div className="px-6">
           {isOwnProfile ? (
             <ProfileStatsCard

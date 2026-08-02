@@ -81,7 +81,7 @@ export function PenIcon({ className }: IconProps) {
   );
 }
 
-/** "Target" glyph — leading icon on the award-system category nav links. */
+/** "Target" glyph — award-system category nav links. */
 export function TargetIcon({ className }: IconProps) {
   return (
     <svg
@@ -99,7 +99,7 @@ export function TargetIcon({ className }: IconProps) {
   );
 }
 
-/** "Diamond" glyph — leads the award quantity line on the award-system screen. */
+/** "Diamond" glyph — leads the award quantity line. */
 export function DiamondIcon({ className }: IconProps) {
   return (
     <svg
@@ -117,7 +117,7 @@ export function DiamondIcon({ className }: IconProps) {
   );
 }
 
-/** "License" glyph — leads the award prize-value line on the award-system screen. */
+/** "License" glyph — leads the award prize-value line. */
 export function LicenseIcon({ className }: IconProps) {
   return (
     <svg
@@ -135,7 +135,6 @@ export function LicenseIcon({ className }: IconProps) {
   );
 }
 
-// Sun* Kudos screen icons (Search/ChevronDown/ArrowLeft/ArrowRight/Link/Heart/
-// Send/Gift/Star) live in `./kudos.tsx` — this barrel stays under the 200-line
-// file-size guideline; import path for consumers is unaffected (`@/icons`).
+// The Kudos board icons live in `./kudos.tsx`, re-exported below; the import
+// path for consumers is unchanged (`@/icons`).
 export * from "./kudos";

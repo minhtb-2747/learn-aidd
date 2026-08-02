@@ -18,22 +18,13 @@ export interface CarouselNav {
  * Embla wiring for the highlight carousel: exposes the viewport ref plus the
  * selected index and edge state the controls need.
  *
- * `align: "center"` with `containScroll: false` is what produces the design's
- * symmetric peek — the default `containScroll` snaps the first and last slides
- * flush to the viewport edges, which loses the neighbour preview.
+ * Read through `useSyncExternalStore`, not mirrored into `useState` in an
+ * effect — that is correctness, not style: Embla emits "init" during its own
+ * setup (before any effect runs), so an event-only subscription leaves
+ * `canPrev`/`canNext` stuck at `false` and both arrows permanently disabled.
  *
- * Embla is read through `useSyncExternalStore` rather than mirrored into
- * `useState` inside an effect. That matters for correctness, not just style:
- * Embla emits "init" during its own setup (before any effect runs) and "reInit"
- * only on a genuine re-initialisation, so an event-only subscription leaves
- * `canPrev`/`canNext` stuck at their initial `false` — which renders both
- * arrows disabled and makes the carousel unclickable. Reading the snapshot
- * during render gets the true value immediately, and it keeps
- * `react-hooks/set-state-in-effect` satisfied.
- *
- * `startIndex` is the slide the carousel opens on. Embla reads it once at
- * init, so changing it later has no effect — callers that need a reset should
- * remount instead (the highlight carousel already does that per filter).
+ * Embla reads `startIndex` once at init, so changing it later does nothing —
+ * callers needing a reset must remount.
  */
 export function useCarouselNav(startIndex = 0): CarouselNav {
   const [viewportRef, emblaApi] = useEmblaCarousel({
@@ -54,10 +45,9 @@ export function useCarouselNav(startIndex = 0): CarouselNav {
     [emblaApi],
   );
 
-  // Snapshots return primitives, so referential stability is automatic.
-  // Falling back to `startIndex` rather than 0 keeps the server render, the
-  // pre-init client render and the post-init value agreeing — otherwise the
-  // "n/total" readout paints "1/5" and flips to "2/5" the moment Embla wakes.
+  // Falling back to `startIndex` rather than 0 keeps server, pre-init and
+  // post-init renders agreeing — otherwise "n/total" paints "1/5" then flips
+  // to "2/5" the moment Embla wakes.
   const selected = useSyncExternalStore(
     subscribe,
     () => emblaApi?.selectedScrollSnap() ?? startIndex,

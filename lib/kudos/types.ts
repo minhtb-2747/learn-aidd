@@ -1,11 +1,8 @@
 /**
- * Domain types for Sun* Kudos, backed by the real Supabase schema.
- *
- * This is the single source of truth for the view-model shapes the Kudos and
- * profile screens render. Rows are turned into these objects by
- * `./kudos-mapper.ts`, and every value reaching a client component is one of
- * these plain, serializable types — never a raw Supabase row (which would leak
- * columns like `sender_id`, `role` or `deleted_at` across the boundary).
+ * View-model shapes for the Kudos and profile screens. `./kudos-mapper.ts` turns
+ * rows into these, and every value crossing to a client component is one of them
+ * — never a raw Supabase row, which would leak columns like `sender_id`,
+ * `role` or `deleted_at` across the boundary.
  */
 
 /** Sender/receiver info shown on a kudos card or profile header. */
@@ -14,7 +11,7 @@ export interface KudosPerson {
   profileId: string | null;
   name: string;
   department: string;
-  /** Recognition-tier badge shown next to the name, e.g. "Legend Hero". Empty string when the person has no tier yet. */
+  /** Tier badge, e.g. "Legend Hero"; empty string when there is no tier yet. */
   badge: string;
   /** Total published kudos this person has received — feeds `ProfileHoverCard`. */
   kudosReceived: number;
@@ -23,7 +20,7 @@ export interface KudosPerson {
 }
 
 export interface HighlightKudos {
-  /** Stringified `kudos.id` (bigint) so existing `key` usage is untouched. */
+  /** Stringified `kudos.id` (bigint). */
   id: string;
   sender: KudosPerson;
   receiver: KudosPerson;
@@ -33,7 +30,7 @@ export interface HighlightKudos {
   content: string;
   hashtags: string[];
   likes: number;
-  /** Whether the current session user has already liked this kudos — real initial state for the heart button. */
+  /** Seeds the heart button's initial state. */
   likedByCurrentUser: boolean;
 }
 
@@ -56,7 +53,7 @@ export interface LeaderboardEntry {
   description: string;
 }
 
-/** Sidebar stats block — renamed from `SidebarStats` (mock), same fields. */
+/** Sidebar stats block. */
 export interface KudosStats {
   kudosReceived: number;
   kudosSent: number;
@@ -65,12 +62,12 @@ export interface KudosStats {
   boxesUnopened: number;
 }
 
-/** One entry in the spotlight word-cloud, before the seeded layout math places it on the canvas. */
+/** One word-cloud entry, before the seeded layout places it. */
 export interface SpotlightEntry {
   profileId: string | null;
   name: string;
   kudosCount: number;
-  /** Display-formatted receipt time (see `format-kudos-time.ts`'s `formatTickerTime`). */
+  /** Display-formatted receipt time (`formatTickerTime`). */
   receivedAt: string;
 }
 

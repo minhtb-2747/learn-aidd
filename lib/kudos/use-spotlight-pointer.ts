@@ -27,25 +27,21 @@ export interface UseSpotlightPointerOptions {
 }
 
 /**
- * A drag that ends within this many CSS px of where it started counts as a
- * click. Zero would misfire constantly — a press-and-release always jitters by
- * a pixel or two, and the board's own drift means the label has moved under
- * the cursor even if the cursor itself held perfectly still.
+ * A release within this many px of the press counts as a click. Zero misfires
+ * constantly — a press always jitters a pixel or two, and the board's own drift
+ * moves the label even when the cursor holds perfectly still.
  */
 const CLICK_SLOP_PX = 4;
 
 /**
  * Hover + click behaviour for the canvas word-cloud.
  *
- * The names are painted to a canvas rather than laid out as DOM, so there are
- * no elements to attach listeners to and both have to be derived by hit-testing
- * the live node boxes in board space.
+ * Names are painted to canvas, so there are no elements to attach listeners to
+ * — both are derived by hit-testing live node boxes in board space.
  *
- * Click is deliberately not a `click` handler: the board is drag-to-pan, and
- * the browser fires `click` at the end of a drag too, so panning across the
- * cloud would fling the viewer onto a random profile. Tracking the pointer-down
- * position and requiring the release to land within `CLICK_SLOP_PX` separates
- * the two intents.
+ * Click is deliberately NOT a `click` handler: the board is drag-to-pan and the
+ * browser fires `click` at the end of a drag too, so panning across the cloud
+ * would fling the viewer onto a random profile.
  */
 export function useSpotlightPointer({
   names,

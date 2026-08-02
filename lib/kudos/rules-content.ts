@@ -1,25 +1,14 @@
 /**
- * Design copy for the Kudos "Thể lệ" (Rules) panel.
+ * Design copy for the Kudos "Thể lệ" (Rules) panel, transcribed verbatim from
+ * MoMorph (frame `Thể lệ UPDATE`, screenId `b1Filzi9i6`). Vietnamese lives here
+ * as literals because this screen has no i18n key set yet.
  *
- * Transcribed verbatim from the MoMorph design (frame `Thể lệ UPDATE`,
- * node 3204:6052 "Thể Lệ", screenId `b1Filzi9i6`). Vietnamese text lives
- * here as local literals because this screen has no i18n key set assigned yet.
- *
- * `HERO_TIERS` below is not just copy — it is the AUTHORITATIVE source of the
- * recognition-tier thresholds, and `lib/kudos/hero-tier.ts` derives its badge
- * labels from it so the rule and the text users read can never drift. Note the
- * ranges count PEOPLE ("người gửi Kudos cho bạn"), i.e. distinct senders, not
- * total kudos received.
- *
- * Two of the design's six collectible-icon assets and all four hero-tier
- * pill backgrounds are composite/sprite Figma renders with no clean single
- * image export (some `MM_MEDIA_*` nodes returned no download URL at all).
- * Per this build's presentational-mock scope, `kudos-rules-panel.tsx`
- * renders all ten as styled gradient placeholders (circle/pill + caption)
- * instead of downloaded assets — see the component's top comment.
+ * `HERO_TIERS` is not just copy — it is the AUTHORITATIVE source of the tier
+ * thresholds, and `lib/kudos/hero-tier.ts` derives its labels from it so rule
+ * and text can never drift. The ranges count distinct SENDERS, not kudos.
  */
 
-/** Panel heading (node 3204:6055). */
+/** Panel heading. */
 export const RULES_PANEL_TITLE = "Thể lệ";
 
 export interface HeroTier {
@@ -32,7 +21,7 @@ export interface HeroTier {
   description: string;
 }
 
-/** Section 1 — "Người nhận" (node 3204:6131): the 4 Hero badge tiers. */
+/** Section 1 — "Người nhận": the 4 Hero badge tiers. */
 export const RECEIVER_SECTION = {
   title: "NGƯỜI NHẬN KUDOS: HUY HIỆU HERO CHO NHỮNG ẢNH HƯỞNG TÍCH CỰC",
   intro:
@@ -70,7 +59,7 @@ export const HERO_TIERS: HeroTier[] = [
   },
 ];
 
-/** Section 2 — "Người gửi" (node 3204:6076/3204:6077-6089): the 6-icon collection. */
+/** Section 2 — "Người gửi": the 6-icon collection. */
 export const SENDER_SECTION = {
   title: "NGƯỜI GỬI KUDOS: SƯU TẬP TRỌN BỘ 6 ICON, NHẬN NGAY PHẦN QUÀ BÍ ẨN",
   intro:
@@ -81,11 +70,11 @@ export const SENDER_SECTION = {
 
 export interface CollectibleIcon {
   id: string;
-  /** Caption under the thumbnail — the icon's name (node `*_Badge {NAME}`). */
+  /** Caption under the thumbnail — the icon's name. */
   caption: string;
 }
 
-/** The 6 Secret Box collectible icons (nodes 3204:6082/6087/6086/6083/6084/6088), 3x2 grid. */
+/** The 6 Secret Box collectible icons, 3x2 grid. */
 export const COLLECTIBLE_ICONS: CollectibleIcon[] = [
   { id: "revival", caption: "REVIVAL" },
   { id: "touch-of-light", caption: "TOUCH OF LIGHT" },
@@ -95,13 +84,13 @@ export const COLLECTIBLE_ICONS: CollectibleIcon[] = [
   { id: "root-further", caption: "ROOT FURTHER" },
 ];
 
-/** Section 3 — "KUDOS QUỐC DÂN" (nodes 3204:6090/6091). */
+/** Section 3 — "KUDOS QUỐC DÂN". */
 export const NATIONAL_KUDOS_SECTION = {
   title: "KUDOS QUỐC DÂN",
   body: "5 Kudos nhận về nhiều ❤️ nhất toàn Sun* sẽ chính thức trở thành Kudos Quốc Dân và được trao phần quà đặc biệt từ SAA 2025: Root Further.",
 } as const;
 
-/** Footer buttons (nodes 3204:6093 "B.1_Button đóng" / 3204:6094 "B.2_Button viết kudos"). */
+/** Footer buttons. */
 export const RULES_PANEL_FOOTER = {
   closeLabel: "Đóng",
   writeKudosLabel: "Viết KUDOS",

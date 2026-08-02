@@ -22,12 +22,9 @@ export interface RichTextEditorProps {
 }
 
 /**
- * FUNCTIONAL rich-text field (MoMorph spec `mms_C`/`mms_D`, node
- * `520:9876`): a `contentEditable` region driven by real toolbar buttons
- * (bold/italic/strikethrough/ordered+bullet list/link/quote via
- * `document.execCommand`, still broadly supported for this lightweight
- * mock — no external editor library needed). The red "Tiêu chuẩn cộng
- * đồng" link sits right-aligned in the toolbar per the design.
+ * Rich-text field: a `contentEditable` region driven by toolbar buttons via
+ * `document.execCommand` — still broadly supported, and light enough that no
+ * editor library is warranted.
  */
 export default function RichTextEditor({
   placeholder,
@@ -41,8 +38,7 @@ export default function RichTextEditor({
   const editorRef = useRef<HTMLDivElement>(null);
   const toolbarButtons = getToolbarButtons(t);
 
-  // Seed the contentEditable once (edit mode). The dialog remounts this via a
-  // React `key` per edit session, so this runs fresh for each opened post.
+  // Seeded once; the dialog remounts via a React `key` per edit session.
   useEffect(() => {
     const el = editorRef.current;
     if (!el || !initialContent) return;
@@ -58,8 +54,7 @@ export default function RichTextEditor({
       if (typeof window === "undefined") return;
       const url = window.prompt(t("insertLinkPrompt"));
       if (!url) return;
-      // Sanitize: only allow safe schemes so a user can't inject a
-      // `javascript:`/`data:` href into the contentEditable region (XSS).
+      // Only safe schemes — a `javascript:`/`data:` href here would be XSS.
       let parsed: URL;
       try {
         parsed = new URL(url, window.location.origin);
@@ -87,8 +82,8 @@ export default function RichTextEditor({
     if (!el) return;
     const text = el.textContent ?? "";
     const isEmpty = text.trim().length === 0;
-    // Browsers can leave a stray <br> behind once all text is deleted —
-    // clear it so the CSS `:empty` placeholder reliably reappears.
+    // Browsers leave a stray <br> after deleting all text, which would stop
+    // the CSS `:empty` placeholder from reappearing.
     if (isEmpty && el.innerHTML !== "") el.innerHTML = "";
     onChange?.({ hasContent: !isEmpty, text: isEmpty ? "" : text });
   }

@@ -36,21 +36,16 @@ export interface SpotlightBoardProps {
  * Interactive word-cloud of Sunner names (Sun* Kudos "Spotlight board",
  * MoMorph node 2940:14174, design export `SPOTLIGHT_board.svg`).
  *
- * The design layers a keyvisual photo darkened to 30%, then a plexus mesh
- * texture at 30% `screen`. Here that mesh is not a texture: every name is a
- * live vertex of it, drifting under the simulation in `use-spotlight-force.ts`
- * and painted to a single canvas (`spotlight-canvas.tsx`).
+ * The design's plexus mesh is not a texture here: every name is a live vertex,
+ * drifting under `use-spotlight-force.ts` and painted to one canvas.
  *
- * Nothing about the cloud is in the DOM, which is what keeps it smooth — see
- * the note in `spotlight-canvas.tsx`. The trade is that pointer behaviour and
- * screen readers have to be rebuilt by hand: hover/click are hit-tests against
- * the live node positions (`use-spotlight-pointer.ts`) with one shared tooltip
- * element, and the names are mirrored into a visually-hidden list so assistive
- * tech still reaches them.
+ * Nothing is in the DOM, which is what keeps it smooth. The trade is that
+ * pointer behaviour and screen readers are rebuilt by hand: hover/click are
+ * hit-tests against live node positions with one shared tooltip, and the names
+ * are mirrored into a visually-hidden list for assistive tech.
  *
- * `names`/`ticker` arrive as plain, server-computed props
- * (`app/kudos/board-data.ts`) — this stays a client component for the
- * pan/zoom, search and simulation, so it must never import a query module.
+ * `names`/`ticker` arrive as server-computed props — this is a client component
+ * for pan/zoom, search and simulation, so it must never import a query module.
  */
 export default function SpotlightBoard({
   names,
@@ -66,9 +61,8 @@ export default function SpotlightBoard({
 
   const edges = useMemo(() => buildSpotlightEdges(names), [names]);
 
-  // The cloud is authored against a 1157px-wide board; on a wider one the
-  // normalised positions spread out, so the type scales with it or the names
-  // would read as tiny specks adrift.
+  // Authored against a 1157px board; on a wider one the normalised positions
+  // spread out, so type scales with it or the names read as specks adrift.
   const typeScale = size.width
     ? Math.min(1.35, Math.max(0.85, size.width / DESIGN_WIDTH))
     : 1;
@@ -196,8 +190,8 @@ export default function SpotlightBoard({
         </div>
       </div>
 
-      {/* The cloud itself is canvas-only, so assistive tech gets the names —
-          and a real way to reach each profile — from here. */}
+      {/* Canvas-only cloud, so assistive tech gets the names — and a real way
+          to reach each profile — from here. */}
       <ul className="sr-only">
         {names.map((item) => (
           <li key={item.id}>
@@ -216,9 +210,8 @@ export default function SpotlightBoard({
         {totalLabel}
       </h2>
 
-      {/* No `backdrop-blur` here: the canvas beneath repaints every frame, and
-          a backdrop filter over it would be re-evaluated every frame too. The
-          design specifies a flat #FFEA9E @10% fill anyway. */}
+      {/* No `backdrop-blur`: the canvas beneath repaints every frame, so the
+          filter would be re-evaluated every frame too. */}
       <div className="absolute top-6 left-6 flex h-[39px] items-center gap-3 rounded-full border border-gold-line bg-gold/10 px-[13px]">
         <SpotlightSearchIcon className="h-3 w-3 shrink-0 text-white" />
         <input

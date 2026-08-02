@@ -12,21 +12,15 @@ function isActive(pathname: string, href: string): boolean {
 }
 
 /**
- * Site footer: logo + nav links on the left, copyright notice on the right.
+ * Site footer: logo + nav on the left, copyright on the right.
  *
- * A client component so it can derive its active item from `usePathname()`.
- * It previously hardcoded `selected: true` on "About" with every `href="#"`,
- * so the highlight never followed the route the user was actually on. Deriving
- * it here means no page has to remember to pass an active flag down, and it
- * stays correct for routes added later.
+ * A client component so it derives its active item from `usePathname()` — no
+ * page has to remember to pass an active flag down, and it stays correct for
+ * routes added later.
  *
- * "Thể lệ" is not a route — it opens the shared Rules panel through
- * `KudosModalsProvider` (mounted in the root layout), matching how the
- * floating widget button opens it. Rendering it as a button rather than a
- * dead `href="#"` also gives it the correct semantics.
- *
- * Active style is the footer's own (translucent-yellow box + glow, no
- * underline) per Figma — deliberately different from the header's underline.
+ * "Thể lệ" is not a route; it opens the shared Rules panel, so it is a button
+ * rather than a dead link. The active style is deliberately the footer's own
+ * (box + glow), not the header's underline.
  */
 export default function SiteFooter() {
   const t = useTranslations("HomePage");
@@ -56,7 +50,8 @@ export default function SiteFooter() {
           height={64}
           className="h-16 w-17.25 shrink-0"
         />
-        <nav className="flex flex-wrap items-center justify-center gap-6 lg:gap-12">
+        {/* Items carry `px-4`, so the visual gap is this plus 32px. */}
+        <nav className="flex flex-wrap items-center justify-center gap-2 lg:gap-6">
           {links.map((link) => {
             const active = isActive(pathname, link.href);
             return (

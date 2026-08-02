@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils/cn.utils";
 export interface HeaderNavLink {
   /** Translated label. */
   label: string;
-  /** Stub destination — integration points this at the real route/anchor. */
   href: string;
   /** Whether this is the current section (yellow underline). */
   selected?: boolean;

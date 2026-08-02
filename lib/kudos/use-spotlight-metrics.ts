@@ -16,16 +16,11 @@ export const LABEL_FONT_WEIGHT = 600;
 const FALLBACK_FAMILY = "sans-serif";
 
 /**
- * Measures every label once with an offscreen 2D context.
- *
- * Two things make this worth a hook rather than an inline estimate. Canvas
- * hit-testing needs a real box — a glyph-ratio guess mislocates the hover
- * target on short or diacritic-heavy names. And `forceCollide` sized from the
- * true width keeps names from overlapping far better than an average.
- *
- * Measurement waits on `document.fonts.ready`: Montserrat arrives via
- * `next/font`, and measuring before it lands returns fallback-face widths that
- * are wrong by enough to matter.
+ * Measures every label once with an offscreen 2D context. Real boxes, not a
+ * glyph-ratio guess — the guess mislocates hover targets on short or
+ * diacritic-heavy names, and separation sized from true widths overlaps far
+ * less. Waits on `document.fonts.ready`, since measuring before Montserrat
+ * lands returns fallback-face widths.
  */
 export function useSpotlightMetrics(
   names: SpotlightName[],
@@ -38,8 +33,7 @@ export function useSpotlightMetrics(
 
     let cancelled = false;
 
-    // `next/font` exposes the generated family through this custom property;
-    // there is no stable literal name to hardcode.
+    // `next/font` generates the family name; there is nothing to hardcode.
     const declared = getComputedStyle(document.documentElement)
       .getPropertyValue("--font-montserrat")
       .trim();

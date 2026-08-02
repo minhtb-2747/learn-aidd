@@ -1,6 +1,8 @@
 "use client";
 
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import RouteLoadingOverlay from "@/components/route-loading-overlay";
 import type { HighlightKudos } from "@/lib/kudos/types";
 import CarouselArrowButton from "./carousel-arrow-button";
 import { useCarouselNav } from "./use-carousel-nav";
@@ -34,28 +36,18 @@ export interface HighlightCarouselProps {
  * "HIGHLIGHT KUDOS" section (MoMorph `B_Highlight`, node 2940:13451): filter
  * dropdowns above a 3-up peek carousel.
  *
- * Layout per the design export (`slide.svg`, 1440×525): the track is
- * full-bleed — cards are 528×525 on a 552px pitch (24px gutter), so at 1440
- * three are in frame and the outer two bleed past the viewport edges.
+ * Track is full-bleed: 528×525 cards on a 552px pitch, so three are in frame at
+ * 1440 and the outer two bleed past the edges.
  *
- * Every card is drawn identically: the neighbours are NOT dimmed, scaled or
- * desaturated. What fades them is a pair of 400px-wide overlays of the page
- * background (`#00101A`) — solid for their inner half, then easing to
- * transparent. That is the design's "shadow", and it is why a card looks
- * progressively swallowed by the background rather than uniformly greyed.
+ * Neighbours are NOT dimmed or scaled — what fades them is a pair of overlays
+ * of the page background, solid for their inner half then eased out. That is
+ * why a card looks swallowed by the background rather than uniformly greyed.
  *
- * Large chevrons sit on top of those overlays; a smaller pair flanks the
- * "n/total" readout underneath.
+ * Embla handles motion; `align: "center"` + `containScroll: false` is what
+ * gives the symmetric peek (the default would snap the end slides flush).
  *
- * Motion is handled by Embla (`embla-carousel-react`) rather than hand-rolled
- * index math, which is what gives drag/swipe, momentum and the eased
- * transition on next/back for free. `align: "center"` + `containScroll: false`
- * is what produces the symmetric peek on both sides — with the default
- * `containScroll` the first and last slides would snap flush to the edges and
- * lose it.
- *
- * Filters stay URL-driven (`?hashtag=&department=`, see `app/kudos/page.tsx`)
- * so the server re-queries the top 5 and a reload preserves the selection.
+ * Filters are URL-driven (`?hashtag=&department=`) so the server re-queries the
+ * top 5 and a reload preserves the selection.
  */
 export default function HighlightCarousel({
   subtitle,
@@ -78,11 +70,10 @@ export default function HighlightCarousel({
   activeDepartment,
 }: HighlightCarouselProps) {
   const router = useRouter();
+  const [isFiltering, startFiltering] = useTransition();
   const total = kudos.length;
 
-  // Open on the second card once there are at least three, so both neighbours
-  // peek and the edge fades read as designed. With one or two there is nothing
-  // to the left, and starting there would just leave a gap.
+  // Open on the second card once there are three, so both neighbours peek.
   const { viewportRef, selected, canPrev, canNext, scrollPrev, scrollNext } =
     useCarouselNav(total >= 3 ? 1 : 0);
 
@@ -93,7 +84,11 @@ export default function HighlightCarousel({
     if (nextHashtag) params.set("hashtag", nextHashtag);
     if (nextDepartment) params.set("department", nextDepartment);
     const query = params.toString();
-    router.replace(`/kudos${query ? `?${query}` : ""}`, { scroll: false });
+    // Inside a transition so `isFiltering` stays true for the whole server
+    // round trip — `router.replace` returns immediately and reports nothing.
+    startFiltering(() => {
+      router.replace(`/kudos${query ? `?${query}` : ""}`, { scroll: false });
+    });
   }
 
   const cardProps = {
@@ -107,8 +102,10 @@ export default function HighlightCarousel({
 
   return (
     <section className="flex flex-col gap-10 py-8">
-      {/* Only the heading block follows the page gutter — the track below is
-          deliberately full-bleed so the neighbour cards run off both edges. */}
+      {/* The page remounts this component (see the `key` in app/kudos/page.tsx)
+          once the new params land, so the pending flag resets on its own. */}
+      <RouteLoadingOverlay active={isFiltering} />
+      {/* Only the heading follows the page gutter; the track is full-bleed. */}
       <div className="flex flex-col gap-4 px-6 sm:px-9 lg:px-36">
         <p className="text-2xl leading-8 font-bold text-white">{subtitle}</p>
         <div className="h-px w-full bg-divider" aria-hidden="true" />
@@ -122,12 +119,14 @@ export default function HighlightCarousel({
               options={hashtagOptions}
               active={activeHashtag ?? null}
               onSelect={(option) => updateFilter("hashtag", option)}
+              disabled={isFiltering}
             />
             <HighlightFilterDropdown
               label={departmentLabel}
               options={departmentOptions}
               active={activeDepartment ?? null}
               onSelect={(option) => updateFilter("department", option)}
+              disabled={isFiltering}
             />
           </div>
         </div>
@@ -146,13 +145,10 @@ export default function HighlightCarousel({
                 {kudos.map((item) => (
                   <div
                     key={item.id}
-                    // 38.33% ≈ the design's 552px slide pitch at 1440; `px-3`
-                    // takes 24px of that back as the gutter, leaving the 528px
-                    // card (`max-w-132` on KudosCard) exactly as drawn.
-                    // The `max-w-138` (=552px) cap is what keeps the gutter at
-                    // 24px past 1440: without it the slide keeps growing while
-                    // the card stays pinned at its 528px max, and the surplus
-                    // turns into dead space between cards.
+                    // 38.33% ≈ the 552px slide pitch at 1440; `px-3` takes 24px
+                    // back as the gutter. The `max-w-138` cap holds that gutter
+                    // past 1440 — without it the slide keeps growing while the
+                    // card stays at its 528px max, leaving dead space.
                     className="flex max-w-138 min-w-0 shrink-0 grow-0 basis-[92%] justify-center px-3 sm:basis-[68%] lg:basis-[38.33%]"
                   >
                     <KudosCard kudos={item} {...cardProps} />
@@ -161,10 +157,8 @@ export default function HighlightCarousel({
               </div>
             </div>
 
-            {/* The design's edge treatment: the page background laid back over
-                the track, solid for its inner half then eased out. Fading to
-                `rgba(0,16,26,0)` rather than `transparent` matters — the CSS
-                keyword resolves to transparent *black* and would grey the
+            {/* Fading to `rgba(0,16,26,0)` rather than `transparent` matters —
+                the keyword resolves to transparent *black* and would grey the
                 midpoint on the way out. */}
             <div
               aria-hidden="true"

@@ -2,10 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { MAX_IMAGES } from "@/lib/kudos/validate-image-file";
 
 /**
- * Validation + child-row (hashtags/mentions/images) helpers for
- * `createKudos` (`app/actions/kudos.ts`), split into their own module to
- * keep that action file under the 200-line guideline. No `"use server"`
- * here — these are plain functions, not server actions themselves.
+ * Validation + child-row (hashtags/mentions/images) helpers for `createKudos`
+ * (`app/actions/kudos.ts`). No `"use server"` — plain functions, not actions.
  */
 
 export interface CreateKudosInput {
@@ -65,11 +63,9 @@ export function validateCreateKudosInput(input: CreateKudosInput, senderId: stri
 export type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
 /**
- * Resolve `@mention` candidates to real profile ids by an exact,
- * case-insensitive match against `profiles.full_name` (sender excluded).
- * `profiles` is fully public-select (`profiles_select: USING (true)`), so
- * fetching id+name here leaks nothing a client couldn't already read.
- * Never throws — a lookup failure must not abort the kudos itself.
+ * Resolve `@mention` candidates to profile ids by exact, case-insensitive
+ * match on `profiles.full_name` (sender excluded). `profiles` is public-select,
+ * so this leaks nothing. Never throws — a lookup failure must not abort the kudos.
  */
 export async function resolveMentionIds(
   supabase: SupabaseServerClient,
@@ -78,16 +74,12 @@ export async function resolveMentionIds(
 ): Promise<string[]> {
   if (candidates.length === 0) return [];
 
-  // Push the name filter into the DB instead of scanning every profile.
-  // The old full-table `select` was capped by PostgREST's `max_rows = 1000`,
-  // so past 1000 profiles mentions would silently stop resolving.
+  // Filter in the DB, not by scanning every profile — PostgREST's
+  // `max_rows = 1000` would silently stop resolving mentions past 1000 profiles.
   //
-  // Interpolating into an `or` filter is safe for THIS input specifically:
-  // `extractMentionCandidates` builds candidates from `[\p{L}\p{M}][\p{L}\p{M}\d]*`
-  // words joined by single spaces, so they cannot contain the `,`, `(`, `)` or `.`
-  // characters that carry meaning in PostgREST's filter grammar. The guard below
-  // re-checks that invariant rather than trusting it, and `ilike` (not `like`)
-  // preserves the previous case-insensitive matching.
+  // Interpolating into `or` is safe only because candidates cannot contain the
+  // `,` `(` `)` `.` characters that carry meaning in PostgREST's filter grammar.
+  // The regex below re-checks that invariant rather than trusting the caller.
   const safe = candidates
     .filter((candidate) => /^[\p{L}\p{M}\d]+(?: [\p{L}\p{M}\d]+)*$/u.test(candidate))
     .slice(0, MENTION_CANDIDATE_CAP);
@@ -111,13 +103,11 @@ export async function resolveMentionIds(
 }
 
 /**
- * Upsert hashtag names then link them to the kudos row. `hashtags`/
- * `kudo_hashtags` only have INSERT + SELECT RLS policies (no UPDATE), so an
- * `ON CONFLICT DO UPDATE` would be rejected — `ignoreDuplicates: true`
- * (`DO NOTHING`) is required, followed by a plain SELECT to also pick up
- * ids for names that already existed (a skipped-conflict row is not
- * returned by the upsert's own `RETURNING`). Verified against the live RLS
- * policies via psql (see phase-07 implementation report).
+ * Upsert hashtag names then link them to the kudos row.
+ *
+ * `hashtags`/`kudo_hashtags` have no UPDATE RLS policy, so `ON CONFLICT DO
+ * UPDATE` is rejected — hence `ignoreDuplicates` (`DO NOTHING`), plus a plain
+ * SELECT, since a skipped-conflict row is absent from the upsert's `RETURNING`.
  */
 export async function linkHashtags(
   supabase: SupabaseServerClient,
@@ -152,13 +142,8 @@ export async function linkHashtags(
 
 /**
  * Insert one `kudo_images` row per already-uploaded Storage URL, in display
- * order. Images are uploaded (to `kudo-images`) before this runs — this
- * only writes the rows, capped defensively at `MAX_IMAGES` again even
- * though `validateCreateKudosInput` already rejected a longer list.
- * `kudo_images_insert`'s RLS only requires `auth.uid() IS NOT NULL` (no
- * ownership-of-`kudo_id` check), so no extra lookup is needed here. Best
- * effort like `linkHashtags` above: a failure here does not roll back the
- * kudos row itself.
+ * order. Re-caps at `MAX_IMAGES` defensively even though validation already
+ * did. Best effort like `linkHashtags` — a failure does not roll back the kudos.
  */
 export async function insertKudoImages(
   supabase: SupabaseServerClient,

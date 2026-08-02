@@ -47,21 +47,17 @@ async function getNamesById(
 }
 
 /**
- * Spotlight word-cloud data: per-receiver kudos counts + most recent receipt
- * (aggregated in TS from `receiver_id, created_at` — PostgREST can't express
- * `count(distinct ...)` grouped), the 5-newest ticker, and the total
- * published-kudos count. Layout/placement math lives separately in
- * `spotlight-layout.ts` so the seeded scatter stays untouched.
+ * Word-cloud data: per-receiver counts + most recent receipt, the 5-newest
+ * ticker, and the total published count. Placement math lives in
+ * `spotlight-layout.ts`.
  */
 export async function getSpotlightData(): Promise<SpotlightData> {
   const supabase = await createClient();
 
   const [receivedResult, tickerResult, countResult] = await Promise.all([
-    // Aggregated by the `spotlight_receiver_counts` VIEW rather than here.
-    // Selecting raw kudos rows and counting in TS would be silently truncated
-    // by PostgREST's `max_rows = 1000` once the board passes 1000 published
-    // kudos — wrong counts, no error. The view returns one row per receiver, and
-    // `ENTRY_CAP` then bounds what the word cloud renders.
+    // Aggregated by the VIEW, not here: counting raw rows in TS gets silently
+    // truncated by PostgREST's `max_rows = 1000` past 1000 published kudos —
+    // wrong counts, no error.
     supabase
       .from("spotlight_receiver_counts")
       .select("receiver_id, kudos_count, last_received_at")

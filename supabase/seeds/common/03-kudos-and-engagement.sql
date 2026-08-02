@@ -238,11 +238,12 @@ INSERT INTO public.kudo_likes (kudo_id, user_id, heart_value, is_special_day, cr
 SELECT
   c.kid,
   c.liker_id,
-  CASE WHEN c.rn % 3 = 0 THEN 2 ELSE 1 END,
-  CASE WHEN c.rn % 3 = 0 THEN true ELSE false END,
-  -- rn % 3 = 0 -> "recent" like, inside the active campaign window
-  -- (campaign starts now()-3d in 01-reference-data.sql) -> heart_value 2.
-  -- otherwise -> older than the campaign window -> heart_value 1.
+  -- Every like is worth 1: no campaign is seeded active (01-reference-data.sql),
+  -- so an x2 row here would contradict the campaign table. Ranking is unaffected
+  -- — it comes from `target_count`, not from the heart value.
+  1,
+  false,
+  -- rn % 3 = 0 -> a "recent" like; the rest are spread over past weeks.
   CASE WHEN c.rn % 3 = 0
     THEN now() - (c.rn % 60) * interval '1 hour'
     ELSE now() - (5 + (c.rn % 35)) * interval '1 day'

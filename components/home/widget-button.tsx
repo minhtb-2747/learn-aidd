@@ -8,17 +8,12 @@ import { cn } from "@/lib/utils/cn.utils";
 import { useKudosModals } from "@/components/kudos/kudos-modals-provider";
 
 /**
- * Floating bottom-right widget. Closed: a yellow pill (pencil + SAA mark).
- * Open (Figma node 313:9139): the trigger morphs into a red circular close
- * button and a stacked quick-action menu ("Thể lệ" + "Viết KUDOS") animates in
- * above it. The menu stays mounted (positioned absolutely above the trigger) so
- * it can transition both in and out; the trigger cross-fades its icon while its
- * size / colour / radius morph. Actions are mock/static; labels are i18n.
+ * Floating bottom-right widget: a yellow pill that morphs into a red close
+ * button, with a quick-action menu above it. The menu stays mounted so it can
+ * transition both in AND out.
  */
 export default function WidgetButton() {
   const t = useTranslations("HomePage");
-  // Opens the shared Kudos modals (provided app-wide by the root layout's
-  // KudosModalsProvider), so the widget works on every page that renders it.
   const { openWrite, openRules } = useKudosModals();
   const [open, setOpen] = useState(false);
   const containerRef = useClickOutside<HTMLDivElement>(() => setOpen(false));
@@ -30,8 +25,7 @@ export default function WidgetButton() {
 
   return (
     <div ref={containerRef} className="fixed right-35.75 bottom-30 z-40 ">
-      {/* Quick-action menu — stays mounted, animates in/out above the trigger.
-          `inert` when closed keeps the invisible links out of the tab order. */}
+      {/* `inert` when closed keeps the invisible buttons out of the tab order. */}
       <div
         inert={!open}
         className={cn(
@@ -82,7 +76,6 @@ export default function WidgetButton() {
         </button>
       </div>
 
-      {/* Trigger ⇄ close — morphs size / colour / radius, cross-fades its icon */}
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
@@ -94,7 +87,6 @@ export default function WidgetButton() {
           open ? "h-14 w-14 bg-danger" : "h-16 w-26.5 bg-gold",
         )}
       >
-        {/* closed content: pencil + SAA mark */}
         <span
           className={cn(
             "flex items-center gap-2 transition-opacity duration-200",
@@ -112,7 +104,6 @@ export default function WidgetButton() {
           />
         </span>
 
-        {/* open content: close (✕) */}
         {/* eslint-disable-next-line @next/next/no-img-element -- static presentational icon */}
         <img
           src="/images/home/widget-close.svg"

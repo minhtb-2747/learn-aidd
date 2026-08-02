@@ -6,22 +6,21 @@ import { cn } from "@/lib/utils/cn.utils";
 import { HERO_TIERS } from "@/lib/kudos/rules-content";
 
 export interface HeroBadgeProps {
-  /** Recognition-tier badge label, e.g. "Legend Hero" (matches `KudosPerson.badge` / `HeroTier.badgeLabel`). */
+  /** Tier label, e.g. "Legend Hero" — matches `HeroTier.badgeLabel`. */
   badge: string;
   className?: string;
 }
 
 interface HeroBadgeAsset {
   src: string;
-  /** Intrinsic pixel dimensions of the exported Figma pill (varies slightly per tier). */
+  /** Intrinsic dimensions of the exported pill (varies per tier). */
   width: number;
   height: number;
 }
 
 /**
- * The 4 Hero recognition-tier badges, exported as SVG from the Figma design
- * ("Thể lệ UPDATE", node `3204:6052`) into `public/images/kudos/`. SVG so they
- * stay crisp at any size. `width`/`height` are the SVG viewBox dims (aspect).
+ * The 4 Hero tier badges, exported as SVG so they stay crisp at any size.
+ * `width`/`height` are viewBox dims, i.e. aspect ratio.
  */
 const HERO_BADGE_ASSETS: Record<string, HeroBadgeAsset> = {
   "New Hero": { src: "/images/kudos/badge-new-hero.svg", width: 220, height: 40 },
@@ -30,7 +29,7 @@ const HERO_BADGE_ASSETS: Record<string, HeroBadgeAsset> = {
   "Legend Hero": { src: "/images/kudos/badge-legend-hero.svg", width: 220, height: 40 },
 };
 
-/** Tier tooltip copy (range + description), keyed by badge label — reused from the Rules panel. */
+/** Tooltip copy keyed by badge label, reused from the Rules panel. */
 const TIER_BY_LABEL = Object.fromEntries(
   HERO_TIERS.map((tier) => [tier.badgeLabel, tier]),
 );
@@ -38,11 +37,9 @@ const TIER_BY_LABEL = Object.fromEntries(
 const TOOLTIP_WIDTH = 288;
 
 /**
- * Renders a Hero recognition-tier badge as its real exported Figma image.
- * Hovering the badge reveals a tooltip (fixed-positioned so it escapes card /
- * carousel `overflow`) with the tier's range + description, mirroring the
- * Rules-panel copy. Used on kudos cards (`KudosPersonInfo`), the profile
- * header, and the Rules panel. Unknown labels render nothing.
+ * A Hero tier badge with a hover tooltip carrying the tier's range and
+ * description. The tooltip is FIXED-positioned so it escapes card/carousel
+ * `overflow`. Unknown labels render nothing.
  */
 export default function HeroBadge({ badge, className }: HeroBadgeProps) {
   const asset = HERO_BADGE_ASSETS[badge];

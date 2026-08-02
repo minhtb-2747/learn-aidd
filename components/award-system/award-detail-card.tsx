@@ -76,7 +76,7 @@ export default function AwardDetailCard({
       <div className="flex flex-1 flex-col gap-8">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-4">
-            <TargetIcon className="h-6 w-6 shrink-0 text-gold" />
+            <TargetIcon className="h-6 w-6 shrink-0" />
             <h3 className="text-2xl leading-8 font-bold text-gold">{title}</h3>
           </div>
           <p className="text-justify text-base leading-6 font-bold tracking-[0.5px] text-white">
@@ -87,7 +87,7 @@ export default function AwardDetailCard({
         <div className="h-px w-full bg-divider" aria-hidden="true" />
 
         <div className="flex flex-wrap items-center gap-4">
-          <DiamondIcon className="h-6 w-6 shrink-0 text-gold" />
+          <DiamondIcon className="h-6 w-6 shrink-0" />
           <span className="text-2xl leading-8 font-bold text-gold">
             {quantityLabel}
           </span>
@@ -113,7 +113,7 @@ export default function AwardDetailCard({
                 </div>
               )}
               <div className="flex items-center gap-4">
-                <LicenseIcon className="h-6 w-6 shrink-0 text-gold" />
+                <LicenseIcon className="h-6 w-6 shrink-0" />
                 <span className="text-2xl leading-8 font-bold text-gold">
                   {prizeValueLabel}
                 </span>

@@ -1,6 +1,7 @@
 import LanguageSelector, {
   type Locale,
 } from "@/components/login/language-selector";
+import HeaderShell from "./header-shell";
 import HeaderNav, { type HeaderNavLink } from "./header-nav";
 import NotificationBell, { type NotificationItem } from "./notification-bell";
 import AccountMenu, { type AccountMenuUser } from "./account-menu";
@@ -21,6 +22,7 @@ export interface SiteHeaderProps {
  * Sticky homepage header: logo, section nav, language switcher, notification
  * bell, and account control. Auth/notification data is passed in as props —
  * this component only renders the two states (signed in / signed out).
+ * `HeaderShell` owns the scroll-reactive background, so this stays server-side.
  */
 export default function SiteHeader({
   locale,
@@ -30,7 +32,7 @@ export default function SiteHeader({
   hasUnreadNotifications = false,
 }: SiteHeaderProps) {
   return (
-    <header className="fixed inset-x-0 top-0 z-40 flex h-20 w-full items-center justify-between bg-[rgba(16,20,23,0.8)] px-6 sm:px-9 lg:px-36">
+    <HeaderShell>
       <div className="flex items-center gap-8 lg:gap-16">
         {/* eslint-disable-next-line @next/next/no-img-element -- static presentational brand asset */}
         <img
@@ -51,6 +53,6 @@ export default function SiteHeader({
         />
         <AccountMenu user={user} />
       </div>
-    </header>
+    </HeaderShell>
   );
 }

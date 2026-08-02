@@ -1,14 +1,9 @@
 import { HERO_TIERS } from "@/lib/kudos/rules-content";
 
 /**
- * Tier derivation, single source of truth.
- *
- * `HERO_TIERS[].rangeLabel` (rules-content.ts) is the user-facing rule and it
- * counts *people*, not kudos — "Có 1-4 người gửi Kudos cho bạn" — so the tier
- * is derived from the count of DISTINCT SENDERS of published kudos a person
- * has received, never from a total kudos count. Labels are pulled from
- * `HERO_TIERS` (not re-typed) so this table and the Rules panel can never
- * drift apart.
+ * The user-facing rule counts PEOPLE, not kudos, so tiers derive from the count
+ * of DISTINCT SENDERS — never from a total kudos count. Labels are pulled from
+ * `HERO_TIERS` rather than re-typed, so the two can never drift apart.
  */
 const [NEW_HERO, RISING_HERO, SUPER_HERO, LEGEND_HERO] = HERO_TIERS.map(
   (tier) => tier.badgeLabel,
@@ -34,13 +29,9 @@ const STARS_BY_TIER: Record<string, number> = {
 };
 
 /**
- * Star count ("số hoa thị") for a badge label.
- *
- * NOTE: the old mock's docstring ("1 star = 10 Kudos received, 2 = 20, 3 =
- * 50+") was stale and never matched the real Hero-tier rule above — stars
- * are keyed off the tier label, not a separate kudos-count threshold.
- * Unknown/empty labels (including "no tier yet") return `0`, not the mock's
- * `?? 1` fallback, so a zero-kudos profile renders no phantom star.
+ * Star count for a badge label — keyed off the TIER, not a separate kudos
+ * threshold. Unknown/empty labels return 0 so a zero-kudos profile renders no
+ * phantom star.
  */
 export function starsForBadge(badge: string): number {
   return STARS_BY_TIER[badge] ?? 0;

@@ -13,12 +13,10 @@ export type UploadKudosImagesResult =
  * 6 MB, sized for a single 5 MB image; the picker allows five, so a batched
  * call could carry 25 MB and would be rejected outright.
  *
- * **Sequential, not `Promise.all`.** The reason is rollback rather than
- * bandwidth: if uploads run concurrently and the third one fails, its siblings
- * are still in flight, so cleanup would have to settle them all before it knew
- * what to delete. Running in order makes the rule trivial — fail at step *k*,
- * delete `0..k-1`, nothing is racing. It also keeps in-flight bytes at one
- * file's worth and yields the array order `display_order` wants for free.
+ * **Sequential, not `Promise.all`** — for rollback, not bandwidth. Concurrent
+ * uploads leave siblings in flight when one fails, so cleanup would have to
+ * settle them all before knowing what to delete. In order: fail at *k*, delete
+ * `0..k-1`, nothing races. Array order also matches `display_order` for free.
  */
 export async function uploadKudosImages(
   files: File[],
@@ -41,8 +39,7 @@ export async function uploadKudosImages(
 
     if (!result.ok) {
       discardKudosImages(paths);
-      // The file name matters when four of five succeeded — the form shows a
-      // single error slot, so the message has to say which one failed.
+      // The form has a single error slot, so the message must name the file.
       return { ok: false, error: `${file.name}: ${result.error}` };
     }
 

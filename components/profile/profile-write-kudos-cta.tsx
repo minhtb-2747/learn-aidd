@@ -11,19 +11,12 @@ export interface ProfileWriteKudosCtaProps {
 }
 
 /**
- * "Gửi lời cảm ơn và ghi nhận tới …" pill, shown only on someone else's
- * profile. Opens the shared Write-Kudos dialog with this person already
- * selected as the recipient.
+ * "Gửi lời cảm ơn…" pill, shown only on someone else's profile; opens the
+ * shared Write dialog with them preselected.
  *
- * Exists as its own client component purely to cross the server/client
- * boundary for `useKudosModals` — the profile page itself is a server
- * component, and the label arrives already translated so this stays
- * presentational.
- *
- * Measurements come from the design export (680×72): fill `#FFEA9E` at 10%
- * over a 1px `#998C5F` stroke — the same "ghost pill" as the Spotlight search
- * field and `SentFilter`, hence the shared `bg-gold/10` / `border-gold-line`
- * tokens rather than one-off hex values.
+ * Its own client component purely to cross the server/client boundary for
+ * `useKudosModals` — the page is a server component and the label arrives
+ * already translated, so this stays presentational.
  */
 export default function ProfileWriteKudosCta({
   recipientId,

@@ -1,15 +1,9 @@
 /**
- * Shared image-upload validation for the Kudos composer's `ImageUploader` —
- * used both client-side (immediate UX feedback on file pick) and
- * server-side (the authoritative gate inside the `uploadKudoImage` server
- * action, `app/actions/kudos-images.ts`). Mirrors the live `kudo-images`
- * Storage bucket's own constraints exactly so a file that passes here is
- * never rejected by the bucket itself:
- *   file_size_limit = 5242880 (5 MB)
- *   allowed_mime_types = {image/jpeg, image/png, image/gif, image/webp}
- *
- * Pure module, no imports — keeps client and server validation from ever
- * drifting apart.
+ * Image-upload validation, run client-side for instant feedback and again
+ * server-side as the authoritative gate. Mirrors the `kudo-images` bucket's own
+ * constraints exactly (5 MB; jpeg/png/gif/webp) so anything passing here is
+ * never rejected by the bucket. Pure and import-free, so the two sides cannot
+ * drift apart.
  */
 
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // matches storage.buckets.file_size_limit
@@ -46,7 +40,7 @@ export function validateImageFile(file: { type: string; size: number }): string 
   return null;
 }
 
-/** File extension for a validated allowed mime type — used to name the uploaded object. */
+/** Extension for a validated mime type, used to name the uploaded object. */
 export function extensionForImageType(type: AllowedImageType): string {
   return EXTENSION_BY_TYPE[type];
 }

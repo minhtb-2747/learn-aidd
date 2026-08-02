@@ -1,6 +1,8 @@
 "use client";
 
+import { useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import RouteLoadingOverlay from "@/components/route-loading-overlay";
 import ProfileKudosCard from "@/components/profile/profile-kudos-card";
 import SentFilter, {
   type SentFilterValue,
@@ -27,11 +29,10 @@ export interface ProfileKudosListProps {
   receivedLabel: string;
   emptyLabel: string;
   /**
-   * The viewer's own profile gets the Đã gửi/Đã nhận switch; anyone else's is
-   * received-only, so the switch is replaced by a static count. That is a
-   * privacy boundary, not just a layout one — see `app/profile/[id]/page.tsx`,
-   * which pins `filter` server-side so `?filter=sent` cannot reveal another
-   * person's unpublished or spam-flagged drafts.
+   * Own profile gets the Đã gửi/Đã nhận switch; anyone else's is received-only.
+   * A privacy boundary, not just layout — `app/profile/[id]/page.tsx` pins
+   * `filter` server-side so `?filter=sent` cannot reveal another person's
+   * unpublished or spam-flagged drafts.
    */
   isOwnProfile: boolean;
   /** Pre-translated "Đã nhận: N Kudos", shown when `isOwnProfile` is false. */
@@ -39,12 +40,9 @@ export interface ProfileKudosListProps {
 }
 
 /**
- * "Sun* Annual Awards 2025 / KUDOS" section (MoMorph spec `C`/`D`): section
- * header with the "Đã gửi (N)" filter dropdown, followed by the post list.
- * `filter` is URL-driven (`?filter=received`, "sent" is the default/omitted
- * case) so switching it re-queries sent vs. received kudos server-side and a
- * reload preserves the selection — mirrors the Kudos board's hashtag/
- * department filters (`components/kudos/highlight-carousel.tsx`).
+ * Profile kudos section: header with the "Đã gửi (N)" filter, then the post
+ * list. `filter` is URL-driven ("sent" is the omitted default) so switching
+ * re-queries server-side and a reload preserves the selection.
  */
 export default function ProfileKudosList({
   posts,
@@ -68,14 +66,20 @@ export default function ProfileKudosList({
 }: ProfileKudosListProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isFiltering, startFiltering] = useTransition();
 
   function handleFilterChange(value: SentFilterValue) {
     const query = value === "sent" ? "" : `?filter=${value}`;
-    router.replace(`${pathname}${query}`, { scroll: false });
+    // Inside a transition so `isFiltering` stays true for the whole server
+    // round trip — `router.replace` returns immediately and reports nothing.
+    startFiltering(() => {
+      router.replace(`${pathname}${query}`, { scroll: false });
+    });
   }
 
   return (
     <section className="mx-auto flex w-full max-w-170 flex-col gap-10 px-6 pt-14 pb-20">
+      <RouteLoadingOverlay active={isFiltering} />
       <div className="flex flex-col gap-4">
         <h2 className="text-2xl leading-8 font-bold text-white">
           {sectionSubtitle}
@@ -89,6 +93,7 @@ export default function ProfileKudosList({
             <SentFilter
               value={filter}
               onChange={handleFilterChange}
+              disabled={isFiltering}
               options={[
                 { value: "sent", label: sentLabel, count: sentCount },
                 { value: "received", label: receivedLabel, count: receivedCount },

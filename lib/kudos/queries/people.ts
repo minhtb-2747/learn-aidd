@@ -28,11 +28,9 @@ interface KudosPairRow {
 }
 
 /**
- * Batched tier/stars/received/sent lookup for a set of profile ids — always
- * two queries, regardless of how many ids are passed, to avoid an N+1 over
- * per-card hover data. Aggregation (distinct senders per receiver, totals)
- * happens in TS; correct at seed scale (≤ a few thousand kudos), with a SQL
- * view documented as the scale-up path (deliberately not built — YAGNI).
+ * Batched tier/received/sent lookup — always TWO queries no matter how many ids,
+ * to avoid an N+1 over per-card hover data. Aggregation happens in TS, which is
+ * correct at current scale; a SQL view is the scale-up path.
  */
 export async function getPeopleMeta(
   profileIds: string[],
@@ -100,9 +98,9 @@ export async function getPeopleMeta(
 }
 
 /**
- * Sunner directory search for the composer's recipient select. Empty query
- * returns the first `limit` alphabetically; `.ilike` takes the query as a
- * bound parameter, never string-concatenated SQL.
+ * Directory search for the recipient select. Empty query returns the first
+ * `limit` alphabetically; `.ilike` binds the query as a parameter, never
+ * concatenated SQL.
  */
 export async function searchSunners(
   query: string,

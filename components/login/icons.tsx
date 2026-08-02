@@ -81,11 +81,8 @@ export function FlagVnIcon({ className }: IconProps) {
 }
 
 /**
- * NOTE: no EN flag asset was exported from the Figma frame (only the
- * default "VN" header state is present in the design). This UK-style flag
- * is a reasonable engineering stand-in for the EN dropdown option, kept
- * visually consistent (flat, 24x24) with the VN flag. Flag it for design
- * review if a brand-specific EN asset exists.
+ * The design exports no EN flag asset — this UK-style flag is a stand-in, kept
+ * visually consistent with the VN one. Worth a design review.
  */
 export function FlagEnIcon({ className }: IconProps) {
   return (
