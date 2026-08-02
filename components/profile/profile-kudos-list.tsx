@@ -1,6 +1,8 @@
 "use client";
 
+import { useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import RouteLoadingOverlay from "@/components/route-loading-overlay";
 import ProfileKudosCard from "@/components/profile/profile-kudos-card";
 import SentFilter, {
   type SentFilterValue,
@@ -64,14 +66,20 @@ export default function ProfileKudosList({
 }: ProfileKudosListProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isFiltering, startFiltering] = useTransition();
 
   function handleFilterChange(value: SentFilterValue) {
     const query = value === "sent" ? "" : `?filter=${value}`;
-    router.replace(`${pathname}${query}`, { scroll: false });
+    // Inside a transition so `isFiltering` stays true for the whole server
+    // round trip — `router.replace` returns immediately and reports nothing.
+    startFiltering(() => {
+      router.replace(`${pathname}${query}`, { scroll: false });
+    });
   }
 
   return (
     <section className="mx-auto flex w-full max-w-170 flex-col gap-10 px-6 pt-14 pb-20">
+      <RouteLoadingOverlay active={isFiltering} />
       <div className="flex flex-col gap-4">
         <h2 className="text-2xl leading-8 font-bold text-white">
           {sectionSubtitle}
@@ -85,6 +93,7 @@ export default function ProfileKudosList({
             <SentFilter
               value={filter}
               onChange={handleFilterChange}
+              disabled={isFiltering}
               options={[
                 { value: "sent", label: sentLabel, count: sentCount },
                 { value: "received", label: receivedLabel, count: receivedCount },

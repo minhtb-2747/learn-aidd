@@ -1,6 +1,8 @@
 "use client";
 
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import RouteLoadingOverlay from "@/components/route-loading-overlay";
 import type { HighlightKudos } from "@/lib/kudos/types";
 import CarouselArrowButton from "./carousel-arrow-button";
 import { useCarouselNav } from "./use-carousel-nav";
@@ -68,6 +70,7 @@ export default function HighlightCarousel({
   activeDepartment,
 }: HighlightCarouselProps) {
   const router = useRouter();
+  const [isFiltering, startFiltering] = useTransition();
   const total = kudos.length;
 
   // Open on the second card once there are three, so both neighbours peek.
@@ -81,7 +84,11 @@ export default function HighlightCarousel({
     if (nextHashtag) params.set("hashtag", nextHashtag);
     if (nextDepartment) params.set("department", nextDepartment);
     const query = params.toString();
-    router.replace(`/kudos${query ? `?${query}` : ""}`, { scroll: false });
+    // Inside a transition so `isFiltering` stays true for the whole server
+    // round trip — `router.replace` returns immediately and reports nothing.
+    startFiltering(() => {
+      router.replace(`/kudos${query ? `?${query}` : ""}`, { scroll: false });
+    });
   }
 
   const cardProps = {
@@ -95,6 +102,9 @@ export default function HighlightCarousel({
 
   return (
     <section className="flex flex-col gap-10 py-8">
+      {/* The page remounts this component (see the `key` in app/kudos/page.tsx)
+          once the new params land, so the pending flag resets on its own. */}
+      <RouteLoadingOverlay active={isFiltering} />
       {/* Only the heading follows the page gutter; the track is full-bleed. */}
       <div className="flex flex-col gap-4 px-6 sm:px-9 lg:px-36">
         <p className="text-2xl leading-8 font-bold text-white">{subtitle}</p>
@@ -109,12 +119,14 @@ export default function HighlightCarousel({
               options={hashtagOptions}
               active={activeHashtag ?? null}
               onSelect={(option) => updateFilter("hashtag", option)}
+              disabled={isFiltering}
             />
             <HighlightFilterDropdown
               label={departmentLabel}
               options={departmentOptions}
               active={activeDepartment ?? null}
               onSelect={(option) => updateFilter("department", option)}
+              disabled={isFiltering}
             />
           </div>
         </div>

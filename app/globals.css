@@ -26,6 +26,23 @@
   --color-danger: #d4271d; /* error / close */
 }
 
+/* Blocking overlays fade in only after a beat, so a fast response never flashes
+   a sheet over the page. Consumers apply it as
+   `animate-[overlay-fade_150ms_ease-out_180ms_both]`; the `both` fill mode holds
+   opacity 0 through the delay, while the element is already mounted and already
+   swallowing clicks.
+
+   Declared here as plain CSS rather than an `--animate-*` theme token: that
+   token form produced neither the utility nor the keyframe in this setup. */
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

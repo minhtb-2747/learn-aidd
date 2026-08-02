@@ -12,6 +12,12 @@ export interface HighlightFilterDropdownProps {
   active: string | null;
   /** Selecting the already-active option clears it (passes `null`). */
   onSelect: (option: string | null) => void;
+  /**
+   * True while a filter navigation is in flight. The overlay already blocks the
+   * pointer; this takes the trigger out of the tab order too, so a second
+   * filter cannot be started from the keyboard.
+   */
+  disabled?: boolean;
 }
 
 /**
@@ -25,32 +31,40 @@ export default function HighlightFilterDropdown({
   options,
   active,
   onSelect,
+  disabled = false,
 }: HighlightFilterDropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useClickOutside<HTMLDivElement>(() => setOpen(false));
+
+  // The menu closes on select, so this only matters if `disabled` flips while
+  // the menu is somehow still open — never render an interactive list behind a
+  // blocking overlay.
+  const expanded = open && !disabled;
 
   return (
     <div ref={ref} className="relative">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
+        disabled={disabled}
         aria-haspopup="listbox"
-        aria-expanded={open}
+        aria-expanded={expanded}
         className={cn(
           "flex cursor-pointer items-center gap-1 rounded border border-gold-line bg-gold/10 px-4 py-4 text-base leading-6 font-bold text-white transition-colors duration-150 hover:bg-gold/20",
           active && "border-gold text-gold",
+          disabled && "cursor-not-allowed opacity-60 hover:bg-gold/10",
         )}
       >
         {active ?? label}
         <ChevronDownIcon
           className={cn(
             "h-6 w-6 shrink-0 transition-transform duration-150",
-            open && "rotate-180",
+            expanded && "rotate-180",
           )}
         />
       </button>
 
-      {open && (
+      {expanded && (
         <ul
           role="listbox"
           className="absolute top-full right-0 z-20 mt-2 flex min-w-40 flex-col gap-1 rounded border border-gold-line bg-surface p-2 shadow-[0_8px_24px_rgba(0,0,0,0.4)]"

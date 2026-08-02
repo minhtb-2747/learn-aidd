@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "loading": "Đang tải…"
+  },
   "LoginPage": {
     "title": "ROOT FURTHER",
     "subtitle": "Bắt đầu hành trình của bạn cùng SAA 2025.",
