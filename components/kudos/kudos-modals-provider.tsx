@@ -52,9 +52,8 @@ export default function KudosModalsProvider({
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [initial, setInitial] = useState<WriteKudosInitial | undefined>(undefined);
   // The dialog's React `key`, bumped per openWrite/openEdit so each NEW compose
-  // session remounts with a fresh `initial`. (The rules hand-off toggles
-  // `writeOpen` directly and keeps the same instance, but that does NOT save the
-  // draft — the dialog returns null while closed, unmounting the form with it.)
+  // session remounts with a fresh `initial`. The rules hand-off leaves it alone,
+  // which is what lets an in-progress draft survive opening the panel.
   const [seedToken, setSeedToken] = useState(0);
 
   const value = useMemo(
@@ -85,10 +84,11 @@ export default function KudosModalsProvider({
         mode={mode}
         initial={initial}
         onClose={() => setWriteOpen(false)}
-        onOpenRules={() => {
-          setWriteOpen(false);
-          setRulesOpen(true);
-        }}
+        hasLayerAbove={rulesOpen}
+        // Deliberately does NOT close the dialog. The panel layers over it, so
+        // the draft survives the round trip — closing here unmounts the form
+        // and throws away whatever had been typed.
+        onOpenRules={() => setRulesOpen(true)}
       />
       <KudosRulesPanel
         open={rulesOpen}

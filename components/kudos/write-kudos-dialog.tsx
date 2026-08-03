@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, type JSX, type MouseEvent } from "react";
+import { useBodyScrollLock } from "@/lib/hooks/use-body-scroll-lock";
 import WriteKudosForm from "./write-kudos-form";
 import * as Copy from "./write-kudos-dialog-copy";
 
@@ -20,6 +21,8 @@ export interface WriteKudosDialogProps {
   onOpenRules?: () => void;
   mode?: "create" | "edit";
   initial?: WriteKudosInitial;
+  /** True while the Rules panel is layered over this dialog. */
+  hasLayerAbove?: boolean;
 }
 
 /**
@@ -33,8 +36,9 @@ export interface WriteKudosDialogProps {
  * - **Refuses to close while submitting.** The submit is a promise chain that
  *   survives unmount, so without this guard a user who "cancelled" mid-upload
  *   would still have their kudos posted, silently.
- * - **The Rules-panel hand-off does NOT preserve the draft** — `open` goes
- *   false and the whole form unmounts, text and picked images alike.
+ * - **The Rules-panel hand-off keeps this dialog open.** The panel layers over
+ *   it instead, because closing it here returns `null`, unmounts the form and
+ *   destroys whatever had been typed.
  */
 export default function WriteKudosDialog({
   open,
@@ -42,6 +46,7 @@ export default function WriteKudosDialog({
   onOpenRules,
   mode = "create",
   initial,
+  hasLayerAbove = false,
 }: WriteKudosDialogProps): JSX.Element | null {
   const dialogRef = useRef<HTMLDivElement>(null);
   // A ref, not state — must not re-subscribe the Escape listener every time
@@ -54,20 +59,22 @@ export default function WriteKudosDialog({
     onClose();
   }, [onClose]);
 
+  useBodyScrollLock(open);
+
   useEffect(() => {
-    if (!open || typeof document === "undefined") return;
-    dialogRef.current?.focus();
+    if (open) dialogRef.current?.focus();
+  }, [open]);
+
+  useEffect(() => {
+    // While the Rules panel is up it owns Escape. Both listeners would
+    // otherwise fire on one press and close this dialog out from under it.
+    if (!open || hasLayerAbove || typeof document === "undefined") return;
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") handleCancel();
     }
     document.addEventListener("keydown", handleKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [open, handleCancel]);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, hasLayerAbove, handleCancel]);
 
   function handleScrimMouseDown(event: MouseEvent<HTMLDivElement>) {
     if (event.target === event.currentTarget) handleCancel();

@@ -4,6 +4,7 @@ import { useEffect, type JSX } from "react";
 import { useTranslations } from "next-intl";
 import { PenIcon } from "@/icons";
 import { cn } from "@/lib/utils/cn.utils";
+import { useBodyScrollLock } from "@/lib/hooks/use-body-scroll-lock";
 import HeroBadge from "./hero-badge";
 import {
   RULES_PANEL_TITLE,
@@ -38,6 +39,8 @@ export default function KudosRulesPanel({
 }: KudosRulesPanelProps): JSX.Element | null {
   const t = useTranslations("Kudos.rulesPanel");
 
+  useBodyScrollLock(open);
+
   useEffect(() => {
     if (!open) return undefined;
 
@@ -46,12 +49,7 @@ export default function KudosRulesPanel({
     }
 
     window.addEventListener("keydown", handleKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
   if (!open) return null;
