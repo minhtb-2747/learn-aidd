@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getEventDateTime } from "./config";
+import { getEventDateTime } from "@/lib/event/config";
 
 afterEach(() => vi.unstubAllEnvs());
 

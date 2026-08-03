@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { HERO_TIERS } from "./rules-content";
-import { heroTierForSenderCount, starsForBadge } from "./hero-tier";
+import { HERO_TIERS } from "@/lib/kudos/rules-content";
+import { heroTierForSenderCount, starsForBadge } from "@/lib/kudos/hero-tier";
 
 const [NEW, RISING, SUPER, LEGEND] = HERO_TIERS.map((tier) => tier.badgeLabel);
 

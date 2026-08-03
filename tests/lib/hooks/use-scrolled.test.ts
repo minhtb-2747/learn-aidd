@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, renderHook } from "@testing-library/react";
-import { useScrolled } from "./use-scrolled";
+import { useScrolled } from "@/lib/hooks/use-scrolled";
 
 function scrollTo(y: number) {
   Object.defineProperty(window, "scrollY", { value: y, configurable: true, writable: true });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeCountdown, pad2 } from "./countdown";
+import { computeCountdown, pad2 } from "@/lib/event/countdown";
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;

@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 import { render, type RenderOptions } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import messages from "./i18n/messages/vi.json";
+import messages from "@/i18n/messages/vi.json";
 
 /**
  * Renders inside the real `NextIntlClientProvider` with the real Vietnamese

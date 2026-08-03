@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatKudosTime, formatTickerTime } from "./format-kudos-time";
+import { formatKudosTime, formatTickerTime } from "@/lib/kudos/format-kudos-time";
 
 /**
  * Both formatters pin `Asia/Ho_Chi_Minh`. The value is computed server-side and

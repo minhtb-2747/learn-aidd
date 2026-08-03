@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import SentFilter, { type SentFilterOption } from "./sent-filter";
+import SentFilter, { type SentFilterOption } from "@/components/profile/sent-filter";
 
 const OPTIONS: [SentFilterOption, SentFilterOption] = [
   { value: "sent", label: "Đã gửi", count: 5 },

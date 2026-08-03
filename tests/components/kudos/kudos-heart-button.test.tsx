@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, renderWithIntl, screen, waitFor } from "@/test-utils";
+import { fireEvent, renderWithIntl, screen, waitFor } from "@/tests/test-utils";
 import { toggleKudoLike } from "@/app/actions/kudos-likes";
-import KudosHeartButton from "./kudos-heart-button";
+import KudosHeartButton from "@/components/kudos/kudos-heart-button";
 
 vi.mock("@/app/actions/kudos-likes", () => ({ toggleKudoLike: vi.fn() }));
 const mockToggle = vi.mocked(toggleKudoLike);

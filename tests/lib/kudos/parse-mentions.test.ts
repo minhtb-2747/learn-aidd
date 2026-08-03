@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractMentionCandidates } from "./parse-mentions";
+import { extractMentionCandidates } from "@/lib/kudos/parse-mentions";
 
 /**
  * A Vietnamese name spans several words with no delimiter marking where it

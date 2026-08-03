@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import ImageUploader, { type PendingImage } from "./image-uploader";
+import ImageUploader, { type PendingImage } from "@/components/kudos/image-uploader";
 
 // jsdom implements neither, and the component revokes every preview it creates.
-const createObjectURL = vi.fn((_: Blob) => `blob:mock-${createObjectURL.mock.calls.length}`);
+const createObjectURL = vi.fn(() => `blob:mock-${createObjectURL.mock.calls.length}`);
 const revokeObjectURL = vi.fn();
 beforeEach(() => {
   createObjectURL.mockClear();

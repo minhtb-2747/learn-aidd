@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { safeNext } from "./safe-next";
+import { safeNext } from "@/lib/auth/safe-next";
 
 /**
  * This is the open-redirect gate for the post-login `?next=`. Every case below

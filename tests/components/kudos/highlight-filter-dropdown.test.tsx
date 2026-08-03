@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import HighlightFilterDropdown from "./highlight-filter-dropdown";
+import HighlightFilterDropdown from "@/components/kudos/highlight-filter-dropdown";
 
 const OPTIONS = ["teamwork", "delivery", "kaizen"];
 

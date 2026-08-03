@@ -5,7 +5,7 @@ import {
   MAX_IMAGES,
   validateImageFile,
   type AllowedImageType,
-} from "./validate-image-file";
+} from "@/lib/kudos/validate-image-file";
 
 const MB = 1024 * 1024;
 

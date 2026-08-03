@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PersonMeta } from "@/lib/kudos/queries/people";
-import { toHighlightKudos, toKudosPerson, toKudosPost, type KudosRow } from "./kudos-mapper";
+import { toHighlightKudos, toKudosPerson, toKudosPost, type KudosRow } from "@/lib/kudos/kudos-mapper";
 
 const META: PersonMeta = {
   name: "Trần Bình Minh",

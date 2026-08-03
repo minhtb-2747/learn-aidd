@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { renderWithIntl, screen } from "@/test-utils";
-import RouteLoadingOverlay from "./route-loading-overlay";
+import { renderWithIntl, screen } from "@/tests/test-utils";
+import RouteLoadingOverlay from "@/components/route-loading-overlay";
 
 describe("RouteLoadingOverlay", () => {
   it("renders nothing at rest", () => {

@@ -18,8 +18,10 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
-    setupFiles: ["./vitest.setup.ts"],
-    include: ["{lib,components,app}/**/*.test.{ts,tsx}"],
+    setupFiles: ["./tests/setup.ts"],
+    // Tests live under `tests/`, mirroring the source tree they cover:
+    // `lib/kudos/hero-tier.ts` -> `tests/lib/kudos/hero-tier.test.ts`.
+    include: ["tests/**/*.test.{ts,tsx}"],
     css: false,
   },
 });

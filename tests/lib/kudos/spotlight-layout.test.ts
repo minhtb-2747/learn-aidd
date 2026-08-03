@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SpotlightEntry } from "@/lib/kudos/types";
-import { buildSpotlightEdges, buildSpotlightLayout } from "./spotlight-layout";
+import { buildSpotlightEdges, buildSpotlightLayout } from "@/lib/kudos/spotlight-layout";
 
 function entries(count: number): SpotlightEntry[] {
   return Array.from({ length: count }, (_, i) => ({

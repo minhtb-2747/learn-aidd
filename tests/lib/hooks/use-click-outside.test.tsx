@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { fireEvent } from "@testing-library/dom";
-import { useClickOutside } from "./use-click-outside";
+import { useClickOutside } from "@/lib/hooks/use-click-outside";
 
 function Panel({ onOutside }: { onOutside: () => void }) {
   const ref = useClickOutside<HTMLDivElement>(onOutside);
