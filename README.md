@@ -170,14 +170,17 @@ Both gates live in `proxy.ts`, in this order:
 ## Everyday commands
 
 ```bash
-npm run dev      # dev server on :3333
-npm run build    # production build (also type-checks)
-npm run lint     # eslint
-npx tsc --noEmit # type-check alone
+npm run dev        # dev server on :3333
+npm run build      # production build
+npm test           # vitest, single run
+npm run test:watch # vitest, watching
+npm run typecheck  # tsc --noEmit
+npm run lint       # eslint
 ```
 
-There is no test suite — unit tests were deliberately declined for this
-project. Verification is type-check + lint + build plus manual checks.
+`typecheck` is its own script because nothing else covers the tests: neither
+`vitest run` nor `next build` type-checks a `*.test.ts` file, so a broken
+fixture stays green until `tsc` is pointed at it.
 
 ---
 
@@ -189,6 +192,8 @@ components/        UI, grouped by screen: home, kudos, profile, login, award-sys
 lib/               server-side queries, view-models and hooks
   kudos/queries/   Supabase reads — server-only, never imported by a client component
 i18n/messages/     vi.json / en.json (locale via the NEXT_LOCALE cookie)
+tests/             mirrors the tree above: lib/kudos/hero-tier.ts is covered by
+                   tests/lib/kudos/hero-tier.test.ts
 supabase/          migrations, seeds, config.toml
 docs/              architecture, routing/auth model, changelog, roadmap
 plans/             per-feature implementation plans
